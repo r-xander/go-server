@@ -1,11 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Get Database Data</title>
+    <link rel="icon" type="image/x-icon" href="/assets/db-icon-512.ico" />
+    <link rel="stylesheet" type="text/css" href="/public/css/styles.css" />
+    <script src="https://unpkg.com/htmx.org@1.9.9"
+        integrity="sha384-QFjmbokDn2DjBjq+fM+8LUIVrAgqcNW2s0PjAxHETgRn9l4fvX31ZxDxvwQnyMOX"
+        crossorigin="anonymous" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.1/ace.min.js"
+        type="text/javascript" charset="utf-8" defer></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"
+        defer></script>
+    <script src="/public/js/index.js" type="text/javascript" charset="utf-8"
+        defer></script>
 </head>
+
 <body>
-    HOME2
+    <form class="main" data-query-form>
+        <!-- <div class="main"> -->
+        <div class="response-content">
+            <div class="title">
+                <div class="response-info">
+                    <div class="response-status"></div>
+                    <div class="response-time"></div>
+                </div>
+                <div class="tenant">
+                    <select name="tenant">
+                        <option>WASHGAS_TRN</option>
+                        <option>WASHGAS_PRD</option>
+                    </select>
+                </div>
+                <div class="title-buttons">
+                    <button>Get Total</button>
+                    <button data-csv-download>CSV</button>
+                    <button>XLSX</button>
+                </div>
+            </div>
+            <div class="subtitle">
+                <div class="query-options">
+                    <h3>Options</h3>
+                    <div class="options-container">
+                        <label class="query-option" for="sample">
+                            <input type="hidden" name="sample" value="false" />
+                            <input type="checkbox" name="sample" id="sample"
+                                value="true" checked />
+                            Sample
+                        </label>
+                    </div>
+                </div>
+                <div class="auth-panel">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" name="username" id="username"
+                            autocomplete="username" />
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" name="password" id="password"
+                            autocomplete="current-password" />
+                    </div>
+                    <button class="submit-button" type="submit" hx-post="/run"
+                        hx-vals="js:{query:getQuery()}"
+                        hx-trigger="click, keyup[ctrlKey&&keyCode==13] from:body"
+                        hx-target="#data" hx-indicator="#indicator">Run</button>
+                </div>
+            </div>
+            <div id="data" class="data">
+                <span id="indicator" class="htmx-indicator">loading...</span>
+            </div>
+        </div>
+        <div class="query-container">
+            <div class="saved-query-selector">
+                <button data-save-query-btn>SAVE</button>
+                <span data-query-name-display>New</span>
+                <button data-new-query-btn>NEW</button>
+                <button data-open-query-btn>OPEN</button>
+            </div>
+            <div class="editor-container">
+                <div id="editor"></div>
+                <div class="open-query-selector" data-open-query-panel>
+                </div>
+            </div>
+        </div>
+        <!-- </div> -->
+    </form>
 </body>
+
 </html>

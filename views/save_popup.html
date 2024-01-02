@@ -1,0 +1,32 @@
+<div class="save-popup" data-save-popup>
+    <div class="save-popup-container">
+        <div class="save-popup-header">
+            <h2>Save Query</h2>
+            <button class="close" data-save-popup-close>&#10005;</button>
+        </div>
+        <form>
+            <div class="save-popup-fields">
+                <div class="form-group">
+                    <input type="text" name="query-name" id="query-name" placeholder="Name..."
+                        data-save-popup-query-name />
+                </div>
+            </div>
+            <div id="save-popup-roeditor" class="save-popup-query noselection"></div>
+            <div class="save-popup-footer">
+                <div class="save-popup-footer-buttons">
+                    <button type="submit" hx-post="/query/save">Save</button>
+                    <button data-save-popup-cancel>Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        const roEditor = ace.edit("save-popup-roeditor");
+        roEditor.setTheme("ace/theme/monokai");
+        roEditor.setShowPrintMargin(false);
+        roEditor.setReadOnly(true);
+        roEditor.setFontSize(10);
+        roEditor.session.setMode("ace/mode/sql");
+        roEditor.session.setUseWrapMode(true);
+    </script>
+</div>
