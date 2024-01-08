@@ -35,6 +35,8 @@
                     <button>Get Total</button>
                     <button data-csv-download>CSV</button>
                     <button>XLSX</button>
+                    <button hx-get="/settings" hx-target="body"
+                        hx-push-url="true">Settings</button>
                 </div>
             </div>
             <div class="subtitle">
@@ -42,9 +44,9 @@
                     <h3>Options</h3>
                     <div class="options-container">
                         <label class="query-option" for="sample">
-                            <input type="hidden" name="sample" value="false" />
                             <input type="checkbox" name="sample" id="sample"
                                 value="true" checked />
+                            <input type="hidden" name="sample" value="false" />
                             Sample
                         </label>
                     </div>
@@ -67,15 +69,16 @@
                 </div>
             </div>
             <div id="data" class="data">
-                <span id="indicator" class="htmx-indicator">loading...</span>
             </div>
         </div>
         <div class="query-container">
             <div class="saved-query-selector">
-                <button data-save-query-btn>SAVE</button>
+                <button hx-get="/query/save" hx-target="body"
+                    hx-swap="beforeend" data-save-query-btn>SAVE</button>
                 <span data-query-name-display>New</span>
                 <button data-new-query-btn>NEW</button>
-                <button data-open-query-btn>OPEN</button>
+                <button hx-get="/query/open" hx-target="body"
+                    hx-swap="beforeend" data-open-query-btn>OPEN</button>
             </div>
             <div class="editor-container">
                 <div id="editor"></div>
@@ -85,6 +88,31 @@
         </div>
         <!-- </div> -->
     </form>
+    <div id="indicator" class="htmx-indicator">
+        <div class="indicator-mask">
+            <span>loading...</span>
+        </div>
+    </div>
+    <script>
+        // let session
+        // document.addEventListener("DOMContentLoaded", function (event) {
+        //     console.log("DOM fully loaded and parsed");
+        //     if (session == undefined) {
+        //         session = ace.createEditSession()
+        //         session.serMode("ace/mode/sql")
+        //         session.setUseWrapMode(true);
+        //     }
+
+        //     editor = ace.edit("editor");
+        //     editor.setTheme("ace/theme/monokai");
+        //     editor.setShowPrintMargin(false);
+        //     editor.setHighlightIndentGuides(true);
+        //     editor.setFontSize(10);
+        //     editor.renderer.setScrollMargin(5, 0);
+
+        //     editor.setSession(session)
+        // });
+    </script>
 </body>
 
 </html>

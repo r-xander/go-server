@@ -6,18 +6,14 @@ const sampleCheckbox = document.querySelector("input[id=sample]");
 const downloadCsvBtn = document.querySelector("[data-csv-download]");
 const saveQueryBtn = document.querySelector("[data-save-query-btn]");
 const newQueryBtn = document.querySelector("[data-new-query-btn]");
-const openQueryBtn = document.querySelector("[data-open-query-btn]");
-
-const openQueryPanel = document.querySelector("[data-open-query-panel]");
 
 const queryName = document.querySelector("[data-save-popup-query-name]");
 const queryNameDisp = document.querySelector("[data-query-name-display]");
 
-/**
- * FUNCTION showSaveQueryPopup()
- *
- * Retrieves queries from server and displays queries to be selected by user.
- */
+const state = {
+    requestStart: 0,
+    requestEnd: 0,
+};
 
 /**
  *
@@ -32,37 +28,10 @@ function handleForm(event) {
 const form = document.querySelector("[data-query-form]");
 form.addEventListener("submit", handleForm);
 
-async function showOpenQueryPopup() {
-    const response = await fetch("/query/open", {
-        method: "GET",
-        mode: "cors",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
-    const json = await response.json();
-    console.log(json);
-
-    const queries = document.createElement("div");
-    for (const query of json) {
-        const tile = document.createElement("div");
-        const tileHead = document.createElement("h2");
-        tileHead.innerText = query.name;
-        tile.appendChild(tileHead);
-        queries.appendChild(tile);
-    }
-
-    openQueryPanel.style.display = "block";
-    openQueryPanel.appendChild(queries);
-}
-openQueryBtn.addEventListener("click", showOpenQueryPopup);
-
 /**
- * FUNCTION downloadCsv()
- *
  * Downloads csv of query results
+ *
  */
-
 async function downloadCsv() {
     if (!usernameField.value || !passwordField.value) {
         alert("Credendtials are required");
@@ -255,18 +224,7 @@ function decode(str) {
     return txt.value;
 }
 
-/**
- * Handle request error with statuscode > 399.
- * Htmx does not swap on errors.
- *
- * @param {ResponseErrorEvent} e
- */
-function handleError(e) {
-    console.log(e.detail.error);
-
-    e.detail.target.innerHTML = e.detail.xhr.responseText;
-}
-document.body.addEventListener("htmx:responseError", handleError);
+/*  HTMX listeners  */
 
 /**
  * @typedef {CustomEvent<Details>} ResponseErrorEvent
@@ -281,11 +239,59 @@ document.body.addEventListener("htmx:responseError", handleError);
  * @property {XMLHttpRequest} xhr
  */
 
+/**
+ * Handle request error with statuscode > 399.
+ * Htmx does not swap on errors.
+ *
+ * @param {ResponseErrorEvent} e
+ */
+function handleError(e) {
+    console.log(e.detail.error);
+
+    e.detail.target.innerHTML = e.detail.xhr.responseText;
+}
+document.body.addEventListener("htmx:responseError", handleError);
+
+document.body.addEventListener("htmx:beforeSend", function (/** @type {ResponseErrorEvent}*/ e) {
+    e.detail.xhr.sentAt = performance.now();
+});
+document.body.addEventListener("htmx:afterRequest", function (/** @type {ResponseErrorEvent}*/ e) {
+    if (e.detail.pathInfo.requestPath === "/run") {
+        console.log(e);
+        console.log(state);
+
+        const diff = e.timeStamp - e.detail.xhr.sentAt;
+        const time = diff < 1000 ? Math.floor(diff) : (diff / 1000).toFixed(2);
+        const timeUnits = diff < 1000 ? " ms" : " s";
+        const status = e.detail.xhr.status;
+
+        const timeElement = document.querySelector(".response-time");
+        const statusElement = document.querySelector(".response-status");
+        statusElement.dataset.status = "OK";
+
+        if (status > 399) {
+            statusElement.dataset.status = status > 499 ? "SE" : "RE";
+        }
+
+        statusElement.innerText = status + " " + e.detail.xhr.statusText;
+        timeElement.innerText = time + timeUnits;
+        timeElement.dataset.hasResponse = true;
+    }
+});
+
+document.addEventListener("htmx:afterOnLoad", function (/** @type {ResponseErrorEvent}*/ e) {
+    console.log(e);
+});
+
 //
 //
 // MAIN FUNCTION AREA
 //
 //
+// let editor;
+// document.addEventListener("DOMContentLoaded", function (event) {
+//     console.log("DOM fully loaded and parsed");
+let roEditor;
 const editor = ace.edit("editor");
 editor.setTheme("ace/theme/monokai");
 editor.setShowPrintMargin(false);
@@ -294,3 +300,4 @@ editor.setFontSize(10);
 editor.session.setMode("ace/mode/sql");
 editor.session.setUseWrapMode(true);
 editor.renderer.setScrollMargin(5, 0);
+// });

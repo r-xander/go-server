@@ -40,7 +40,7 @@ func validateQueryRequest(values url.Values) (qr queryRequest, e error) {
 	if sample := values.Get("sample"); sample != "" {
 		qr.Sample = sample == "true"
 	} else {
-		errs = append(errs, "tenant")
+		errs = append(errs, "sample")
 	}
 
 	if qr.Query = values.Get("query"); qr.Query == "" {
@@ -57,7 +57,10 @@ func validateQueryRequest(values url.Values) (qr queryRequest, e error) {
 func processQuery(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
+	start := time.Now()
 	r.ParseForm()
+	fmt.Println(r.Form)
+
 	data, err := validateQueryRequest(r.Form)
 	if err != nil {
 		errMsg := fmt.Sprintf("Invalid request values: %s", err)
@@ -68,7 +71,6 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(data)
 	respBody := getResponseBody(data)
-	start := time.Now()
 	resp, err := http.Post("https://us1.eam.hxgnsmartcloud.com/axis/services/EWSConnector", "text/xml", bytes.NewBuffer([]byte(respBody)))
 	diff := time.Since(start)
 	fmt.Printf("Request time: %dms\n", diff.Milliseconds())
@@ -144,6 +146,7 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 	}
 
 	start = time.Now()
+	w.WriteHeader(http.StatusOK)
 	t, _ := template.ParseFiles("views/query_data.html")
 	if err = t.Execute(w, responseData); err != nil {
 		fmt.Printf("Error decoding element: %s", err)
@@ -153,13 +156,6 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 	diff = time.Since(start)
 	fmt.Printf("Response Template Parse Time: %dms\n", diff.Milliseconds())
 
-	// if err = json.NewEncoder(w).Encode(responseData); err != nil {
-	// 	fmt.Printf("Error decoding element: %s", err)
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-
-	w.WriteHeader(http.StatusOK)
 }
 
 func getResponseBody(data queryRequest) string {

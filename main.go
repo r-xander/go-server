@@ -40,15 +40,14 @@ func main() {
 		http.ServeFile(w, r, indexView)
 	})
 
-	// r.Get("/css/*", func(w http.ResponseWriter, r *http.Request) {
-	// 	cssFS.ServeHTTP(w, r)
-	// })
-
-	// r.Get("/js/*", func(w http.ResponseWriter, r *http.Request) {
-	// 	jsFS.ServeHTTP(w, r)
-	// })
+	r.Get("/settings", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		w.Write([]byte("<h1>SETTINGS</h1>"))
+	})
 
 	r.Post("/run", processQuery)
+	r.Get("/query/open", openQueries)
+	r.Get("/query/save", saveQuery)
 
 	http.ListenAndServe(":42069", r)
 }

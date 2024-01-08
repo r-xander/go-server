@@ -1,0 +1,19 @@
+SELECT
+    ROW_NUMBER, 
+    NAME, 
+    TYPE, 
+    LINE, 
+    TEXT 
+FROM (
+    SELECT 
+        NAME, 
+        TYPE, 
+        LINE, 
+        TEXT, 
+        ROW_NUMBER() OVER (ORDER BY NAME) ROW_NUMBER
+    FROM ALL_SOURCE 
+    WHERE OWNER = 'WASHGAS_TRN_EAM_EAM_2'
+    AND NAME NOT LIKE 'CAD%'
+    AND TYPE NOT IN ('TYPE', 'TRIGGER')
+    AND UPPER(TEXT) LIKE '%' || UPPER('TABLE') || '%')
+WHERE ROW_NUMBER > 628

@@ -248,11 +248,11 @@ span.warning {
 /*                                                  */
 /****************************************************/
 .save-popup {
-    display: none;
     position: absolute;
-    background: rgb(255, 255, 255, 0.3);
+    background: rgba(124, 124, 124, 0.35);
     height: 100%;
     width: 100%;
+    top: 0;
     z-index: 1000;
 }
 
@@ -286,6 +286,12 @@ span.warning {
     border: none;
     height: 24px;
     width: 24px;
+}
+
+.save-popup-form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .save-popup-fields {
@@ -377,4 +383,16 @@ span.warning {
 
 .htmx-request.htmx-indicator{
     display: block;
+}
+
+.htmx-indicator .indicator-mask {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(124, 124, 124, 0.35);
+    z-index: 10000;
 }
