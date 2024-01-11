@@ -10,10 +10,7 @@ const newQueryBtn = document.querySelector("[data-new-query-btn]");
 const queryName = document.querySelector("[data-save-popup-query-name]");
 const queryNameDisp = document.querySelector("[data-query-name-display]");
 
-const state = {
-    requestStart: 0,
-    requestEnd: 0,
-};
+let requestStart = 0;
 
 /**
  *
@@ -252,15 +249,15 @@ function handleError(e) {
 }
 document.body.addEventListener("htmx:responseError", handleError);
 
-document.body.addEventListener("htmx:beforeSend", function (/** @type {ResponseErrorEvent}*/ e) {
-    e.detail.xhr.sentAt = performance.now();
+document.body.addEventListener("htmx:beforeRequest", function (/** @type {ResponseErrorEvent}*/ e) {
+    console.log(e);
+    requestStart = e.timeStamp;
 });
-document.body.addEventListener("htmx:afterRequest", function (/** @type {ResponseErrorEvent}*/ e) {
-    if (e.detail.pathInfo.requestPath === "/run") {
-        console.log(e);
-        console.log(state);
 
-        const diff = e.timeStamp - e.detail.xhr.sentAt;
+document.body.addEventListener("htmx:afterRequest", function (/** @type {ResponseErrorEvent}*/ e) {
+    console.log(e);
+    if (e.detail.pathInfo.requestPath === "/run") {
+        const diff = e.timeStamp - requestStart;
         const time = diff < 1000 ? Math.floor(diff) : (diff / 1000).toFixed(2);
         const timeUnits = diff < 1000 ? " ms" : " s";
         const status = e.detail.xhr.status;

@@ -87,41 +87,52 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 	start = time.Now()
 	var responseData [][]string
 	var responseError error
+	var decodeError error
 	for {
 		tok, err := d.Token()
 		if tok == nil || err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Printf("Error decoding token: %s", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			goto Error
 		}
 
-		var decodeError error
+		template.HTMLEscape(w, []byte(`<table class="data-table"><thead>`))
+
 		switch ty := tok.(type) {
 		case xml.StartElement:
 			switch ty.Name.Local {
-			case "R":
-				var row struct {
-					C []string
-				}
-
-				decodeError = d.DecodeElement(&row, &ty)
-				responseData = append(responseData, row.C)
 			case "Metadata":
 				var metadata struct {
 					Columns []struct {
 						Label string `xml:"label,attr"`
 					} `xml:"Column"`
 				}
-				decodeError = d.DecodeElement(&metadata, &ty)
 
-				var headers []string
-				for _, col := range metadata.Columns {
-					headers = append(headers, col.Label)
+				if err = d.DecodeElement(&metadata, &ty); err != nil {
+					goto Error
 				}
 
-				responseData = append(responseData, headers)
+				template.HTMLEscape(w, []byte("<tr>"))
+				for _, col := range metadata.Columns {
+					template.HTMLEscape(w, []byte(fmt.Sprintf("<th><span>%s</span></th>", col.Label)))
+				}
+				template.HTMLEscape(w, []byte("</tr>"))
+				template.HTMLEscape(w, []byte("</thead><tbody>"))
+			case "R":
+				var row struct {
+					C []string
+				}
+
+				if err = d.DecodeElement(&row, &ty); err != nil {
+					goto Error
+				}
+
+				template.HTMLEscape(w, []byte("<tr>"))
+				for _, col := range row.C {
+					template.HTMLEscape(w, []byte(fmt.Sprintf("<td><span>%s</span></td>", col)))
+				}
+				template.HTMLEscape(w, []byte("</tr>"))
+				template.HTMLEscape(w, []byte("</tbody></table>"))
 			case "faultstring":
 				var fault string
 				decodeError = d.DecodeElement(&fault, &ty)
@@ -130,7 +141,8 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if decodeError != nil {
+	Error:
+		{
 			fmt.Printf("Error decoding element: %s", decodeError)
 			http.Error(w, decodeError.Error(), http.StatusInternalServerError)
 			return

@@ -3,6 +3,7 @@
 
 <head>
     <title>Get Database Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/assets/db-icon-512.ico" />
     <link rel="stylesheet" type="text/css" href="/public/css/styles.css" />
     <script src="https://unpkg.com/htmx.org@1.9.9"
@@ -17,8 +18,7 @@
 </head>
 
 <body>
-    <form class="main" data-query-form>
-        <!-- <div class="main"> -->
+    <div class="main">
         <div class="response-content">
             <div class="title">
                 <div class="response-info">
@@ -39,37 +39,40 @@
                         hx-push-url="true">Settings</button>
                 </div>
             </div>
-            <div class="subtitle">
-                <div class="query-options">
-                    <h3>Options</h3>
-                    <div class="options-container">
-                        <label class="query-option" for="sample">
-                            <input type="checkbox" name="sample" id="sample"
-                                value="true" checked />
-                            <input type="hidden" name="sample" value="false" />
-                            Sample
-                        </label>
+            <form data-query-form>
+                <div class="subtitle">
+                    <div class="query-options">
+                        <h3>Options</h3>
+                        <div class="options-container">
+                            <label class="query-option" for="sample">
+                                <input type="checkbox" name="sample" id="sample"
+                                    value="true" checked />
+                                <input type="hidden" name="sample"
+                                    value="false" />
+                                Sample
+                            </label>
+                        </div>
+                    </div>
+                    <div class="auth-panel">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" name="username" id="username"
+                                autocomplete="username" />
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" name="password" id="password"
+                                autocomplete="current-password" />
+                        </div>
+                        <button class="submit-button" type="submit"
+                            hx-post="/run" hx-vals="js:{query:getQuery()}"
+                            hx-trigger="click, keyup[ctrlKey&&keyCode==13] from:body"
+                            hx-target="#data"
+                            hx-indicator="#indicator">Run</button>
                     </div>
                 </div>
-                <div class="auth-panel">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" name="username" id="username"
-                            autocomplete="username" />
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" name="password" id="password"
-                            autocomplete="current-password" />
-                    </div>
-                    <button class="submit-button" type="submit" hx-post="/run"
-                        hx-vals="js:{query:getQuery()}"
-                        hx-trigger="click, keyup[ctrlKey&&keyCode==13] from:body"
-                        hx-target="#data" hx-indicator="#indicator">Run</button>
-                </div>
-            </div>
-            <div id="data" class="data">
-            </div>
+            </form>
+            <div id="data" class="data"></div>
         </div>
         <div class="query-container">
             <div class="saved-query-selector">
@@ -86,8 +89,7 @@
                 </div>
             </div>
         </div>
-        <!-- </div> -->
-    </form>
+    </div>
     <div id="indicator" class="htmx-indicator">
         <div class="indicator-mask">
             <span>loading...</span>
