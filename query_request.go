@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -75,28 +74,26 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 	diff := time.Since(start)
 	fmt.Printf("Request time: %dms\n", diff.Milliseconds())
 
+	defer resp.Body.Close()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	defer resp.Body.Close()
-
 	d := xml.NewDecoder(resp.Body)
 
-	start = time.Now()
-	var responseData [][]string
+	// var responseData [][]string
 	var responseError error
-	var decodeError error
+
+	start = time.Now()
+	w.Write([]byte(`<table class="data-table"><thead>`))
 	for {
 		tok, err := d.Token()
 		if tok == nil || err == io.EOF {
 			break
 		} else if err != nil {
-			goto Error
+			return
 		}
-
-		template.HTMLEscape(w, []byte(`<table class="data-table"><thead>`))
 
 		switch ty := tok.(type) {
 		case xml.StartElement:
@@ -109,64 +106,71 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 				}
 
 				if err = d.DecodeElement(&metadata, &ty); err != nil {
-					goto Error
+					return
 				}
 
-				template.HTMLEscape(w, []byte("<tr>"))
+				w.Write([]byte("<tr>"))
 				for _, col := range metadata.Columns {
-					template.HTMLEscape(w, []byte(fmt.Sprintf("<th><span>%s</span></th>", col.Label)))
+
+					w.Write([]byte(fmt.Sprintf("<th><span>%s</span></th>", col.Label)))
 				}
-				template.HTMLEscape(w, []byte("</tr>"))
-				template.HTMLEscape(w, []byte("</thead><tbody>"))
+				w.Write([]byte("</tr>"))
+				w.Write([]byte("</thead><tbody>"))
 			case "R":
 				var row struct {
 					C []string
 				}
 
 				if err = d.DecodeElement(&row, &ty); err != nil {
-					goto Error
+					return
 				}
 
-				template.HTMLEscape(w, []byte("<tr>"))
+				w.Write([]byte("<tr>"))
 				for _, col := range row.C {
-					template.HTMLEscape(w, []byte(fmt.Sprintf("<td><span>%s</span></td>", col)))
+					w.Write([]byte(fmt.Sprintf("<td>%s</td>", col)))
 				}
-				template.HTMLEscape(w, []byte("</tr>"))
-				template.HTMLEscape(w, []byte("</tbody></table>"))
+				w.Write([]byte("</tr>"))
 			case "faultstring":
 				var fault string
-				decodeError = d.DecodeElement(&fault, &ty)
+				if err = d.DecodeElement(&fault, &ty); err != nil {
+					return
+				}
+
 				responseError = errors.New(fault)
+				http.Error(w, responseError.Error(), http.StatusBadRequest)
 				break
 			}
 		}
-
-	Error:
-		{
-			fmt.Printf("Error decoding element: %s", decodeError)
-			http.Error(w, decodeError.Error(), http.StatusInternalServerError)
-			return
-		}
 	}
-	diff = time.Since(start)
-	fmt.Printf("Parse time: %dms\n", diff.Milliseconds())
+	w.Write([]byte("</tbody></table>"))
 
-	if responseError != nil {
-		fmt.Printf("Response Error: %s", responseError)
-		http.Error(w, responseError.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	start = time.Now()
-	w.WriteHeader(http.StatusOK)
-	t, _ := template.ParseFiles("views/query_data.html")
-	if err = t.Execute(w, responseData); err != nil {
-		fmt.Printf("Error decoding element: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 	diff = time.Since(start)
 	fmt.Printf("Response Template Parse Time: %dms\n", diff.Milliseconds())
+
+	defer func() {
+		if err != nil {
+			fmt.Printf("Error decoding element: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+
+	// diff = time.Since(start)
+	// fmt.Printf("Parse time: %dms\n", diff.Milliseconds())
+
+	// if responseError != nil {
+	// 	fmt.Printf("Response Error: %s", responseError)
+	// 	http.Error(w, responseError.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
+
+	// start = time.Now()
+	// w.WriteHeader(http.StatusOK)
+	// t, _ := template.ParseFiles("views/query_data.html")
+	// if err = t.Execute(w, responseData); err != nil {
+	// 	fmt.Printf("Error decoding element: %s", err)
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
 
 }
 

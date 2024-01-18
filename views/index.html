@@ -6,15 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/assets/db-icon-512.ico" />
     <link rel="stylesheet" type="text/css" href="/public/css/styles.css" />
-    <script src="https://unpkg.com/htmx.org@1.9.9"
-        integrity="sha384-QFjmbokDn2DjBjq+fM+8LUIVrAgqcNW2s0PjAxHETgRn9l4fvX31ZxDxvwQnyMOX"
-        crossorigin="anonymous" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.1/ace.min.js"
-        type="text/javascript" charset="utf-8" defer></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.1/ace.min.js" type="text/javascript" charset="utf-8"
         defer></script>
-    <script src="/public/js/index.js" type="text/javascript" charset="utf-8"
-        defer></script>
+    <script src="/public/js/index.js" type="text/javascript" charset="utf-8" defer></script>
+    <script src="/public/js/htmx/htmx.js" defer></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js" defer></script>
 </head>
 
 <body>
@@ -35,8 +31,7 @@
                     <button>Get Total</button>
                     <button data-csv-download>CSV</button>
                     <button>XLSX</button>
-                    <button hx-get="/settings" hx-target="body"
-                        hx-push-url="true">Settings</button>
+                    <button hx-get="/settings" hx-target="body" hx-push-url="true">Settings</button>
                 </div>
             </div>
             <form data-query-form>
@@ -45,10 +40,8 @@
                         <h3>Options</h3>
                         <div class="options-container">
                             <label class="query-option" for="sample">
-                                <input type="checkbox" name="sample" id="sample"
-                                    value="true" checked />
-                                <input type="hidden" name="sample"
-                                    value="false" />
+                                <input type="checkbox" name="sample" id="sample" value="true" checked />
+                                <input type="hidden" name="sample" value="false" />
                                 Sample
                             </label>
                         </div>
@@ -56,19 +49,15 @@
                     <div class="auth-panel">
                         <div class="form-group">
                             <label for="username">Username</label>
-                            <input type="text" name="username" id="username"
-                                autocomplete="username" />
+                            <input type="text" name="username" id="username" autocomplete="username" />
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="password" name="password" id="password"
-                                autocomplete="current-password" />
+                            <input type="password" name="password" id="password" autocomplete="current-password" />
                         </div>
-                        <button class="submit-button" type="submit"
-                            hx-post="/run" hx-vals="js:{query:getQuery()}"
-                            hx-trigger="click, keyup[ctrlKey&&keyCode==13] from:body"
-                            hx-target="#data"
-                            hx-indicator="#indicator">Run</button>
+                        <button class="submit-button" type="submit" hx-post="/run" hx-vals="js:{query:getQuery()}"
+                            hx-include="[name='tenant']" hx-trigger="click, keyup[ctrlKey&&keyCode==13] from:body"
+                            hx-target="#data" hx-indicator="#indicator">Run</button>
                     </div>
                 </div>
             </form>
@@ -76,12 +65,10 @@
         </div>
         <div class="query-container">
             <div class="saved-query-selector">
-                <button hx-get="/query/save" hx-target="body"
-                    hx-swap="beforeend" data-save-query-btn>SAVE</button>
+                <button hx-get="/query/save" hx-target="body" hx-swap="beforeend" data-save-query-btn>SAVE</button>
                 <span data-query-name-display>New</span>
                 <button data-new-query-btn>NEW</button>
-                <button hx-get="/query/open" hx-target="body"
-                    hx-swap="beforeend" data-open-query-btn>OPEN</button>
+                <button hx-get="/query/open" hx-target="body" hx-swap="beforeend" data-open-query-btn>OPEN</button>
             </div>
             <div class="editor-container">
                 <div id="editor"></div>
