@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,6 +18,84 @@ type queryRequest struct {
 	Tenant   string
 	Sample   bool
 	Query    string
+}
+
+type metadataElement struct {
+	Columns []struct {
+		Label string `xml:"label,attr"`
+	} `xml:"Column"`
+}
+
+type R struct {
+	C []string
+}
+
+const hexagonUrl = "https://us1.eam.hxgnsmartcloud.com/axis/services/EWSConnector"
+
+func processQuery(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	r.ParseForm()
+	data, err := validateQueryRequest(r.Form)
+
+	if err != nil {
+		errorResponse(w, err.Error(), 400)
+		return
+	}
+
+	start := time.Now()
+	respBody := getRequestBody(data)
+	resp, err := http.Post(hexagonUrl, "text/xml", bytes.NewBuffer([]byte(respBody)))
+	fmt.Printf("Request time: %dms\n", time.Since(start).Milliseconds())
+	defer resp.Body.Close()
+
+	if err != nil {
+		errorResponse(w, err.Error(), 500)
+		return
+	}
+
+	d := xml.NewDecoder(resp.Body)
+	start = time.Now()
+
+	w.Write([]byte(`<table class="data-table"><thead>`))
+	for {
+		tok, err := d.Token()
+		if tok == nil || err == io.EOF {
+			return
+		} else if err != nil {
+			break
+		}
+
+		switch ty := tok.(type) {
+		case xml.StartElement:
+			switch ty.Name.Local {
+			case "R", "Metadata":
+				w.Write([]byte("<tr>"))
+			case "C":
+				cdata, _ := d.Token()
+				w.Write([]byte(fmt.Sprintf("<td>%s</td>", string(cdata.(xml.CharData)))))
+			case "Data":
+				w.Write([]byte("</thead><tbody>"))
+			case "faultstring":
+				cdata, _ := d.Token()
+				responseError := errors.New(string(cdata.(xml.CharData)))
+				errorResponse(w, responseError.Error(), 400)
+			}
+		case xml.Attr:
+			if ty.Name.Local == "Label" {
+				w.Write([]byte(fmt.Sprintf("<th><span>%s</span></th>", ty.Value)))
+			}
+		case xml.EndElement:
+			switch ty.Name.Local {
+			case "R", "Metadata":
+				w.Write([]byte("</tr>"))
+			case "Data":
+				w.Write([]byte("</tbody></table>"))
+			}
+		}
+	}
+	fmt.Printf("Parse Time: %dms\n", time.Since(start).Milliseconds())
+	errorResponse(w, err.Error(), 500)
 }
 
 func validateQueryRequest(values url.Values) (qr queryRequest, e error) {
@@ -47,134 +124,13 @@ func validateQueryRequest(values url.Values) (qr queryRequest, e error) {
 	}
 
 	if len(errs) > 0 {
-		e = errors.New(strings.Join(errs, ", "))
+		e = errors.New(fmt.Sprintf("Invalid request values: %s", strings.Join(errs, ", ")))
 	}
 
 	return qr, e
 }
 
-func processQuery(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	start := time.Now()
-	r.ParseForm()
-	fmt.Println(r.Form)
-
-	data, err := validateQueryRequest(r.Form)
-	if err != nil {
-		errMsg := fmt.Sprintf("Invalid request values: %s", err)
-		log.Println(errMsg)
-		errorResponse(w, errMsg, 422)
-		return
-	}
-
-	fmt.Println(data)
-	respBody := getResponseBody(data)
-	resp, err := http.Post("https://us1.eam.hxgnsmartcloud.com/axis/services/EWSConnector", "text/xml", bytes.NewBuffer([]byte(respBody)))
-	diff := time.Since(start)
-	fmt.Printf("Request time: %dms\n", diff.Milliseconds())
-
-	defer resp.Body.Close()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	d := xml.NewDecoder(resp.Body)
-
-	// var responseData [][]string
-	var responseError error
-
-	start = time.Now()
-	w.Write([]byte(`<table class="data-table"><thead>`))
-	for {
-		tok, err := d.Token()
-		if tok == nil || err == io.EOF {
-			break
-		} else if err != nil {
-			return
-		}
-
-		switch ty := tok.(type) {
-		case xml.StartElement:
-			switch ty.Name.Local {
-			case "Metadata":
-				var metadata struct {
-					Columns []struct {
-						Label string `xml:"label,attr"`
-					} `xml:"Column"`
-				}
-
-				if err = d.DecodeElement(&metadata, &ty); err != nil {
-					return
-				}
-
-				w.Write([]byte("<tr>"))
-				for _, col := range metadata.Columns {
-
-					w.Write([]byte(fmt.Sprintf("<th><span>%s</span></th>", col.Label)))
-				}
-				w.Write([]byte("</tr>"))
-				w.Write([]byte("</thead><tbody>"))
-			case "R":
-				var row struct {
-					C []string
-				}
-
-				if err = d.DecodeElement(&row, &ty); err != nil {
-					return
-				}
-
-				w.Write([]byte("<tr>"))
-				for _, col := range row.C {
-					w.Write([]byte(fmt.Sprintf("<td>%s</td>", col)))
-				}
-				w.Write([]byte("</tr>"))
-			case "faultstring":
-				var fault string
-				if err = d.DecodeElement(&fault, &ty); err != nil {
-					return
-				}
-
-				responseError = errors.New(fault)
-				http.Error(w, responseError.Error(), http.StatusBadRequest)
-				break
-			}
-		}
-	}
-	w.Write([]byte("</tbody></table>"))
-
-	diff = time.Since(start)
-	fmt.Printf("Response Template Parse Time: %dms\n", diff.Milliseconds())
-
-	defer func() {
-		if err != nil {
-			fmt.Printf("Error decoding element: %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	}()
-
-	// diff = time.Since(start)
-	// fmt.Printf("Parse time: %dms\n", diff.Milliseconds())
-
-	// if responseError != nil {
-	// 	fmt.Printf("Response Error: %s", responseError)
-	// 	http.Error(w, responseError.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// start = time.Now()
-	// w.WriteHeader(http.StatusOK)
-	// t, _ := template.ParseFiles("views/query_data.html")
-	// if err = t.Execute(w, responseData); err != nil {
-	// 	fmt.Printf("Error decoding element: %s", err)
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-
-}
-
-func getResponseBody(data queryRequest) string {
+func getRequestBody(data queryRequest) string {
 	query := strings.Replace(data.Query, "<", "&lt;", -1)
 
 	if data.Sample {

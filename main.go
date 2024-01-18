@@ -49,7 +49,8 @@ func main() {
 	r.Get("/query/open", openQueries)
 	r.Get("/query/save", saveQuery)
 
-	http.ListenAndServe(":42069", r)
+	err = http.ListenAndServe(":42069", r)
+	fmt.Printf("[ERROR]: Server stopped with error: %v", err)
 }
 
 func FileServer(r chi.Router, path string, root http.Handler) {
