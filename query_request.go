@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"time"
 )
@@ -20,31 +21,19 @@ type queryRequest struct {
 	Query    string
 }
 
-type metadataElement struct {
-	Columns []struct {
-		Label string `xml:"label,attr"`
-	} `xml:"Column"`
-}
-
-type R struct {
-	C []string
-}
-
 const hexagonUrl = "https://us1.eam.hxgnsmartcloud.com/axis/services/EWSConnector"
 
 func processQuery(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-
 	r.ParseForm()
-	data, err := validateQueryRequest(r.Form)
 
+	start := time.Now()
+	respBody, err := getRequestBody(r.Form)
 	if err != nil {
 		errorResponse(w, err.Error(), 400)
 		return
 	}
 
-	start := time.Now()
-	respBody := getRequestBody(data)
 	resp, err := http.Post(hexagonUrl, "text/xml", bytes.NewBuffer([]byte(respBody)))
 	fmt.Printf("Request time: %dms\n", time.Since(start).Milliseconds())
 	defer resp.Body.Close()
@@ -61,29 +50,31 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 	for {
 		tok, err := d.Token()
 		if tok == nil || err == io.EOF {
-			return
-		} else if err != nil {
 			break
+		} else if err != nil {
+			errorResponse(w, err.Error(), 500)
+			return
 		}
 
 		switch ty := tok.(type) {
 		case xml.StartElement:
 			switch ty.Name.Local {
+			case "C":
+				ctok, _ := d.Token()
+				if cdata, ok := ctok.(xml.CharData); ok {
+					w.Write([]byte(fmt.Sprintf("<td>%s</td>", string(cdata))))
+				}
+			case "Column":
+				i := slices.IndexFunc(ty.Attr, func(attr xml.Attr) bool { return attr.Name.Local == "label" })
+				w.Write([]byte(fmt.Sprintf("<th><span>%s</span></th>", ty.Attr[i].Value)))
 			case "R", "Metadata":
 				w.Write([]byte("<tr>"))
-			case "C":
-				cdata, _ := d.Token()
-				w.Write([]byte(fmt.Sprintf("<td>%s</td>", string(cdata.(xml.CharData)))))
 			case "Data":
 				w.Write([]byte("</thead><tbody>"))
 			case "faultstring":
-				cdata, _ := d.Token()
-				responseError := errors.New(string(cdata.(xml.CharData)))
-				errorResponse(w, responseError.Error(), 400)
-			}
-		case xml.Attr:
-			if ty.Name.Local == "Label" {
-				w.Write([]byte(fmt.Sprintf("<th><span>%s</span></th>", ty.Value)))
+				ftok, _ := d.Token()
+				errorResponse(w, string(ftok.(xml.CharData)), 400)
+				return
 			}
 		case xml.EndElement:
 			switch ty.Name.Local {
@@ -95,42 +86,14 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	fmt.Printf("Parse Time: %dms\n", time.Since(start).Milliseconds())
-	errorResponse(w, err.Error(), 500)
 }
 
-func validateQueryRequest(values url.Values) (qr queryRequest, e error) {
-	var errs []string
-
-	if qr.Username = values.Get("username"); qr.Username == "" {
-		errs = append(errs, "username")
+func getRequestBody(formData url.Values) (string, error) {
+	var data queryRequest
+	if err := validateQueryRequest(formData, &data); err != nil {
+		return "", err
 	}
 
-	if qr.Password = values.Get("password"); qr.Password == "" {
-		errs = append(errs, "password")
-	}
-
-	if qr.Tenant = values.Get("tenant"); qr.Tenant == "" {
-		errs = append(errs, "tenant")
-	}
-
-	if sample := values.Get("sample"); sample != "" {
-		qr.Sample = sample == "true"
-	} else {
-		errs = append(errs, "sample")
-	}
-
-	if qr.Query = values.Get("query"); qr.Query == "" {
-		errs = append(errs, "query")
-	}
-
-	if len(errs) > 0 {
-		e = errors.New(fmt.Sprintf("Invalid request values: %s", strings.Join(errs, ", ")))
-	}
-
-	return qr, e
-}
-
-func getRequestBody(data queryRequest) string {
 	query := strings.Replace(data.Query, "<", "&lt;", -1)
 
 	if data.Sample {
@@ -155,5 +118,27 @@ func getRequestBody(data queryRequest) string {
 			</SelectStatement>
 		</MP0170_GetDatabaseData_001>
 	</Body>
-</Envelope>`, data.Username, data.Tenant, data.Password, query)
+</Envelope>`, data.Username, data.Tenant, data.Password, query), nil
+}
+
+func validateQueryRequest(values url.Values, qr *queryRequest) error {
+	var errs []string
+
+	for k, v := range values {
+		if len(v) == 0 {
+			errs = append(errs, k)
+		}
+	}
+
+	if len(errs) > 0 {
+		return errors.New(fmt.Sprintf("Missing request values: [%s]", strings.Join(errs, ", ")))
+	}
+
+	qr.Username = values.Get("username")
+	qr.Password = values.Get("password")
+	qr.Tenant = values.Get("tenant")
+	qr.Sample = values.Get("sample") == "true"
+	qr.Query = values.Get("query")
+
+	return nil
 }
