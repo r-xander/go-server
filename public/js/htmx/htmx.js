@@ -998,8 +998,8 @@
         function cleanUpElement(element) {
             triggerEvent(element, "htmx:beforeCleanupElement");
             deInitNode(element);
+
             const children = childrenRequiringCleanup(element);
-            console.log(children);
             if (children.length > 0) {
                 // IE
                 forEach(children, function (child) {
@@ -1015,47 +1015,39 @@
          * @returns {NodeListOf<Element>}
          */
         function childrenRequiringCleanup(parentNode) {
-            console.log(parentNode);
-
             if (parentNode == null || parentNode == undefined) {
-                return null;
+                return [];
             }
-
+            console.log(parentNode);
             var cleanupSelectors =
                 VERB_SELECTOR +
                 ", [hx-boost] a, [data-hx-boost] a, a[hx-boost], a[data-hx-boost]" +
                 ", form, [type='submit'], [hx-sse], [data-hx-sse], [hx-ws]," +
                 " [data-hx-ws], [hx-ext], [data-hx-ext], [hx-trigger], [data-hx-trigger], [hx-on], [data-hx-on]";
 
+            let hasId = parentNode.id !== "";
+            let parentSelector = ":scope";
+
             try {
-                let selectors = cleanupSelectors
-                    .split(", ")
-                    .map((selector) => ":scope " + selector)
-                    .join(", ");
-                console.log(selectors);
-                return parentNode.querySelectorAll(selectors);
+                document.querySelector(":scope");
             } catch (e) {
-                let gaveId = false;
-
-                if (parentNode.id === "") {
-                    // Give temporary ID
+                if (!hasId) {
                     parentNode.id = "rootedQuerySelector_id_" + new Date().getTime();
-                    gaveId = true;
                 }
-
-                let selectors = cleanupSelectors
-                    .split(", ")
-                    .map((selector) => "#" + parentNode.id + " " + selector)
-                    .join(", ");
-                console.log(selectors);
-                nodeList = parentNode.querySelectorAll(selectors);
-
-                if (gaveId) {
-                    parentNode.id = "";
-                }
-
-                return nodeList;
+                parentSelector = "#" + parentNode.id;
             }
+
+            let selectors = cleanupSelectors
+                .split(", ")
+                .map((selector) => parentSelector + " " + selector)
+                .join(", ");
+            const nodelist = parentNode.querySelectorAll(selectors);
+
+            if (!hasId) {
+                parentNode.removeAttribute("id");
+            }
+
+            return nodelist;
         }
 
         function swapOuterHTML(target, fragment, settleInfo) {

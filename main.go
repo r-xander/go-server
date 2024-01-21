@@ -20,6 +20,10 @@ var (
 	//go:embed public/js
 	js   embed.FS
 	jsFS = http.FileServer(http.FS(js))
+
+	//go:embed public/assets
+	assets   embed.FS
+	assetsFS = http.FileServer(http.FS(assets))
 )
 
 func main() {
@@ -35,6 +39,7 @@ func main() {
 	indexView := filepath.Join(workDir, "views/index.html")
 	FileServer(r, "/public/css", cssFS)
 	FileServer(r, "/public/js", jsFS)
+	FileServer(r, "/public/assets", assetsFS)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, indexView)
@@ -61,7 +66,6 @@ func FileServer(r chi.Router, path string, root http.Handler) {
 	if path != "/" && path[len(path)-1] != '/' {
 		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
 		path += "/"
-		fmt.Printf("Path: %s\n", path)
 	}
 	path += "*"
 

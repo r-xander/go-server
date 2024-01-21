@@ -1,107 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <title>Get Database Data</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="shortcut icon" type="icon" href="/public/assets/db-icon-512.ico" />
+        <link rel="shortcut icon" type="image/x-icon" href="/public/assets/db-icon-512.ico?v=2" />
+        <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/public/assets/db-icon-512.ico" />
+        <link rel="Bookmark" href="/public/assets/db-icon-512.ico" />
+        <link rel="stylesheet" type="text/css" href="/public/css/styles.css" />
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.1/ace.min.js"
+            type="text/javascript"
+            charset="utf-8"
+            defer
+        ></script>
+        <script src="/public/js/index.js" type="text/javascript" charset="utf-8" defer></script>
+        <script src="/public/js/htmx/htmx.js" defer></script>
+    </head>
 
-<head>
-    <title>Get Database Data</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/assets/db-icon-512.ico" />
-    <link rel="stylesheet" type="text/css" href="/public/css/styles.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.1/ace.min.js" type="text/javascript" charset="utf-8"
-        defer></script>
-    <script src="/public/js/index.js" type="text/javascript" charset="utf-8" defer></script>
-    <script src="/public/js/htmx/htmx.js" defer></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js" defer></script>
-</head>
-
-<body>
-    <div class="main">
-        <div class="response-content">
-            <div class="title">
-                <div class="response-info">
-                    <div class="response-status"></div>
-                    <div class="response-time"></div>
-                </div>
-                <div class="tenant">
-                    <select name="tenant">
-                        <option>WASHGAS_TRN</option>
-                        <option>WASHGAS_PRD</option>
-                    </select>
-                </div>
-                <div class="title-buttons">
-                    <button>Get Total</button>
-                    <button data-csv-download>CSV</button>
-                    <button>XLSX</button>
-                    <button hx-get="/settings" hx-target="body" hx-push-url="true">Settings</button>
-                </div>
-            </div>
-            <form data-query-form>
-                <div class="subtitle">
-                    <div class="query-options">
-                        <h3>Options</h3>
-                        <div class="options-container">
-                            <label class="query-option" for="sample">
-                                <input type="checkbox" name="sample" id="sample" value="true" checked />
-                                <input type="hidden" name="sample" value="false" />
-                                Sample
-                            </label>
-                        </div>
+    <body>
+        <div class="main">
+            <div class="response-content">
+                <div class="title">
+                    <div class="response-info">
+                        <div class="response-status"></div>
+                        <div class="response-time"></div>
                     </div>
-                    <div class="auth-panel">
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input type="text" name="username" id="username" autocomplete="username" />
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" name="password" id="password" autocomplete="current-password" />
-                        </div>
-                        <button class="submit-button" type="submit" hx-post="/run" hx-vals="js:{query:getQuery()}"
-                            hx-include="[name='tenant']" hx-trigger="click, keyup[ctrlKey&&keyCode==13] from:body"
-                            hx-target="#data" hx-indicator="#indicator">Run</button>
+                    <div class="tenant">
+                        <select name="tenant">
+                            <option>WASHGAS_TRN</option>
+                            <option>WASHGAS_PRD</option>
+                        </select>
+                    </div>
+                    <div class="title-buttons">
+                        <button>Get Total</button>
+                        <button data-csv-download>CSV</button>
+                        <button>XLSX</button>
+                        <button hx-get="/settings" hx-target="body" hx-push-url="true">Settings</button>
                     </div>
                 </div>
-            </form>
-            <div id="data" class="data"></div>
-        </div>
-        <div class="query-container">
-            <div class="saved-query-selector">
-                <button hx-get="/query/save" hx-target="body" hx-swap="beforeend" data-save-query-btn>SAVE</button>
-                <span data-query-name-display>New</span>
-                <button data-new-query-btn>NEW</button>
-                <button hx-get="/query/open" hx-target="body" hx-swap="beforeend" data-open-query-btn>OPEN</button>
+                <form data-query-form>
+                    <div class="subtitle">
+                        <div class="query-options">
+                            <h3>Options</h3>
+                            <div class="options-container">
+                                <label class="query-option" for="sample">
+                                    <input type="checkbox" name="sample" id="sample" value="true" checked />
+                                    <input type="hidden" name="sample" value="false" />
+                                    Sample
+                                </label>
+                            </div>
+                        </div>
+                        <div class="auth-panel">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" name="username" id="username" autocomplete="username" />
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" name="password" id="password" autocomplete="current-password" />
+                            </div>
+                            <button
+                                class="submit-button"
+                                type="submit"
+                                hx-post="/run"
+                                hx-vals="js:{query:getQuery()}"
+                                hx-include="[name='tenant']"
+                                hx-trigger="click, keyup[ctrlKey&&keyCode==13] from:body"
+                                hx-target="#data"
+                                hx-indicator="#indicator"
+                            >
+                                Run
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <div id="data" class="data"></div>
             </div>
-            <div class="editor-container">
-                <div id="editor"></div>
-                <div class="open-query-selector" data-open-query-panel>
+            <div class="query-container">
+                <div class="saved-query-selector">
+                    <button hx-get="/query/save" hx-target="body" hx-swap="beforeend" data-save-query-btn>SAVE</button>
+                    <span data-query-name-display>New</span>
+                    <button data-new-query-btn>NEW</button>
+                    <button hx-get="/query/open" hx-target="body" hx-swap="beforeend" data-open-query-btn>OPEN</button>
+                </div>
+                <div class="editor-container">
+                    <div id="editor"></div>
+                    <div class="open-query-selector" data-open-query-panel></div>
                 </div>
             </div>
         </div>
-    </div>
-    <div id="indicator" class="htmx-indicator">
-        <div class="indicator-mask">
-            <span>loading...</span>
+        <div id="indicator" class="htmx-indicator">
+            <div class="indicator-mask">
+                <span>loading...</span>
+            </div>
         </div>
-    </div>
-    <script>
-        // let session
-        // document.addEventListener("DOMContentLoaded", function (event) {
-        //     console.log("DOM fully loaded and parsed");
-        //     if (session == undefined) {
-        //         session = ace.createEditSession()
-        //         session.serMode("ace/mode/sql")
-        //         session.setUseWrapMode(true);
-        //     }
+        <script>
+            // let session
+            // document.addEventListener("DOMContentLoaded", function (event) {
+            //     console.log("DOM fully loaded and parsed");
+            //     if (session == undefined) {
+            //         session = ace.createEditSession()
+            //         session.serMode("ace/mode/sql")
+            //         session.setUseWrapMode(true);
+            //     }
 
-        //     editor = ace.edit("editor");
-        //     editor.setTheme("ace/theme/monokai");
-        //     editor.setShowPrintMargin(false);
-        //     editor.setHighlightIndentGuides(true);
-        //     editor.setFontSize(10);
-        //     editor.renderer.setScrollMargin(5, 0);
+            //     editor = ace.edit("editor");
+            //     editor.setTheme("ace/theme/monokai");
+            //     editor.setShowPrintMargin(false);
+            //     editor.setHighlightIndentGuides(true);
+            //     editor.setFontSize(10);
+            //     editor.renderer.setScrollMargin(5, 0);
 
-        //     editor.setSession(session)
-        // });
-    </script>
-</body>
-
+            //     editor.setSession(session)
+            // });
+        </script>
+    </body>
 </html>

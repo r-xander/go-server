@@ -1,11 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 )
 
 func errorResponse(w http.ResponseWriter, message string, code int) {
-	errElement := fmt.Sprintf("<span style='color:red;font-weight:bold;'>%s</span>", message)
+	errElement := "<span style='color:red;font-weight:bold;'>" + message + "</span>"
 	http.Error(w, errElement, code)
 }
