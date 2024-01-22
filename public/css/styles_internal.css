@@ -26,7 +26,7 @@ input:focus-visible {
     font-family: inherit;
 }
 
-.form-group-input {
+.form-group input {
     all: initial;
     background: rgb(64 64 64);
     color: var(--font-color);
@@ -45,28 +45,13 @@ input:focus-visible {
 }
 /* ^^^CHECK ON THIS??? */
 
-.response-time[data-has-response="true"] {
-    background-color: var(--accent-color);
-}
-
-.response-status[data-status="OK"] {
-    background: rgb(0, 139, 49);
-}
-
-.response-status[data-status="RE"] {
-    background: rgb(181 129 11);
-}
-
-.response-status[data-status="SE"] {
-    background: rgb(211 88 85);
-}
-
 input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0px 1000px rgb(92 92 92) inset !important;
     -webkit-text-fill-color: var(--font-color) !important;
     border: 1px solid rgb(206, 206, 206) !important;
     caret-color: var(--font-color);
 }
+
 span.warning {
     color: #ff6868;
     font-size: 14px;
