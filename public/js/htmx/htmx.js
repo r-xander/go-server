@@ -1015,10 +1015,10 @@
          * @returns {NodeListOf<Element>}
          */
         function childrenRequiringCleanup(parentNode) {
-            if (parentNode == null || parentNode == undefined) {
+            if (parentNode.nodeType == Node.TEXT_NODE || parentNode == null || parentNode == undefined) {
                 return [];
             }
-            console.log(parentNode);
+
             var cleanupSelectors =
                 VERB_SELECTOR +
                 ", [hx-boost] a, [data-hx-boost] a, a[hx-boost], a[data-hx-boost]" +

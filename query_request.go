@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
-	// "slices"
+	"slices"
 	"strings"
 	"time"
 )
@@ -27,16 +27,17 @@ const hexagonUrl = "https://us1.eam.hxgnsmartcloud.com/axis/services/EWSConnecto
 func processQuery(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	r.ParseForm()
-
-	start := time.Now()
+	fmt.Println(r.Form)
 	respBody, err := getRequestBody(r.Form)
 	if err != nil {
 		errorResponse(w, err.Error(), 400)
 		return
 	}
 
+	start := time.Now()
 	resp, err := http.Post(hexagonUrl, "text/xml", bytes.NewBuffer([]byte(respBody)))
 	fmt.Printf("Request time: %dms\n", time.Since(start).Milliseconds())
+
 	defer resp.Body.Close()
 
 	if err != nil {
@@ -50,54 +51,45 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 	for {
 		tok, err := d.RawToken()
 		if tok == nil || err == io.EOF {
-			w.Write([]byte("<span>done</span>"))
 			break
 		} else if err != nil {
 			errorResponse(w, err.Error(), 500)
-			break
+			return
+		}
+
+		switch ty := tok.(type) {
+		case xml.StartElement:
+			switch ty.Name.Local {
+			case "C":
+				ctok, _ := d.RawToken()
+				if cdata, ok := ctok.(xml.CharData); ok {
+					w.Write([]byte("<td>"))
+					w.Write(cdata)
+					w.Write([]byte("</td>"))
+				}
+			case "Column":
+				i := slices.IndexFunc(ty.Attr, func(attr xml.Attr) bool { return attr.Name.Local == "label" })
+				w.Write([]byte("<th><span>" + ty.Attr[i].Value + "</span></th>"))
+			case "R":
+				w.Write([]byte("<tr>"))
+			case "Metadata":
+				w.Write([]byte(`<table class="data-table"><thead><tr>`))
+			case "Data":
+				w.Write([]byte("</thead><tbody>"))
+			case "faultstring":
+				ftok, _ := d.RawToken()
+				errorResponse(w, strings.TrimSpace(string(ftok.(xml.CharData))), 400)
+				return
+			}
+		case xml.EndElement:
+			switch ty.Name.Local {
+			case "R", "Metadata":
+				w.Write([]byte("</tr>"))
+			case "Data":
+				w.Write([]byte("</tbody></table>"))
+			}
 		}
 	}
-	// w.Write([]byte(`<table class="data-table"><thead>`))
-	// for {
-	// 	tok, err := d.Token()
-	// 	if tok == nil || err == io.EOF {
-	// 		break
-	// 	} else if err != nil {
-	// 		errorResponse(w, err.Error(), 500)
-	// 		return
-	// 	}
-
-	// 	switch ty := tok.(type) {
-	// 	case xml.StartElement:
-	// 		switch ty.Name.Local {
-	// 		case "C":
-	// 			ctok, _ := d.Token()
-	// 			if cdata, ok := ctok.(xml.CharData); ok {
-	// 				w.Write([]byte("<td>"))
-	// 				w.Write(cdata)
-	// 				w.Write([]byte("</td>"))
-	// 			}
-	// 		case "Column":
-	// 			i := slices.IndexFunc(ty.Attr, func(attr xml.Attr) bool { return attr.Name.Local == "label" })
-	// 			w.Write([]byte("<th><span>" + ty.Attr[i].Value + "</span></th>"))
-	// 		case "R", "Metadata":
-	// 			w.Write([]byte("<tr>"))
-	// 		case "Data":
-	// 			w.Write([]byte("</thead><tbody>"))
-	// 		case "faultstring":
-	// 			ftok, _ := d.Token()
-	// 			errorResponse(w, string(ftok.(xml.CharData)), 400)
-	// 			return
-	// 		}
-	// 	case xml.EndElement:
-	// 		switch ty.Name.Local {
-	// 		case "R", "Metadata":
-	// 			w.Write([]byte("</tr>"))
-	// 		case "Data":
-	// 			w.Write([]byte("</tbody></table>"))
-	// 		}
-	// 	}
-	// }
 	fmt.Printf("Parse Time: %dms\n", time.Since(start).Milliseconds())
 }
 
