@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
-	// "slices"
+	"slices"
 	"strings"
 	"time"
 )
@@ -47,57 +47,53 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 	d := xml.NewDecoder(resp.Body)
 	start = time.Now()
 
+	w.Write([]byte(`<table class="data-table"><thead>`))
 	for {
 		tok, err := d.RawToken()
-		if tok == nil || err == io.EOF {
-			w.Write([]byte("<span>done</span>"))
+		if tok == nil && err == nil {
+			continue
+		} else if tok == nil && err == io.EOF {
 			break
 		} else if err != nil {
+			fmt.Printf("Error: %v\n", err)
 			errorResponse(w, err.Error(), 500)
-			break
+			return
+		}
+
+		switch ty := tok.(type) {
+		case xml.StartElement:
+			switch ty.Name.Local {
+			case "C":
+				ctok, err := d.RawToken()
+				if err != nil {
+					fmt.Printf("C Element Error: %v\n", err)
+				}
+				if cdata, ok := ctok.(xml.CharData); ok {
+					w.Write([]byte("<td>"))
+					w.Write(cdata)
+					w.Write([]byte("</td>"))
+				}
+			case "Column":
+				i := slices.IndexFunc(ty.Attr, func(attr xml.Attr) bool { return attr.Name.Local == "label" })
+				w.Write([]byte("<th><span>" + ty.Attr[i].Value + "</span></th>"))
+			case "R", "Metadata":
+				w.Write([]byte("<tr>"))
+			case "Data":
+				w.Write([]byte("</thead><tbody>"))
+			case "faultstring":
+				ftok, _ := d.RawToken()
+				errorResponse(w, string(ftok.(xml.CharData)), 400)
+				return
+			}
+		case xml.EndElement:
+			switch ty.Name.Local {
+			case "R", "Metadata":
+				w.Write([]byte("</tr>"))
+			case "Data":
+				w.Write([]byte("</tbody></table>"))
+			}
 		}
 	}
-	// w.Write([]byte(`<table class="data-table"><thead>`))
-	// for {
-	// 	tok, err := d.Token()
-	// 	if tok == nil || err == io.EOF {
-	// 		break
-	// 	} else if err != nil {
-	// 		errorResponse(w, err.Error(), 500)
-	// 		return
-	// 	}
-
-	// 	switch ty := tok.(type) {
-	// 	case xml.StartElement:
-	// 		switch ty.Name.Local {
-	// 		case "C":
-	// 			ctok, _ := d.Token()
-	// 			if cdata, ok := ctok.(xml.CharData); ok {
-	// 				w.Write([]byte("<td>"))
-	// 				w.Write(cdata)
-	// 				w.Write([]byte("</td>"))
-	// 			}
-	// 		case "Column":
-	// 			i := slices.IndexFunc(ty.Attr, func(attr xml.Attr) bool { return attr.Name.Local == "label" })
-	// 			w.Write([]byte("<th><span>" + ty.Attr[i].Value + "</span></th>"))
-	// 		case "R", "Metadata":
-	// 			w.Write([]byte("<tr>"))
-	// 		case "Data":
-	// 			w.Write([]byte("</thead><tbody>"))
-	// 		case "faultstring":
-	// 			ftok, _ := d.Token()
-	// 			errorResponse(w, string(ftok.(xml.CharData)), 400)
-	// 			return
-	// 		}
-	// 	case xml.EndElement:
-	// 		switch ty.Name.Local {
-	// 		case "R", "Metadata":
-	// 			w.Write([]byte("</tr>"))
-	// 		case "Data":
-	// 			w.Write([]byte("</tbody></table>"))
-	// 		}
-	// 	}
-	// }
 	fmt.Printf("Parse Time: %dms\n", time.Since(start).Milliseconds())
 }
 
