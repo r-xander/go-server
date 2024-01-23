@@ -5,6 +5,6 @@ import (
 )
 
 func errorResponse(w http.ResponseWriter, message string, code int) {
-	errElement := "<span style='color:red;font-weight:bold;'>" + message + "</span>"
+	errElement := "<span style='color:#ff6868;font-weight:bold;'>" + message + "</span>"
 	http.Error(w, errElement, code)
 }

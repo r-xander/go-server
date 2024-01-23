@@ -8,8 +8,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-
 	"slices"
+
 	"strings"
 	"time"
 )
@@ -27,16 +27,17 @@ const hexagonUrl = "https://us1.eam.hxgnsmartcloud.com/axis/services/EWSConnecto
 func processQuery(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	r.ParseForm()
-
-	start := time.Now()
+	fmt.Println(r.Form)
 	respBody, err := getRequestBody(r.Form)
 	if err != nil {
 		errorResponse(w, err.Error(), 400)
 		return
 	}
 
+	start := time.Now()
 	resp, err := http.Post(hexagonUrl, "text/xml", bytes.NewBuffer([]byte(respBody)))
 	fmt.Printf("Request time: %dms\n", time.Since(start).Milliseconds())
+
 	defer resp.Body.Close()
 
 	if err != nil {
@@ -76,8 +77,10 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 			case "Column":
 				i := slices.IndexFunc(ty.Attr, func(attr xml.Attr) bool { return attr.Name.Local == "label" })
 				w.Write([]byte("<th><span>" + ty.Attr[i].Value + "</span></th>"))
-			case "R", "Metadata":
+			case "R":
 				w.Write([]byte("<tr>"))
+			case "Metadata":
+				w.Write([]byte(`<table class="data-table"><thead><tr>`))
 			case "Data":
 				w.Write([]byte("</thead><tbody>"))
 			case "faultstring":

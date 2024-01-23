@@ -3,9 +3,8 @@ package main
 import (
 	"embed"
 	"fmt"
+	"html/template"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -30,21 +29,11 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	workDir, err := os.Getwd()
-
-	if err != nil {
-		fmt.Printf("Could not get working directory: %s", err.Error())
-	}
-
-	indexView := filepath.Join(workDir, "views/index.html")
 	FileServer(r, "/public/css", cssFS)
 	FileServer(r, "/public/js", jsFS)
 	FileServer(r, "/public/assets", assetsFS)
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, indexView)
-	})
-
+	r.Get("/", GetIndex)
 	r.Get("/settings", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte("<h1>SETTINGS</h1>"))
@@ -54,8 +43,20 @@ func main() {
 	r.Get("/query/open", openQueries)
 	r.Get("/query/save", saveQuery)
 
-	err = http.ListenAndServe(":42069", r)
-	fmt.Printf("[ERROR]: Server stopped with error: %v", err)
+	err := http.ListenAndServe(":42069", r)
+	fmt.Printf("[ERROR]: Server shutdown with error: %v", err)
+}
+
+func GetIndex(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("views/index.html")
+	if err != nil {
+		// TODO: do something
+		return
+	}
+
+	if err = tmpl.Execute(w, nil); err != nil {
+		// TODO: do something
+	}
 }
 
 func FileServer(r chi.Router, path string, root http.Handler) {

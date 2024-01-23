@@ -1,0 +1,1 @@
+chrome --maximized --app=http://localhost:42069
