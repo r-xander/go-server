@@ -10,7 +10,6 @@
 
     color-scheme: light dark;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-
 }
 
 input:focus-visible {
@@ -18,44 +17,11 @@ input:focus-visible {
     border-color: #ffffff66 !important;
 }
 
-.title-buttons button {
-    padding: 5px 10px;
-    background-color: var(--accent-color);
-    color: var(--font-color);
-    font-size: 0.625rem;
-    font-weight: bold;
-    font-family: inherit;
-}
-
-.form-group-input {
-    all: initial;
-    background: rgb(64 64 64);
-    color: var(--font-color);
-    border: 1px solid rgb(92 92 92);
-    border-radius: 4px;
-    padding: 7px;
-    font-size: inherit;
-    line-height: 1.4; 
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* CHECK ON THIS??? */
-.check-form-group {
-    display: flex;
-    gap: 10px;
-}
-/* ^^^CHECK ON THIS??? */
-
 input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0px 1000px rgb(92 92 92) inset !important;
     -webkit-text-fill-color: var(--font-color) !important;
     border: 1px solid rgb(206, 206, 206) !important;
     caret-color: var(--font-color);
-}
-
-span.warning {
-    color: #ff6868;
-    font-size: 14px;
 }
 
 /****************************************************/
@@ -94,66 +60,6 @@ span.warning {
 
 .data-table td {
     vertical-align: top;
-}
-
-/****************************************************/
-/*                                                  */
-/*              query editor container              */
-/*                                                  */
-/****************************************************/
-.query-container {
-    display: flex;
-    flex-direction: column;
-}
-
-.editor-container {
-    flex-grow: 1;
-    position: relative;
-}
-
-#editor {
-    height: 100%;
-}
-
-.open-query-selector {
-    position: absolute;
-    inset: 0;
-    background: var(--bg-color);
-    z-index: 100;
-    display: none;
-}
-
-/****************************************************/
-/*                                                  */
-/*          save query selector (NOT USED)          */
-/*                                                  */
-/****************************************************/
-.saved-query-selector {
-    display: flex;
-    height: 45px;
-    margin-top: 0px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.saved-query-selector input {
-    flex: 1;
-    padding: 10px 12px;
-    border-bottom-color: #000;
-}
-
-.saved-query-selector span {
-    flex: 1;
-    padding: 10px 12px;
-    text-align: center;
-    font-size: 14px;
-    letter-spacing: 0.4px;
-}
-
-.saved-query-selector button {
-    background-color: var(--accent-color);
-    padding: 10px 20px;
-    font-weight: bold;
-    font-size: 12px;
 }
 
 /****************************************************/

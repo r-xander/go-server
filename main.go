@@ -12,15 +12,15 @@ import (
 )
 
 var (
-	//go:embed public/css
+	//go:embed css
 	css   embed.FS
 	cssFS = http.FileServer(http.FS(css))
 
-	//go:embed public/js
+	//go:embed js
 	js   embed.FS
 	jsFS = http.FileServer(http.FS(js))
 
-	//go:embed public/assets
+	//go:embed assets
 	assets   embed.FS
 	assetsFS = http.FileServer(http.FS(assets))
 )
@@ -29,9 +29,9 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	FileServer(r, "/public/css", cssFS)
-	FileServer(r, "/public/js", jsFS)
-	FileServer(r, "/public/assets", assetsFS)
+	FileServer(r, "/css", cssFS)
+	FileServer(r, "/js", jsFS)
+	FileServer(r, "/assets", assetsFS)
 
 	r.Get("/", GetIndex)
 	r.Get("/settings", func(w http.ResponseWriter, r *http.Request) {
