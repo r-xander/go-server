@@ -1,23 +1,27 @@
-<div id="save-popup" class="save-popup" data-save-popup>
-    <div class="save-popup-container">
-        <div class="save-popup-header">
+<div id="save-popup" class="absolute bg-[rgba(124,124,124,0.35)] h-full w-full top-0 z-[1000]">
+    <div
+        class="flex flex-col bg-[rgb(39,40,34)] w-[clamp(100ch,50%,800px)] m-auto relative top-[50%] translate-y-[-50%] h-5/6 shadow-md rounded-lg border border-[var(--accent-color)]">
+        <div class="flex justify-between pt-5 pb-3 px-8">
             <h2>Save Query</h2>
-            <button class="close" onclick="closePopup()">&#10005;</button>
+            <button class="font-bold cursor-pointer mr-[-25px] mt-[-15px] bg-none border-none h-6 w-6"
+                onclick="closePopup()">&#10005;</button>
         </div>
-        <form class="save-popup-form">
-            <div class="save-popup-fields">
-                <div class="form-group">
-                    <input type="text" name="query-name" id="query-name"
-                        placeholder="Name..." data-save-popup-query-name />
+        <form class="flex flex-col h-full">
+            <div class="pt-4 pb-5 px-10">
+                <div class="grid gap-1">
+                    <input class="py-2 px-3 rounded-md" type="text" name="query-name" id="query-name"
+                        placeholder="Name..." />
                 </div>
             </div>
-            <div id="save-popup-roeditor" class="save-popup-query noselection">
+            <div id="save-popup-roeditor" class="flex-grow border-y border-[var(--accent-color)] noselection">
             </div>
         </form>
-        <div class="save-popup-footer">
-            <div class="save-popup-footer-buttons">
-                <button type="submit" hx-post="/query/save">Save</button>
-                <button onclick="closePopup()">Cancel</button>
+        <div class="flex justify-center p-5 border-t border-[var(--accent-color)]">
+            <div class="flex gap-5">
+                <button class="bg-none border border-[var(--font-color)] py-2 px-5 font-bold cursor-pointer"
+                    type="submit" hx-post="/query/save">Save</button>
+                <button class="bg-none border border-[var(--font-color)] py-2 px-5 font-bold cursor-pointer"
+                    onclick="closePopup()">Cancel</button>
             </div>
         </div>
     </div>

@@ -10,6 +10,7 @@
 
     color-scheme: light dark;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
 }
 
 input:focus-visible {
@@ -26,7 +27,7 @@ input:focus-visible {
     font-family: inherit;
 }
 
-.form-group input {
+.form-group-input {
     all: initial;
     background: rgb(64 64 64);
     color: var(--font-color);
@@ -34,7 +35,7 @@ input:focus-visible {
     border-radius: 4px;
     padding: 7px;
     font-size: inherit;
-    line-height: 1.4;
+    line-height: 1.4; 
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -62,11 +63,6 @@ span.warning {
 /*               query data container               */
 /*                                                  */
 /****************************************************/
-.data {
-    padding: 0 0 20px;
-    overflow: auto;
-    height: 100%;
-}
 
 .data-table {
     border-collapse: separate;
@@ -125,87 +121,6 @@ span.warning {
     background: var(--bg-color);
     z-index: 100;
     display: none;
-}
-
-/****************************************************/
-/*                                                  */
-/*                 save query popup                 */
-/*                                                  */
-/****************************************************/
-.save-popup {
-    position: absolute;
-    background: rgba(124, 124, 124, 0.35);
-    height: 100%;
-    width: 100%;
-    top: 0;
-    z-index: 1000;
-}
-
-.save-popup-container {
-    display: flex;
-    flex-direction: column;
-    background: rgb(39, 40, 34);
-    width: clamp(100ch, 50%, 800px);
-    margin: auto;
-    position: relative;
-    top: 50%;
-    translate: 0 -50%;
-    height: 700px;
-    box-shadow: 1px 1px 10px rgb(0, 0, 0, 0.4);
-    border-radius: 10px;
-    border: 1px solid var(--accent-color);
-}
-
-.save-popup-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px 30px 10px;
-}
-
-.save-popup-header .close {
-    font-weight: bold;
-    cursor: pointer;
-    margin-right: -25px;
-    margin-top: -15px;
-    background: none;
-    border: none;
-    height: 24px;
-    width: 24px;
-}
-
-.save-popup-form {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.save-popup-fields {
-    padding: 15px 40px 20px;
-}
-
-.save-popup-query {
-    flex-grow: 1;
-    border-block: 1px solid var(--accent-color);
-}
-
-.save-popup-footer {
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-    border-top: 1px solid var(--accent-color);
-}
-
-.save-popup-footer-buttons {
-    display: flex;
-    gap: 20px;
-}
-
-.save-popup-footer-buttons button {
-    background: none;
-    border: 1px solid var(--font-color);
-    padding: 8px 20px;
-    font-weight: bold;
-    cursor: pointer;
 }
 
 /****************************************************/

@@ -1,143 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Get Database Data</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="shortcut icon" type="icon" href="/public/assets/db-icon-512.ico?v=2" />
-        <link rel="shortcut icon" type="image/x-icon" href="/public/assets/db-icon-512.ico?v=2" />
-        <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/public/assets/db-icon-512.ico?v=2" />
-        <link rel="Bookmark" href="/public/assets/db-icon-512.ico?v=2" />
-        <link rel="stylesheet" type="text/css" href="/public/css/styles.css" />
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.1/ace.min.js"
-            type="text/javascript"
-            charset="utf-8"
-            defer
-        ></script>
-        <script src="/public/js/index.js" type="text/javascript" charset="utf-8" defer></script>
-        <script src="/public/js/htmx/htmx.js" defer></script>
-    </head>
 
-    <body>
-        <div class="grid grid-cols-[1fr_100ch] bg-[rgb(39,40,34)] h-[100dvh] p-0 m-0 text-xs">
-            <div
-                class="flex flex-col text-[rgb(255_255_255_/_0.87)] overflow-hidden border-r border-r-[var(--border-color)]"
-            >
-                <div class="grid grid-cols-3 px-5 py-0 items-center border-b border-b-[var(--border-color)]">
-                    <div class="flex gap-4 items-center h-11">
-                        <div
-                            id="response-status"
-                            class="px-3 py-1 h-max font-medium text-white select-none data-[status='OK']:bg-[rgb(0_139_49)] data-[status='RE']:bg-[rgb(181_129_11)] data-[status='SE']:bg-[rgb(211_88_85)]"
-                        ></div>
-                        <div
-                            id="response-time"
-                            class="px-3 py-1 h-max select-none data-[has-response='true']:bg-[var(--accent-color)]"
-                        ></div>
+<head>
+    <title>Get Database Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" type="icon" href="/public/assets/db-icon-512.ico?v=2" />
+    <link rel="shortcut icon" type="image/x-icon" href="/public/assets/db-icon-512.ico?v=2" />
+    <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/public/assets/db-icon-512.ico?v=2" />
+    <link rel="Bookmark" href="/public/assets/db-icon-512.ico?v=2" />
+    <link rel="stylesheet" type="text/css" href="/public/css/styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.1/ace.min.js" type="text/javascript" charset="utf-8"
+        defer></script>
+    <script src="/public/js/index.js" type="text/javascript" charset="utf-8" defer></script>
+    <script src="/public/js/htmx/htmx.js" defer></script>
+</head>
+
+<body>
+    <div class="grid grid-cols-[1fr_100ch] bg-[rgb(39,40,34)] h-[100dvh] p-0 m-0 text-xs">
+        <div
+            class="flex flex-col text-[rgb(255_255_255_/_0.87)] overflow-hidden border-r border-r-[var(--border-color)]">
+            <div class="grid grid-cols-3 px-5 py-0 items-center border-b border-b-[var(--border-color)]">
+                <div class="flex gap-4 items-center h-11">
+                    <div id="response-status"
+                        class="px-3 py-1 h-max font-medium text-white select-none data-[status='OK']:bg-[rgb(0_139_49)] data-[status='RE']:bg-[rgb(181_129_11)] data-[status='SE']:bg-[rgb(211_88_85)]">
                     </div>
-                    <div class="h-full min-w-36 max-w-52 justify-self-end">
-                        <select form="query-form" name="tenant" class="h-full w-full px-[8%] border-0 rounded-none">
-                            <option>WASHGAS_TRN</option>
-                            <option>WASHGAS_PRD</option>
-                        </select>
-                    </div>
-                    <div class="flex gap-3 justify-self-end">
-                        <button>Get Total</button>
-                        <button data-csv-download>CSV</button>
-                        <button>XLSX</button>
-                        <button hx-get="/settings" hx-target="body" hx-push-url="true">Settings</button>
-                    </div>
+                    <div id="response-time"
+                        class="px-3 py-1 h-max select-none data-[has-response='true']:bg-[var(--accent-color)]"></div>
                 </div>
-                <form id="query-form">
-                    <div class="grid grid-cols-[1fr_auto] justify-between border-b border-b-[var(--border-color)]">
-                        <div class="grid grid-cols-[auto_1fr] px-6 py-4">
-                            <h3>Options</h3>
-                            <div class="grid grid-cols-4 auto-rows-max px-4 py-3">
-                                <label class="flex gap-3 items-center mb-2" for="sample">
-                                    <input type="checkbox" name="sample" id="sample" value="true" checked />
-                                    <input type="checkbox" name="sample" id="sample_hidden" value="false" hidden />
-                                    Sample
-                                </label>
-                                <label class="flex gap-3 items-center" for="other">
-                                    <input type="checkbox" name="other" id="other" value="true" checked />
-                                    <input type="checkbox" name="other" id="other_hidden" value="false" hidden />
-                                    Other
-                                </label>
-                            </div>
-                        </div>
-                        <div class="grid gap-4 justify-start px-6 py-4 border-l border-l-[var(--border-color)]">
-                            <div class="grid gap-1">
-                                <label for="username">Username</label>
-                                <input
-                                    class="form-group-input"
-                                    type="text"
-                                    name="username"
-                                    id="username"
-                                    autocomplete="username"
-                                />
-                            </div>
-                            <div class="grid gap-1">
-                                <label for="password">Password</label>
-                                <input
-                                    class="form-group-input"
-                                    type="password"
-                                    name="password"
-                                    id="password"
-                                    autocomplete="current-password"
-                                />
-                            </div>
-                            <button
-                                class="w-max bg-[var(--accent-color)] text-[var(--font-color)] justify-self-end mt-4 px-5 py-1"
-                                type="submit"
-                                hx-post="/run"
-                                hx-trigger="click, internal:submit from:body"
-                                hx-target="#data"
-                                hx-indicator="#indicator"
-                            >
-                                Run
-                            </button>
+                <div class="h-full min-w-36 max-w-52 justify-self-end">
+                    <select form="query-form" name="tenant" class="h-full w-full px-[8%] border-0 rounded-none">
+                        <option>WASHGAS_TRN</option>
+                        <option>WASHGAS_PRD</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 justify-self-end">
+                    <button>Get Total</button>
+                    <button data-csv-download>CSV</button>
+                    <button>XLSX</button>
+                    <button hx-get="/settings" hx-target="body" hx-push-url="true">Settings</button>
+                </div>
+            </div>
+            <form id="query-form">
+                <div class="grid grid-cols-[1fr_auto] justify-between border-b border-b-[var(--border-color)]">
+                    <div class="grid grid-cols-[auto_1fr] px-6 py-4">
+                        <h3>Options</h3>
+                        <div class="grid grid-cols-4 auto-rows-max px-4 py-3">
+                            <label class="flex gap-3 items-center mb-2" for="sample">
+                                <input type="checkbox" name="sample" id="sample" value="true" checked />
+                                <input type="checkbox" name="sample" id="sample_hidden" value="false" hidden />
+                                Sample
+                            </label>
+                            <label class="flex gap-3 items-center" for="other">
+                                <input type="checkbox" name="other" id="other" value="true" checked />
+                                <input type="checkbox" name="other" id="other_hidden" value="false" hidden />
+                                Other
+                            </label>
                         </div>
                     </div>
-                </form>
-                <div id="data" class="data"></div>
+                    <div class="grid gap-4 justify-start px-6 py-4 border-l border-l-[var(--border-color)]">
+                        <div class="grid gap-1">
+                            <label for="username">Username</label>
+                            <input class="form-group-input" type="text" name="username" id="username"
+                                autocomplete="username" />
+                        </div>
+                        <div class="grid gap-1">
+                            <label for="password">Password</label>
+                            <input class="form-group-input" type="password" name="password" id="password"
+                                autocomplete="current-password" />
+                        </div>
+                        <button
+                            class="w-max bg-[var(--accent-color)] text-[var(--font-color)] justify-self-end mt-4 px-5 py-1"
+                            type="submit" hx-post="/run" hx-trigger="click, internal:submit from:body" hx-target="#data"
+                            hx-indicator="#indicator">
+                            Run
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <div id="data" class="h-full overflow-auto"></div>
+        </div>
+        <div class="flex flex-col">
+            <div class="saved-query-selector">
+                <button hx-get="/query/save" hx-target="body" hx-swap="beforeend" data-save-query-btn>SAVE</button>
+                <span data-query-name-display>New</span>
+                <button data-new-query-btn>NEW</button>
+                <button hx-get="/query/open" hx-target="body" hx-swap="beforeend" data-open-query-btn>OPEN</button>
             </div>
-            <div class="query-container">
-                <div class="saved-query-selector">
-                    <button hx-get="/query/save" hx-target="body" hx-swap="beforeend" data-save-query-btn>SAVE</button>
-                    <span data-query-name-display>New</span>
-                    <button data-new-query-btn>NEW</button>
-                    <button hx-get="/query/open" hx-target="body" hx-swap="beforeend" data-open-query-btn>OPEN</button>
-                </div>
-                <div class="editor-container">
-                    <div id="editor"></div>
-                    <textarea id="queryTA" form="query-form" name="query" hidden></textarea>
-                    <div class="open-query-selector" data-open-query-panel></div>
-                </div>
+            <div class="flex-grow relative">
+                <div id="editor" class="h-full"></div>
+                <textarea id="queryTA" form="query-form" name="query" hidden></textarea>
+                <div class="hidden absolute inset-0 bg-[var(--bg-color)] z-[100]" data-open-query-panel></div>
             </div>
         </div>
-        <div id="indicator" class="htmx-indicator">
-            <div class="indicator-mask">
-                <span>loading...</span>
-            </div>
+    </div>
+    <div id="indicator" class="htmx-indicator">
+        <div class="indicator-mask">
+            <span>loading...</span>
         </div>
-        <script>
-            // let session
-            // document.addEventListener("DOMContentLoaded", function (event) {
-            //     console.log("DOM fully loaded and parsed");
-            //     if (session == undefined) {
-            //         session = ace.createEditSession()
-            //         session.serMode("ace/mode/sql")
-            //         session.setUseWrapMode(true);
-            //     }
+    </div>
+    <script>
+        // let session
+        // document.addEventListener("DOMContentLoaded", function (event) {
+        //     console.log("DOM fully loaded and parsed");
+        //     if (session == undefined) {
+        //         session = ace.createEditSession()
+        //         session.serMode("ace/mode/sql")
+        //         session.setUseWrapMode(true);
+        //     }
 
-            //     editor = ace.edit("editor");
-            //     editor.setTheme("ace/theme/monokai");
-            //     editor.setShowPrintMargin(false);
-            //     editor.setHighlightIndentGuides(true);
-            //     editor.setFontSize(10);
-            //     editor.renderer.setScrollMargin(5, 0);
+        //     editor = ace.edit("editor");
+        //     editor.setTheme("ace/theme/monokai");
+        //     editor.setShowPrintMargin(false);
+        //     editor.setHighlightIndentGuides(true);
+        //     editor.setFontSize(10);
+        //     editor.renderer.setScrollMargin(5, 0);
 
-            //     editor.setSession(session)
-            // });
-        </script>
-    </body>
+        //     editor.setSession(session)
+        // });
+    </script>
+</body>
+
 </html>

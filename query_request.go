@@ -27,7 +27,7 @@ const hexagonUrl = "https://us1.eam.hxgnsmartcloud.com/axis/services/EWSConnecto
 func processQuery(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	r.ParseForm()
-	fmt.Println(r.Form)
+
 	respBody, err := getRequestBody(r.Form)
 	if err != nil {
 		errorResponse(w, err.Error(), 400)
@@ -66,10 +66,10 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 			switch ty.Name.Local {
 			case "C":
 				ctok, err := d.RawToken()
+
 				if err != nil {
 					fmt.Printf("C Element Error: %v\n", err)
-				}
-				if cdata, ok := ctok.(xml.CharData); ok {
+				} else if cdata, ok := ctok.(xml.CharData); ok {
 					w.Write([]byte("<td>"))
 					w.Write(cdata)
 					w.Write([]byte("</td>"))
