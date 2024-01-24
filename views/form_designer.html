@@ -1,5 +1,20 @@
-<div class="editor-container">
-    <div class="editor-header"></div>
-    <div class="form-panel"></div>
-    <div class="option-menu"></div>
+{{ define "title" }}Form Designer{{ end }}
+
+{{ define "body" }}
+<div class="h-screen">
+    <div class="h-14"></div>
+    <div class="grid grid-cols-[20%_1fr_20%] h-full w-full">
+        <div class="py-3 bg-red-600">
+            {{- range . -}}
+            <div class="mx-3 py-2 px-3 rounded hover:bg-red-500 transition-colors">{{ . }}</div>
+            {{- end -}}
+        </div>
+        <div class="bg-blue-600"></div>
+        <div class="bg-green-600">
+            {{- range . -}}
+            <div class="mx-3 py-2 px-3 rounded hover:bg-red-500 transition-colors">{{ . }}</div>
+            {{- end -}}
+        </div>
+    </div>
 </div>
+{{ end }}

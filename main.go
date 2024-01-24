@@ -42,13 +42,14 @@ func main() {
 	r.Post("/run", processQuery)
 	r.Get("/query/open", openQueries)
 	r.Get("/query/save", saveQuery)
+	r.Get("/form_designer", formDesignerIndex)
 
 	err := http.ListenAndServe(":42069", r)
 	fmt.Printf("[ERROR]: Server shutdown with error: %v", err)
 }
 
 func GetIndex(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("views/index.html")
+	tmpl, err := template.ParseFiles("views/index.html", "views/query_screen.html")
 	if err != nil {
 		// TODO: do something
 		return
