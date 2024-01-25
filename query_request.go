@@ -66,14 +66,18 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 			switch ty.Name.Local {
 			case "C":
 				ctok, err := d.RawToken()
-
 				if err != nil {
 					fmt.Printf("C Element Error: %v\n", err)
-				} else if cdata, ok := ctok.(xml.CharData); ok {
-					w.Write([]byte("<td>"))
-					w.Write(cdata)
-					w.Write([]byte("</td>"))
+					w.Write([]byte("<td></td>"))
+
 				}
+
+				w.Write([]byte("<td>"))
+				if cdata, ok := ctok.(xml.CharData); ok {
+					w.Write(cdata)
+					d.RawToken()
+				}
+				w.Write([]byte("</td>"))
 			case "Column":
 				i := slices.IndexFunc(ty.Attr, func(attr xml.Attr) bool { return attr.Name.Local == "label" })
 				w.Write([]byte("<th><span>" + ty.Attr[i].Value + "</span></th>"))
@@ -86,7 +90,7 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 			case "faultstring":
 				ftok, _ := d.RawToken()
 				errorResponse(w, string(ftok.(xml.CharData)), 400)
-				return
+				break
 			}
 		case xml.EndElement:
 			switch ty.Name.Local {
