@@ -1,24 +1,52 @@
 {{ define "title" }}Form Designer{{ end }}
 
 {{ define "body" }}
-<div class="h-screen">
+<div class="grid grid-rows-[auto_1fr] h-screen">
     <div class="h-14 border-b border-neutral-500 bg-neutral-400 dark:bg-neutral-800 dark:border-neutral-700"></div>
-    <div class="grid grid-cols-[20%_1fr_20%] h-full w-full">
+    <div class="grid grid-cols-[20%_1fr_20%] overflow-hidden h-full w-full">
         <div
-            class="grid grid-cols-3 gap-3 p-3 bg-neutral-400 border-r border-neutral-500 dark:bg-neutral-800 dark:border-neutral-700">
-            {{- range . -}}
-            <div
-                class="p-3 text-sm rounded-sm h-fit aspect-square bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                <img class="h-10 w-10 mb-2 mt-1 mx-auto" src="data:image/png;base64,{{ .Icon }}" />
-                <h3 class="text-center">{{ .Name }}</h3>
+            class="grid grid-rows-[auto_1fr] overflow-hidden bg-neutral-400 border-r border-neutral-500 dark:bg-neutral-800 dark:border-neutral-700">
+            <h2 class="text-center py-3 border-b border-neutral-500 dark:border-neutral-700">Fields</h2>
+            <div class="grid grid-cols-3 auto-rows-max gap-3 p-3 overflow-auto">
+                {{- range . -}}
+                <div
+                    class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                    <img class="h-8 w-8 mb-2 mt-1 mx-auto" src="data:image/png;base64,{{ .Icon }}" />
+                    <h3 class="text-center">{{ .Name }}</h3>
+                </div>
+                {{- end -}}
+                {{- range . -}}
+                <div
+                    class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                    <img class="h-8 w-8 mb-2 mt-1 mx-auto" src="data:image/png;base64,{{ .Icon }}" />
+                    <h3 class="text-center">{{ .Name }}</h3>
+                </div>
+                {{- end -}}
+                {{- range . -}}
+                <div
+                    class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                    <img class="h-8 w-8 mb-2 mt-1 mx-auto" src="data:image/png;base64,{{ .Icon }}" />
+                    <h3 class="text-center">{{ .Name }}</h3>
+                </div>
+                {{- end -}}
+                {{- range . -}}
+                <div
+                    class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                    <img class="h-8 w-8 mb-2 mt-1 mx-auto" src="data:image/png;base64,{{ .Icon }}" />
+                    <h3 class="text-center">{{ .Name }}</h3>
+                </div>
+                {{- end -}}
+                {{- range . -}}
+                <div
+                    class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                    <img class="h-8 w-8 mb-2 mt-1 mx-auto" src="data:image/png;base64,{{ .Icon }}" />
+                    <h3 class="text-center">{{ .Name }}</h3>
+                </div>
+                {{- end -}}
             </div>
-            {{- end -}}
         </div>
         <div class="dark:bg-neutral-900"></div>
         <div class="bg-neutral-400 border-l dark:bg-neutral-800 border-neutral-700">
-            {{- range . -}}
-            <div class="mx-3 py-2 px-3 rounded hover:bg-red-500 transition-colors">{{ . }}</div>
-            {{- end -}}
         </div>
     </div>
 </div>
