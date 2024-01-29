@@ -6,47 +6,28 @@
     <div class="grid grid-cols-[20%_1fr_20%] overflow-hidden h-full w-full">
         <div
             class="grid grid-rows-[auto_1fr] overflow-hidden bg-neutral-400 border-r border-neutral-500 dark:bg-neutral-800 dark:border-neutral-700">
-            <h2 class="text-center py-3 border-b border-neutral-500 dark:border-neutral-700">Fields</h2>
-            <div class="grid grid-cols-3 auto-rows-max gap-3 p-3 overflow-auto">
-                {{- range . -}}
-                <div
-                    class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                    <img class="h-8 w-8 mb-2 mt-1 mx-auto" src="data:image/png;base64,{{ .Icon }}" />
-                    <h3 class="text-center">{{ .Name }}</h3>
-                </div>
-                {{- end -}}
-                {{- range . -}}
-                <div
-                    class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                    <img class="h-8 w-8 mb-2 mt-1 mx-auto" src="data:image/png;base64,{{ .Icon }}" />
-                    <h3 class="text-center">{{ .Name }}</h3>
-                </div>
-                {{- end -}}
-                {{- range . -}}
-                <div
-                    class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                    <img class="h-8 w-8 mb-2 mt-1 mx-auto" src="data:image/png;base64,{{ .Icon }}" />
-                    <h3 class="text-center">{{ .Name }}</h3>
-                </div>
-                {{- end -}}
-                {{- range . -}}
-                <div
-                    class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                    <img class="h-8 w-8 mb-2 mt-1 mx-auto" src="data:image/png;base64,{{ .Icon }}" />
-                    <h3 class="text-center">{{ .Name }}</h3>
-                </div>
-                {{- end -}}
-                {{- range . -}}
-                <div
-                    class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                    <img class="h-8 w-8 mb-2 mt-1 mx-auto" src="data:image/png;base64,{{ .Icon }}" />
+            <div class="flex gap-1 my-3 p-1 justify-self-center rounded-full bg-neutral-700">
+                <span class="text-center py-1.5 px-4 rounded-full text-sm font-bold bg-neutral-800">Fields</span>
+                <span class="text-center py-1.5 px-4 rounded-full text-sm font-bold">Components</span>
+            </div>
+            <div class="grid grid-cols-3 auto-rows-max gap-3 p-3 overflow-y-auto">
+                {{- range loop . 5 -}}
+                <div class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                    draggable="true">
+                    <img class="h-8 w-8 mb-2 mt-1 mx-auto pointer-events-none"
+                        src="data:image/png;base64,{{ .Icon }}" />
                     <h3 class="text-center">{{ .Name }}</h3>
                 </div>
                 {{- end -}}
             </div>
         </div>
         <div class="dark:bg-neutral-900"></div>
-        <div class="bg-neutral-400 border-l dark:bg-neutral-800 border-neutral-700">
+        <div
+            class="grid grid-rows-[auto_1fr] overflow-hidden bg-neutral-400 border-l dark:bg-neutral-800 border-neutral-700">
+            <h2 class="my-3 font-bold text-center">Details</h2>
+            <div id="field-details" class="">
+
+            </div>
         </div>
     </div>
 </div>

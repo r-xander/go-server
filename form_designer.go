@@ -14,7 +14,21 @@ type field struct {
 }
 
 func formDesignerIndex(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("views/index.html", "views/form_designer.html")
+	tmpl, err := template.New("index.html").Funcs(template.FuncMap{
+		"loop": func(slice []field, n int) <-chan field {
+			ch := make(chan field)
+			go func() {
+				for i := 0; i < n; i++ {
+					for j := 0; j < len(slice); j++ {
+						ch <- slice[j]
+					}
+				}
+				close(ch)
+			}()
+			return ch
+		},
+	}).ParseFiles("views/index.html", "views/form_designer.html")
+
 	if err != nil {
 		fmt.Printf("[ERROR]: Form designer template parsing error: %v\n", err)
 	}

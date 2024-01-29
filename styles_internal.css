@@ -10,6 +10,7 @@
 
     color-scheme: light dark;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--font-color);
 }
 
 input:focus-visible {

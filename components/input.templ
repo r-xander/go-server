@@ -1,0 +1,11 @@
+package main
+
+templ TextInput(label string, name string) {
+	<div class="grid">
+		<label for={ name }>{ label }</label>
+		<input type="text" id={ name } name={ name }/>
+		<span>
+			{ "Text of something" }
+		</span>
+	</div>
+}
