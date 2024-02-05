@@ -1,18 +1,22 @@
 {{ define "title" }}Form Designer{{ end }}
 
 {{ define "body" }}
-<div class="grid grid-rows-[auto_1fr] h-screen">
-    <div class="h-14 border-b border-neutral-500 bg-neutral-400 dark:bg-neutral-800 dark:border-neutral-700"></div>
-    <div class="grid grid-cols-[20%_1fr_20%] overflow-hidden h-full w-full">
+<div class="flex flex-col h-full overflow-hidden">
+    <div
+        class="flex justify-center gap-3 bg-neutral-300 border-b border-neutral-400 dark:bg-neutral-800 dark:border-neutral-700">
+        <span class="py-4 px-6">Section</span>
+        <span class="py-4 px-6">Tab</span>
+    </div>
+    <div class="flex overflow-hidden h-full w-full">
         <div
-            class="grid grid-rows-[auto_1fr] overflow-hidden bg-neutral-400 border-r border-neutral-500 dark:bg-neutral-800 dark:border-neutral-700">
+            class="grid grid-rows-[auto_1fr] basis-1/6 overflow-hidden bg-neutral-300 border-r border-neutral-400 dark:bg-neutral-800 dark:border-neutral-700">
             <div class="flex gap-1 my-3 p-1 justify-self-center rounded-full bg-neutral-700">
                 <span class="text-center py-1.5 px-4 rounded-full text-sm font-bold bg-neutral-800">Fields</span>
                 <span class="text-center py-1.5 px-4 rounded-full text-sm font-bold">Components</span>
             </div>
             <div class="grid grid-cols-3 auto-rows-max gap-3 p-3 overflow-y-auto">
                 {{- range loop . 8 -}}
-                <div class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-500 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                <div class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-400 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors"
                     draggable="true">
                     <svg width="32" height="32" viewBox="{{ .Svg.ViewBox }}" class="mx-auto">
                         <path d="{{ .Svg.Path }}" fill="#000000"></path>
@@ -22,15 +26,10 @@
                 {{- end -}}
             </div>
         </div>
-        <div class="dark:bg-neutral-900">
-            <div
-                class="flex justify-center gap-3 py-3 bg-neutral-400 border-r border-neutral-500 dark:bg-neutral-800 dark:border-neutral-700">
-                <span class="py-4 px-6">Section</span>
-                <span class="py-4 px-6">Tab</span>
-            </div>
+        <div class="basis-2/3 grow dark:bg-neutral-900">
         </div>
         <div
-            class="grid grid-rows-[auto_1fr] overflow-hidden bg-neutral-400 border-l dark:bg-neutral-800 border-neutral-700">
+            class="grid grid-rows-[auto_1fr] basis-1/6 overflow-hidden bg-neutral-300 border-l border-neutral-400 dark:bg-neutral-800 dark:border-neutral-700">
             <h2 class="my-3 font-bold text-center">Details</h2>
             <div id="field-details" class="">
 
