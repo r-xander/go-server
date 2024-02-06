@@ -9,16 +9,16 @@
     </div>
     <div class="flex overflow-hidden h-full w-full">
         <div
-            class="grid grid-rows-[auto_1fr] basis-1/6 overflow-hidden bg-neutral-300 border-r border-neutral-400 dark:bg-neutral-800 dark:border-neutral-700">
-            <div class="flex gap-1 my-3 p-1 justify-self-center rounded-full bg-neutral-700">
+            class="flex flex-col w-96 overflow-hidden bg-neutral-300 border-r border-neutral-400 dark:bg-neutral-800 dark:border-neutral-700">
+            <div class="flex gap-1 my-3 p-1 self-center justify-self-center rounded-full bg-neutral-700">
                 <span class="text-center py-1.5 px-4 rounded-full text-sm font-bold bg-neutral-800">Fields</span>
                 <span class="text-center py-1.5 px-4 rounded-full text-sm font-bold">Components</span>
             </div>
-            <div class="grid grid-cols-3 auto-rows-max gap-3 p-3 overflow-y-auto">
-                {{- range loop . 8 -}}
-                <div class="grid p-3 text-sm rounded-sm h-fit aspect-square select-none bg-neutral-400 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors"
+            <div class="grid grid-cols-fill-18 auto-rows-max gap-2 p-2 overflow-y-auto">
+                {{- range loop . 10 -}}
+                <div class="grid p-2 text-sm items-center rounded h-fit aspect-square select-none bg-neutral-400 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors"
                     draggable="true">
-                    <svg width="32" height="32" viewBox="{{ .Svg.ViewBox }}" class="mx-auto">
+                    <svg width="24" height="24" viewBox="{{ .Svg.ViewBox }}" class="mx-auto">
                         <path d="{{ .Svg.Path }}" fill="#000000"></path>
                     </svg>
                     <h3 class="text-center">{{ .Name }}</h3>
