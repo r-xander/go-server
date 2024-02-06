@@ -40,6 +40,7 @@ func main() {
 	})
 
 	r.Post("/run", processQuery)
+	r.Post("/csv", processQuery)
 	r.Get("/query/open", openQueries)
 	r.Get("/query/save", saveQuery)
 	r.Get("/form_designer", formDesignerIndex)
@@ -49,7 +50,7 @@ func main() {
 }
 
 func GetIndex(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("views/index.html", "views/query_screen.html")
+	tmpl, err := template.ParseFiles("views/query_index.html", "views/query_screen.html")
 	if err != nil {
 		// TODO: do something
 		return

@@ -26,6 +26,47 @@ document.body.addEventListener("keyup", (e) => {
     queryTA.dispatchEvent(new CustomEvent("internal:submit", { bubbles: true }));
 });
 
+const csvDownloadBtn = /** @type {HTMLButtonElement} */ (document.querySelector("#csv-download"));
+csvDownloadBtn.addEventListener("click", downloadCsv);
+async function downloadCsv() {
+    const form = /** @type {HTMLFormElement} */ (document.getElementById("query-form"));
+    const formData = new FormData(form);
+
+    formData.set("query", editor.getValue());
+    const response = await fetch("/csv", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Process-Type": "csv",
+        },
+        // @ts-ignore
+        body: new URLSearchParams(formData),
+    });
+
+    if (!response.ok) {
+        alert("Failed to download csv\n\nError: " + (await response.text()));
+        return;
+    }
+
+    const disposition = response.headers.get("Content-Disposition");
+    const filename =
+        disposition !== undefined ? /** @type {string} */ (disposition).split(";")[1].split("=")[1] : "download";
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.style.display = "none";
+
+    document.body.appendChild(link);
+
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+}
+
 /*  HTMX listeners  */
 
 // @ts-ignore
@@ -69,6 +110,8 @@ editor.setTheme("ace/theme/monokai");
 editor.setShowPrintMargin(false);
 editor.setHighlightIndentGuides(true);
 editor.setFontSize(10);
+editor.setKeyboardHandler("ace/keyboard/vim");
+editor.setBehavioursEnabled(false);
 editor.session.setMode("ace/mode/sql");
 editor.session.setUseWrapMode(true);
 editor.renderer.setScrollMargin(5, 0);
