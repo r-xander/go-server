@@ -1,41 +1,43 @@
 {{ define "title" }}Form Designer{{ end }} {{ define "body" }}
-<div class="flex flex-col h-full overflow-hidden">
-    <div
-        class="flex justify-center gap-3 bg-neutral-300 border-b border-neutral-400 dark:bg-neutral-800 dark:border-neutral-700"
-    >
+<div class="flex flex-col h-full overflow-hidden bg-neutral-50 dark:bg-neutral-800">
+    <div class="flex justify-center gap-3 border-b border-neutral-300 dark:bg-neutral-800 dark:border-neutral-700">
         <span class="py-4 px-6">Section</span>
         <span class="py-4 px-6">Tab</span>
     </div>
     <div class="flex overflow-hidden h-full w-full">
-        <div
-            class="flex flex-col w-96 overflow-hidden bg-neutral-300 border-r border-neutral-400 dark:bg-neutral-800 dark:border-neutral-700"
-        >
-            <div class="flex gap-1 my-3 p-1 self-center justify-self-center rounded-full bg-neutral-700">
-                <span class="text-center py-1.5 px-4 rounded-full text-sm font-bold bg-neutral-800">Fields</span>
-                <span class="text-center py-1.5 px-4 rounded-full text-sm font-bold">Components</span>
+        <div class="flex flex-col w-96 overflow-hidden border-r select-none border-neutral-300 dark:border-neutral-700">
+            <div
+                class="flex gap-1 my-3 p-1 self-center justify-self-center rounded-full border border-neutral-300 bg-white shadow-[inset_0_0_6px_#00000033] dark:bg-neutral-700 dark:shadow-none"
+            >
+                <span
+                    class="text-center py-1.5 px-4 rounded-full text-sm font-bold cursor-pointer text-white bg-indigo-800 dark:bg-indigo-500"
+                >
+                    Fields
+                </span>
+                <span class="text-center py-1.5 px-4 rounded-full text-sm font-bold cursor-pointer">Components</span>
             </div>
             <div
-                class="grid grid-cols-fill-18 auto-rows-max gap-2 py-2 pl-6 pr-1 overflow-y-auto [scrollbar-gutter:stable]"
+                class="grid grid-cols-fill-18 auto-rows-max gap-2 py-2 pl-6 pr-1 font-bold text-indigo-900/80 dark:text-indigo-100/80 overflow-y-auto [scrollbar-gutter:stable]"
             >
                 {{- range loop . 14 -}}
                 <div
-                    class="grid p-2 text-sm items-center rounded h-fit aspect-square select-none bg-neutral-400 dark:bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                    class="grid p-2 text-sm items-center rounded aspect-square origin-center transition-all bg-white border border-neutral-100 shadow-md dark:bg-neutral-700 dark:border-none hover:scale-[1.05] hover:shadow-lg"
                     draggable="true"
                 >
-                    <svg width="24" height="24" viewBox="{{ .Svg.ViewBox }}" class="mx-auto">
-                        <path d="{{ .Svg.Path }}" fill="#000000"></path>
+                    <svg width="24" height="24" viewBox="{{ .Svg.ViewBox }}" class="mx-auto fill-current">
+                        <path d="{{ .Svg.Path }}"></path>
                     </svg>
                     <h3 class="text-center">{{ .Name }}</h3>
                 </div>
                 {{- end -}}
             </div>
         </div>
-        <div class="grid grid-cols-[1fr_1fr] gap-5 auto-rows-fr grow p-5 dark:bg-neutral-900">
+        <div class="grid grid-cols-[1fr_1fr] gap-5 auto-rows-fr grow p-5 bg-white dark:bg-neutral-900">
             <div class="border border-dashed border-yellow-600 rounded-md"></div>
             <div class="border border-dashed border-yellow-600 rounded-md"></div>
         </div>
         <div
-            class="grid grid-rows-[auto_1fr] basis-1/6 overflow-hidden bg-neutral-300 border-l border-neutral-400 dark:bg-neutral-800 dark:border-neutral-700"
+            class="grid grid-rows-[auto_1fr] basis-1/6 overflow-hidden border-l border-neutral-300 dark:border-neutral-700"
         >
             <h2 class="my-3 font-bold text-center">Details</h2>
             <div id="field-details" class=""></div>
