@@ -7,24 +7,22 @@
     <div class="flex overflow-hidden h-full w-full">
         <div class="flex flex-col w-96 overflow-hidden border-r select-none border-neutral-300 dark:border-neutral-700">
             <div
-                class="flex gap-1 my-3 p-1 self-center justify-self-center rounded-full border border-neutral-300 bg-white shadow-[inset_0_0_6px_#00000033] dark:bg-neutral-700 dark:shadow-none"
+                class="flex gap-1 my-3 p-1 self-center justify-self-center rounded-full text-sm font-bold border border-[#ddd] bg-white shadow-[inset_0_0_6px_#ddd] dark:bg-neutral-700 dark:border-neutral-600 dark:shadow-[inset_0_0_6px_#525252]"
             >
-                <span
-                    class="text-center py-1.5 px-4 rounded-full text-sm font-bold cursor-pointer text-white bg-indigo-800 dark:bg-indigo-500"
-                >
+                <span class="py-1.5 px-4 rounded-full cursor-pointer text-white bg-indigo-800 dark:bg-indigo-500">
                     Fields
                 </span>
-                <span class="text-center py-1.5 px-4 rounded-full text-sm font-bold cursor-pointer">Components</span>
+                <span class="py-1.5 px-4 rounded-full cursor-pointer">Components</span>
             </div>
             <div
                 class="grid grid-cols-fill-18 auto-rows-max gap-2 py-2 pl-6 pr-1 font-bold text-indigo-900/80 dark:text-indigo-100/80 overflow-y-auto [scrollbar-gutter:stable]"
             >
                 {{- range loop . 14 -}}
                 <div
-                    class="grid p-2 text-sm items-center rounded aspect-square origin-center transition-all bg-white border border-neutral-100 shadow-md dark:bg-neutral-700 dark:border-none hover:scale-[1.05] hover:shadow-lg"
+                    class="grid p-2 text-sm items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(103%)] hover:shadow-lg"
                     draggable="true"
                 >
-                    <svg width="24" height="24" viewBox="{{ .Svg.ViewBox }}" class="mx-auto fill-current">
+                    <svg width="24" height="24" viewBox="{{ .Svg.ViewBox }}" class="justify-self-center fill-current">
                         <path d="{{ .Svg.Path }}"></path>
                     </svg>
                     <h3 class="text-center">{{ .Name }}</h3>
@@ -32,7 +30,9 @@
                 {{- end -}}
             </div>
         </div>
-        <div class="grid grid-cols-[1fr_1fr] gap-5 auto-rows-fr grow p-5 bg-white dark:bg-neutral-900">
+        <div
+            class="grid grid-cols-[1fr_1fr] auto-rows-[minmax(max-content,20rem)] gap-5 grow p-5 bg-white dark:bg-neutral-900"
+        >
             <div class="border border-dashed border-yellow-600 rounded-md"></div>
             <div class="border border-dashed border-yellow-600 rounded-md"></div>
         </div>
