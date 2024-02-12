@@ -48,11 +48,6 @@
     }
 }
 
-input:focus-visible {
-    outline: none;
-    border-color: #ffffff66 !important;
-}
-
 input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0px 1000px rgb(92 92 92) inset !important;
     -webkit-text-fill-color: var(--font-color) !important;

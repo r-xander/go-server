@@ -1,4 +1,4 @@
-//// @ts-check
+// @ts-check
 
 const nodeList = /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll("[type=checkbox]"));
 const listLen = nodeList.length;
@@ -86,9 +86,18 @@ for (const section of sections) {
     section.addEventListener("drop", (ev) => {
         ev.preventDefault();
         const data = ev.dataTransfer?.getData("text/plain");
+
         if (data !== null || data != undefined) {
+            const target = /** @type {HTMLDivElement} */ (ev.target).closest("[data-section]");
             const template = /** @type {HTMLTemplateElement} */ (document.getElementById(/** @type {string} */ (data)));
-            section.insertAdjacentHTML("beforeend", template.innerHTML);
+            const docFrag = document.importNode(template.content, true);
+            target?.append(docFrag);
+
+            const child = /** @type {HTMLDivElement} */ (target?.lastElementChild);
+            child.style.opacity = "0";
+            child.style.translate = "-12px 0";
+            window.getComputedStyle(child).opacity;
+            child.removeAttribute("style");
         }
     });
 }
@@ -130,9 +139,10 @@ document.body.addEventListener("htmx:afterRequest", function (/** @type {Respons
 /*  Ace Editor Config  */
 
 let roEditor;
+let editor;
 try {
     // @ts-ignore
-    const editor = ace.edit("editor");
+    editor = ace.edit("editor");
     editor.setTheme("ace/theme/monokai");
     editor.setShowPrintMargin(false);
     editor.setHighlightIndentGuides(true);

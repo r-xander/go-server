@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: ["./views/*.html", "./js/*.js"],
+    mode: "jit",
+    content: ["./**/*.{html,js}"],
     theme: {
         extend: {
             gridTemplateColumns: {
@@ -8,5 +9,5 @@ module.exports = {
             },
         },
     },
-    plugins: [],
+    plugins: [require("@tailwindcss/container-queries"), require("@tailwindcss/forms")],
 };

@@ -5,7 +5,9 @@
         <span class="py-4 px-6">Tab</span>
     </div>
     <div class="flex overflow-hidden h-full w-full">
-        <div class="flex flex-col w-96 overflow-hidden border-r select-none border-neutral-300 dark:border-neutral-700">
+        <div
+            class="flex flex-col basis-[max(20rem,20%)] overflow-hidden border-r select-none border-neutral-300 dark:border-neutral-700"
+        >
             <div
                 class="flex gap-1 my-3 p-1 self-center justify-self-center rounded-full text-sm font-bold border border-[#ddd] bg-white shadow-[inset_0_0_6px_#ddd] dark:bg-neutral-700 dark:border-neutral-600 dark:shadow-[inset_0_0_6px_#525252]"
             >
@@ -15,11 +17,11 @@
                 <span class="py-1.5 px-4 rounded-full cursor-pointer">Components</span>
             </div>
             <div
-                class="grid grid-cols-fill-20 auto-rows-max gap-2 py-2 pl-6 pr-1 font-bold text-indigo-900/80 dark:text-indigo-100/80 overflow-y-auto [scrollbar-gutter:stable]"
+                class="grid grid-cols-fill-20 auto-rows-max gap-3 py-2 pl-6 pr-1 font-bold text-indigo-900/70 dark:text-indigo-100/70 overflow-y-auto [scrollbar-gutter:stable]"
             >
                 {{- range loop . 14 -}}
                 <div
-                    class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg"
+                    class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg hover:text-indigo-900 hover:dark:text-indigo-100"
                     draggable="true"
                     data-new-field="{{ .Name }}"
                 >
@@ -34,20 +36,20 @@
                 {{- end -}}
             </div>
         </div>
-        <div
-            class="grid grid-cols-[1fr_1fr] auto-rows-[minmax(max-content,20rem)] gap-5 grow p-5 bg-white dark:bg-neutral-900"
-        >
-            <div
-                class="grid auto-rows-max p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
-                data-section
-            ></div>
-            <div
-                class="grid auto-rows-max p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
-                data-section
-            ></div>
+        <div class="@container/form grow bg-white dark:bg-neutral-900">
+            <div class="grid auto-rows-[minmax(max-content,20rem)] p-4 @[32.25rem]/form:grid-cols-2 gap-4">
+                <div
+                    class="@container/section grid auto-rows-max p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
+                    data-section
+                ></div>
+                <div
+                    class="@container/section grid auto-rows-max p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
+                    data-section
+                ></div>
+            </div>
         </div>
         <div
-            class="grid grid-rows-[auto_1fr] basis-1/6 overflow-hidden border-l border-neutral-300 dark:border-neutral-700"
+            class="grid grid-rows-[auto_1fr] basis-[max(20rem,20%)] overflow-hidden border-l border-neutral-300 dark:border-neutral-700"
         >
             <h2 class="my-3 font-bold text-center">Details</h2>
             <div id="field-details" class=""></div>
@@ -56,11 +58,14 @@
 </div>
 {{ template "text_field" }} {{ end }} {{ define "text_field" }}
 <template id="Text">
-    <div>
-        <label class="grid grid-cols-[minmax(140px,1fr)_minmax(170px,2fr)] w-full">
-            Text
-            <input class="p-2 outline-none border border-neutral-400 rounded" type="text" name="text" id="text" />
-        </label>
+    <div class="grid @[22rem]/section:grid-cols-[3fr_4fr] w-full items-center transition-all duration-300">
+        <label class="font-medium" for="text">Text <span class="text-rose-500 font-semibold">*</span></label>
+        <input
+            class="form-input p-1.5 border-neutral-400 ![--tw-ring-color:none] focus:border-indigo-800 dark:focus:[--tw-ring-color:#6366f1] dark:focus:border-indigo-500 dark:bg-neutral-700 rounded"
+            type="text"
+            name="text"
+            id="text"
+        />
     </div>
 </template>
 {{ end }}
