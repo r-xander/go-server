@@ -124,13 +124,13 @@ func queryToCsv(w http.ResponseWriter, data io.Reader) {
 			errorResponse(w, err.Error(), 500)
 			return
 		}
-
+        
 		switch ty := tok.(type) {
 		case xml.StartElement:
 			switch ty.Name.Local {
 			case "C":
 				ctok, err := d.RawToken()
-
+                
 				if !newRow {
 					w.Write([]byte(","))
 				}

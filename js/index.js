@@ -1,4 +1,4 @@
-// @ts-check
+//// @ts-check
 
 const nodeList = /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll("[type=checkbox]"));
 const listLen = nodeList.length;
@@ -27,7 +27,7 @@ document.body.addEventListener("keyup", (e) => {
 });
 
 const csvDownloadBtn = /** @type {HTMLButtonElement} */ (document.querySelector("#csv-download"));
-csvDownloadBtn.addEventListener("click", downloadCsv);
+csvDownloadBtn?.addEventListener("click", downloadCsv);
 async function downloadCsv() {
     const form = /** @type {HTMLFormElement} */ (document.getElementById("query-form"));
     const formData = new FormData(form);
@@ -67,6 +67,32 @@ async function downloadCsv() {
     URL.revokeObjectURL(url);
 }
 
+/*  Drag & Drop Handlers  */
+
+const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[data-new-field]"));
+for (const field of newFields) {
+    field.addEventListener("dragstart", (ev) => {
+        ev.dataTransfer?.setData("text/plain", /** @type {string} */ (field.dataset.newField));
+        console.log(ev);
+    });
+}
+
+const sections = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[data-section]"));
+for (const section of sections) {
+    section.addEventListener("dragover", (ev) => {
+        ev.preventDefault();
+    });
+
+    section.addEventListener("drop", (ev) => {
+        ev.preventDefault();
+        const data = ev.dataTransfer?.getData("text/plain");
+        if (data !== null || data != undefined) {
+            const template = /** @type {HTMLTemplateElement} */ (document.getElementById(/** @type {string} */ (data)));
+            section.insertAdjacentHTML("beforeend", template.innerHTML);
+        }
+    });
+}
+
 /*  HTMX listeners  */
 
 // @ts-ignore
@@ -104,17 +130,19 @@ document.body.addEventListener("htmx:afterRequest", function (/** @type {Respons
 /*  Ace Editor Config  */
 
 let roEditor;
-// @ts-ignore
-const editor = ace.edit("editor");
-editor.setTheme("ace/theme/monokai");
-editor.setShowPrintMargin(false);
-editor.setHighlightIndentGuides(true);
-editor.setFontSize(10);
-editor.setKeyboardHandler("ace/keyboard/vim");
-editor.setBehavioursEnabled(false);
-editor.session.setMode("ace/mode/sql");
-editor.session.setUseWrapMode(true);
-editor.renderer.setScrollMargin(5, 0);
+try {
+    // @ts-ignore
+    const editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.setShowPrintMargin(false);
+    editor.setHighlightIndentGuides(true);
+    editor.setFontSize(10);
+    editor.setKeyboardHandler("ace/keyboard/vim");
+    editor.setBehavioursEnabled(false);
+    editor.session.setMode("ace/mode/sql");
+    editor.session.setUseWrapMode(true);
+    editor.renderer.setScrollMargin(5, 0);
+} catch {}
 
 /**
  * @typedef {CustomEvent<Details>} ResponseErrorEvent
