@@ -9,19 +9,21 @@
             class="flex flex-col basis-[max(20rem,20%)] overflow-hidden border-r select-none border-neutral-300 dark:border-neutral-700"
         >
             <div
-                class="flex gap-1 my-3 p-1 self-center justify-self-center rounded-full text-sm font-bold border border-[#ddd] bg-white shadow-[inset_0_0_6px_#ddd] dark:bg-neutral-700 dark:border-neutral-600 dark:shadow-[inset_0_0_6px_#525252]"
+                class="flex gap-1 my-3 p-2 self-center justify-self-center rounded-xl text-sm font-bold border border-[#ddd] bg-white shadow-[inset_0_0_6px_#ddd] dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-none"
             >
-                <span class="py-1.5 px-4 rounded-full cursor-pointer text-white bg-indigo-800 dark:bg-indigo-500">
+                <span
+                    class="py-1.5 px-4 rounded-md cursor-pointer text-white bg-indigo-800 dark:bg-sky-600 dark:shadow-[inset_0_0_6px_2px_#0369A1]"
+                >
                     Fields
                 </span>
-                <span class="py-1.5 px-4 rounded-full cursor-pointer">Components</span>
+                <span class="py-1.5 px-4 rounded-md cursor-pointer">Components</span>
             </div>
             <div
-                class="grid grid-cols-fill-20 auto-rows-max gap-3 py-2 pl-6 pr-1 font-bold text-indigo-900/70 dark:text-indigo-100/70 overflow-y-auto [scrollbar-gutter:stable]"
+                class="grid grid-cols-fill-20 auto-rows-max gap-3 py-2 pl-6 pr-1 font-bold text-indigo-900/70 dark:text-sky-100/70 overflow-y-auto [scrollbar-gutter:stable]"
             >
                 {{- range loop . 14 -}}
                 <div
-                    class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg hover:text-indigo-900 hover:dark:text-indigo-100"
+                    class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg hover:text-indigo-900 hover:dark:text-sky-100"
                     draggable="true"
                     data-new-field="{{ .Name }}"
                 >
