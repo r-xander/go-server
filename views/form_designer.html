@@ -9,7 +9,7 @@
             class="flex flex-col basis-[max(20rem,20%)] overflow-hidden border-r select-none border-neutral-300 dark:border-neutral-700"
         >
             <div
-                class="flex gap-1 my-3 p-2 self-center justify-self-center rounded-xl text-sm font-bold border border-[#ddd] bg-white shadow-[inset_0_0_6px_#ddd] dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-none"
+                class="flex gap-1 my-3 p-1.5 self-center justify-self-center rounded-xl text-sm font-bold border border-[#ddd] bg-white shadow-[inset_0_0_6px_#ddd] dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-none"
             >
                 <span
                     class="py-1.5 px-4 rounded-md cursor-pointer text-white bg-indigo-800 dark:bg-sky-600 dark:shadow-[inset_0_0_6px_2px_#0369A1]"
@@ -38,14 +38,14 @@
                 {{- end -}}
             </div>
         </div>
-        <div class="@container/form grow bg-white dark:bg-neutral-900">
-            <div class="grid auto-rows-[minmax(max-content,20rem)] p-4 @[32.25rem]/form:grid-cols-2 gap-4">
+        <div class="@container/form grow overflow-auto bg-white dark:bg-neutral-900">
+            <div class="grid grid-cols-1 auto-rows-[minmax(max-content,20rem)] p-4 @[35rem]/form:grid-cols-2 gap-4">
                 <div
-                    class="@container/section grid auto-rows-max p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
+                    class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
                     data-section
                 ></div>
                 <div
-                    class="@container/section grid auto-rows-max p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
+                    class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
                     data-section
                 ></div>
             </div>
