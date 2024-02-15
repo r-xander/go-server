@@ -6,17 +6,24 @@
 
         const formDesigner = {
             templates: {},
+            fields: [],
             newField: newField,
         };
 
         function newField(parentSelector, type) {
+            /** @type {TextInputAttributes} */
+            const fieldDetails = {};
+
+            /** @type {HTMLTemplateElement} */
             const template = formDesigner.templates[type];
-            const field = template.cloneNode(true);
 
+            /** @type {HTMLElement} */
+            const child = template.firstChild.cloneNode(true);
+
+            /** @type {HTMLElement} */
             const parent = document.querySelector(parentSelector);
-            parent.appendChild(field);
+            parent.appendChild(child);
 
-            const child = /** @type {HTMLDivElement} */ (target?.lastElementChild);
             child.style.opacity = "0";
             child.style.translate = "-12px 0";
             window.getComputedStyle(child).opacity;
