@@ -5,20 +5,38 @@
         "use strict";
 
         const formDesigner = {
-            templates: {},
+            fieldTemplates: {},
+            optionsTemplates: {},
             fields: [],
+            optionsContainer: null,
             newField: newField,
+            setOptionsContainer: setOptionsContainer,
         };
 
-        function newField(parentSelector, type) {
-            /** @type {TextInputAttributes} */
-            const fieldDetails = {};
+        /**
+         * @param {HTMLElement} container
+         */
+        function setOptionsContainer(container) {
+            ready(() => {
+                formDesigner.optionsContainer = container;
+            });
+        }
 
+        function newField(name, parentSelector, type) {
             /** @type {HTMLTemplateElement} */
-            const template = formDesigner.templates[type];
+            const template = formDesigner.fieldTemplates[type];
 
             /** @type {HTMLElement} */
             const child = template.firstChild.cloneNode(true);
+
+            child.internals = {
+                /** @type {TextInputAttributes} */
+                fieldDetails: addInputAttributes(name, type),
+                type,
+                name,
+            };
+
+            addEventHandler(child);
 
             /** @type {HTMLElement} */
             const parent = document.querySelector(parentSelector);
@@ -30,6 +48,48 @@
             child.removeAttribute("style");
         }
 
+        /**
+         * Adds event handlers to the child element.
+         *
+         * @param {HTMLElement} child
+         */
+        function addEventHandler(child) {
+            child.addEventListener("click", clickHandler);
+        }
+
+        function clickHandler(e) {
+            const optionsTemplate = formDesigner.optionsTemplates[optionsType];
+            const options = optionsTemplate.cloneNode(true);
+
+            const target = e.target;
+            const optionsType = target.optionsType;
+
+            const fields = options.querySelectorAll("input, select, textarea");
+            for (let i = 0; i < fields.length; i++) {
+                const field = fields[i];
+
+                field.addEventHandler("change", function (e) {
+                    const fieldTarget = e.target;
+                    const name = fieldTarget.name;
+                    const value = fieldTarget.value;
+
+                    target[name] = value;
+                    formDesigner.fields[name] = value;
+
+                    e.stopImmediatePropagation();
+                    e.stopPropagation();
+                    e.preventDefault();
+                    return false;
+                });
+            }
+
+            formDesigner.optionsContainer.appendChild(options);
+        }
+
+        function addInputAttributes(name, type) {
+            return attributes;
+        }
+
         function intializeTemplates() {
             const templates = getDocument().querySelectorAll("[form-template]");
 
@@ -37,7 +97,7 @@
                 const template = templates[i];
                 const templateName = template.getAttribute("form-template");
 
-                formDesigner.templates[templateName] = template;
+                formDesigner.fieldTemplates[templateName] = template;
             }
         }
 
