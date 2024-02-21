@@ -101,6 +101,40 @@
             }
         }
 
+        function initializeActionElements() {
+            const actionElements = getDocument().querySelectorAll("[form-action]");
+
+            for (let i = 0; i < actionElements.length; i++) {
+                const actionElement = actionElements[i];
+                const actionName = actionElement.getAttribute("form-action");
+                const actionType = actionElement.getAttribute("form-action-type");
+                const template = actionElement.querySelector(`[form-template=${actionName}`);
+
+                function templateAction(e) {
+                    const target = e.target;
+                    const name = target.name;
+                    const value = target.value;
+
+                    formDesigner.fields[name] = value;
+                }
+
+                actionElement.addEventHandler("change", templateAction);
+
+                formDesigner.actionElements[actionName] = actionElement;
+            }
+        }
+
+        function initializeOptionsPanel() {
+            const actionElements = getDocument().querySelectorAll("[form-options]");
+
+            for (let i = 0; i < actionElements.length; i++) {
+                const actionElement = actionElements[i];
+                const actionName = actionElement.getAttribute("form-options");
+
+                formDesigner.actionElements[actionName] = actionElement;
+            }
+        }
+
         //====================================================================
         // Initialization
         //====================================================================

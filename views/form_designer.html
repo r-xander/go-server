@@ -1,9 +1,5 @@
 {{ define "title" }} Form Designer {{ end }} {{ define "body" }}
 <div class="flex flex-col h-full overflow-hidden bg-neutral-50 dark:bg-neutral-800">
-    <div class="flex justify-center gap-3 border-b border-neutral-300 dark:bg-neutral-800 dark:border-neutral-700">
-        <span class="py-4 px-6">Section</span>
-        <span class="py-4 px-6">Tab</span>
-    </div>
     <div class="flex overflow-hidden h-full w-full">
         <div
             class="flex flex-col basis-[max(20rem,20%)] overflow-hidden border-r select-none border-neutral-300 dark:border-neutral-700"
@@ -39,6 +35,12 @@
             </div>
         </div>
         <div class="@container/form grow overflow-auto bg-white dark:bg-neutral-900">
+            <div
+                class="flex justify-center gap-3 border-b border-neutral-300 dark:bg-neutral-800 dark:border-neutral-700"
+            >
+                <span class="py-4 px-6">Section</span>
+                <span class="py-4 px-6">Tab</span>
+            </div>
             <div class="grid grid-cols-1 auto-rows-[minmax(max-content,20rem)] p-4 @[35rem]/form:grid-cols-2 gap-4">
                 <div
                     class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
