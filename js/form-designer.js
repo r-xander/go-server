@@ -5,8 +5,7 @@
         "use strict";
 
         const formDesigner = {
-            fieldTemplates: {},
-            optionsTemplates: {},
+            actions: {},
             fields: [],
             optionsContainer: null,
             newField: newField,
@@ -91,13 +90,56 @@
         }
 
         function intializeTemplates() {
-            const templates = getDocument().querySelectorAll("[form-template]");
+            const inputs = getDocument().querySelectorAll("[draggable=true]");
 
-            for (let i = 0; i < templates.length; i++) {
-                const template = templates[i];
-                const templateName = template.getAttribute("form-template");
+            for (let i = 0; i < inputs.length; i++) {
+                const input = input[i];
+                const templateName = input.getAttribute("dd-template");
 
-                formDesigner.fieldTemplates[templateName] = template;
+                /** @type {HTMLTemplateElement} */
+                const template = input.querySelector("#" + templateName);
+
+                function dragStartHandler(e) {
+                    e.dataTransfer.setData("text/html", template.content.innerHTML);
+                }
+
+                formDesigner.actions[templateName] = {
+                    template,
+                    handler: dragStartHandler,
+                };
+
+                input.addEventHandler("dragstart", dragStartHandler);
+            }
+        }
+
+        function initializeActionElements() {
+            const actionElements = getDocument().querySelectorAll("[dd-dropzone]");
+
+            for (let i = 0; i < actionElements.length; i++) {
+                const actionElement = actionElements[i];
+
+                function templateAction(e) {
+                    const target = e.target;
+                    const name = target.name;
+                    const value = target.value;
+
+                    formDesigner.fields[name] = value;
+                }
+
+                actionElement.addEventHandler("change", templateAction);
+
+                formDesigner.actionElements[actionName] = actionElement;
+            }
+        }
+
+        function initializeOptionsPanel() {
+            const actionElements = getDocument().querySelectorAll("[form-options]");
+
+            for (let i = 0; i < actionElements.length; i++) {
+                const actionElement = actionElements[i];
+                const actionName = actionElement.getAttribute("form-options");
+
+                formDesigner.actionElements[actionName] = actionElement;
             }
         }
 
