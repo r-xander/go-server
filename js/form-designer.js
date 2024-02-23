@@ -6,7 +6,7 @@
 
         const formDesigner = {
             actions: {},
-            fields: [],
+            dropZones: {},
             optionsContainer: null,
             newField: newField,
             setOptionsContainer: setOptionsContainer,
@@ -89,11 +89,12 @@
             return attributes;
         }
 
-        function intializeTemplates() {
+        function initializeActionElements() {
+            /** @type {NodeListOf<HTMLTemplateElement>} */
             const inputs = getDocument().querySelectorAll("[draggable=true]");
 
             for (let i = 0; i < inputs.length; i++) {
-                const input = input[i];
+                const input = inputs[i];
                 const templateName = input.getAttribute("dd-template");
 
                 /** @type {HTMLTemplateElement} */
@@ -112,27 +113,18 @@
             }
         }
 
-        function initializeActionElements() {
-            const actionElements = getDocument().querySelectorAll("[dd-dropzone]");
+        function initializeDropZone() {
+            const dropZones = getDocument().querySelectorAll("template[dd-dropzone]");
 
-            for (let i = 0; i < actionElements.length; i++) {
-                const actionElement = actionElements[i];
+            for (let i = 0; i < dropZones.length; i++) {
+                const dropZone = dropZones[i];
+                const name = dropZone.getAttribute("dd-dropzone");
 
-                function templateAction(e) {
-                    const target = e.target;
-                    const name = target.name;
-                    const value = target.value;
-
-                    formDesigner.fields[name] = value;
-                }
-
-                actionElement.addEventHandler("change", templateAction);
-
-                formDesigner.actionElements[actionName] = actionElement;
+                formDesigner.actionElements[name] = dropZone;
             }
         }
 
-        function initializeOptionsPanel() {
+        function addDropZone(templateId) {
             const actionElements = getDocument().querySelectorAll("[form-options]");
 
             for (let i = 0; i < actionElements.length; i++) {
@@ -169,7 +161,7 @@
         }
 
         ready(function () {
-            intializeTemplates();
+            initializeActionElements();
         });
 
         return formDesigner;
