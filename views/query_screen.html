@@ -1,34 +1,46 @@
-{{ define "title" }}Query{{ end }}
-
-{{ define "body" }}
+{{ define "title" }}Query{{ end }} {{ define "body" }}
 <div class="grid grid-cols-[1fr_100ch] bg-[rgb(39,40,34)] h-[100dvh] p-0 m-0 text-xs">
     <div class="flex flex-col text-[rgb(255_255_255_/_0.87)] overflow-hidden border-r border-r-[var(--border-color)]">
         <div class="grid grid-cols-3 min-h-12 px-5 py-0 items-center border-b border-b-[var(--border-color)]">
             <div class="flex gap-4 items-center">
-                <div id="response-status"
-                    class="px-3 py-1 h-max font-medium text-white select-none data-[status='OK']:bg-[rgb(0_139_49)] data-[status='RE']:bg-[rgb(181_129_11)] data-[status='SE']:bg-[rgb(211_88_85)]">
-                </div>
-                <div id="response-time"
-                    class="px-3 py-1 h-max select-none data-[has-response='true']:bg-[var(--accent-color)]"></div>
+                <div
+                    id="response-status"
+                    class="px-3 py-1 h-max font-medium text-white select-none data-[status='OK']:bg-[rgb(0_139_49)] data-[status='RE']:bg-[rgb(181_129_11)] data-[status='SE']:bg-[rgb(211_88_85)]"
+                ></div>
+                <div
+                    id="response-time"
+                    class="px-3 py-1 h-max select-none data-[has-response='true']:bg-[var(--accent-color)]"
+                ></div>
             </div>
-            <div class="h-full min-w-36 max-w-52 justify-self-center">
-                <select form="query-form" name="tenant" class="h-full w-full px-[8%] border-0 rounded-none">
-                    <option>WASHGAS_TRN</option>
-                    <option>WASHGAS_PRD</option>
+            <div class="h-full min-w-40 max-w-52 justify-self-center">
+                <select
+                    form="query-form"
+                    name="tenant"
+                    class="h-full w-full px-[8%] border-0 rounded-none dark:bg-neutral-600"
+                >
+                    <option class="bg-neutral-700 py-4">WASHGAS_TRN</option>
+                    <option class="bg-neutral-700 py-4">WASHGAS_PRD</option>
                 </select>
             </div>
             <div class="flex gap-3 justify-self-end">
                 <button class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold">
                     Get Total
                 </button>
-                <button id="csv-download" class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold">
+                <button
+                    id="csv-download"
+                    class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold"
+                >
                     CSV
                 </button>
                 <button class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold">
                     XLSX
                 </button>
-                <button class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold"
-                    hx-get="/settings" hx-target="body" hx-push-url="true">
+                <button
+                    class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold"
+                    hx-get="/settings"
+                    hx-target="body"
+                    hx-push-url="true"
+                >
                     Settings
                 </button>
             </div>
@@ -40,13 +52,8 @@
                     <div class="grid grid-cols-4 auto-rows-max px-4 py-3">
                         <label class="flex gap-3 items-center mb-2" for="sample">
                             <input type="checkbox" name="sample" id="sample" value="true" checked />
-                            <input type="checkbox" name="sample" id="sample_hidden" value="false" hidden />
+                            <input type="checkbox" name="sample" id="sample_hidden" value="false" class="hidden" />
                             Sample
-                        </label>
-                        <label class="flex gap-3 items-center" for="other">
-                            <input type="checkbox" name="other" id="other" value="true" checked />
-                            <input type="checkbox" name="other" id="other_hidden" value="false" hidden />
-                            Other
                         </label>
                     </div>
                 </div>
@@ -55,18 +62,30 @@
                         <label for="username">Username</label>
                         <input
                             class="bg-[rgb(64,64,64)] text-[var(--font-color)] border border-[rgb(92,92,92)] rounded p-2"
-                            type="text" name="username" id="username" autocomplete="username" />
+                            type="text"
+                            name="username"
+                            id="username"
+                            autocomplete="username"
+                        />
                     </div>
                     <div class="grid gap-1">
                         <label for="password">Password</label>
                         <input
                             class="bg-[rgb(64,64,64)] text-[var(--font-color)] border border-[rgb(92,92,92)] rounded p-2"
-                            type="password" name="password" id="password" autocomplete="current-password" />
+                            type="password"
+                            name="password"
+                            id="password"
+                            autocomplete="current-password"
+                        />
                     </div>
                     <button
                         class="w-max mt-4 px-5 py-1.5 rounded justify-self-end bg-[var(--accent-color)] text-[var(--font-color)]"
-                        type="submit" hx-post="/run" hx-trigger="click, internal:submit from:body" hx-target="#data"
-                        hx-indicator="#indicator">
+                        type="submit"
+                        hx-post="/run"
+                        hx-trigger="click, internal:submit from:body"
+                        hx-target="#data"
+                        hx-indicator="#indicator"
+                    >
                         Run
                     </button>
                 </div>
@@ -76,14 +95,24 @@
     </div>
     <div class="flex flex-col">
         <div class="flex h-12 border-b border-[var(--border-color)]">
-            <button class="py-2 px-3 font-bold text-sm bg-[va(--accent-color)]" hx-get="/query/save" hx-target="body"
-                hx-swap="beforeend" data-save-query-btn>
+            <button
+                class="py-2 px-3 font-bold text-sm bg-[va(--accent-color)]"
+                hx-get="/query/save"
+                hx-target="body"
+                hx-swap="beforeend"
+                data-save-query-btn
+            >
                 SAVE
             </button>
             <span id="query-display-name" class="flex-1 py-2 px-3 text-center text-sm tracking-wide">New</span>
             <button class="py-2 px-3 font-bold text-sm bg-[va(--accent-color)]">NEW</button>
-            <button class="py-2 px-3 font-bold text-sm bg-[va(--accent-color)]" hx-get="/query/open" hx-target="body"
-                hx-swap="beforeend" data-open-query-btn>
+            <button
+                class="py-2 px-3 font-bold text-sm bg-[va(--accent-color)]"
+                hx-get="/query/open"
+                hx-target="body"
+                hx-swap="beforeend"
+                data-open-query-btn
+            >
                 OPEN
             </button>
         </div>
