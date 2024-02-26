@@ -112,6 +112,12 @@
             }
         }
 
+        /**
+         *
+         * @param {HTMLElement} element
+         */
+        function addDropZone(element) {}
+
         function initializeActionElements() {
             const actionElements = getDocument().querySelectorAll("[dd-dropzone]");
 
