@@ -69,35 +69,50 @@ async function downloadCsv() {
 
 /*  Drag & Drop Handlers  */
 
-const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[data-new-field]"));
-for (const field of newFields) {
-    field.addEventListener("dragstart", (ev) => {
-        ev.dataTransfer?.setData("text/plain", /** @type {string} */ (field.dataset.newField));
-        console.log(ev);
-    });
+function dragOver(e) {
+    e.preventDefault();
 }
 
-const sections = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[data-section]"));
-for (const section of sections) {
-    section.addEventListener("dragover", (ev) => {
-        ev.preventDefault();
+function drop(e) {
+    e.preventDefault();
+
+    const data = e.dataTransfer?.getData("text/plain");
+
+    if (data !== null || data != undefined) {
+        const target = /** @type {HTMLDivElement} */ (e.target).closest("[data-section]");
+        const template = /** @type {HTMLTemplateElement} */ (document.getElementById(data));
+        const docFrag = document.importNode(template.content, true);
+        target?.append(docFrag);
+
+        const child = /** @type {HTMLDivElement} */ (target?.lastElementChild);
+        child.style.opacity = "0";
+        child.style.translate = "-12px 0";
+        window.getComputedStyle(child).opacity;
+        child.removeAttribute("style");
+    }
+}
+
+const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[dd-template]"));
+let sections;
+
+for (const field of newFields) {
+    field.addEventListener("dragstart", (ev) => {
+        sections = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[data-section]"));
+        for (const section of sections) {
+            section.addEventListener("dragover", dragOver);
+            section.addEventListener("drop", drop);
+        }
+
+        /** @type {string} */
+        // @ts-ignore
+        const templateId = ev.target.getAttribute("dd-template");
+        ev.dataTransfer?.setData("text/plain", /** @type {string} */ (templateId));
+        console.log(ev);
     });
-
-    section.addEventListener("drop", (ev) => {
-        ev.preventDefault();
-        const data = ev.dataTransfer?.getData("text/plain");
-
-        if (data !== null || data != undefined) {
-            const target = /** @type {HTMLDivElement} */ (ev.target).closest("[data-section]");
-            const template = /** @type {HTMLTemplateElement} */ (document.getElementById(/** @type {string} */ (data)));
-            const docFrag = document.importNode(template.content, true);
-            target?.append(docFrag);
-
-            const child = /** @type {HTMLDivElement} */ (target?.lastElementChild);
-            child.style.opacity = "0";
-            child.style.translate = "-12px 0";
-            window.getComputedStyle(child).opacity;
-            child.removeAttribute("style");
+    field.addEventListener("dragend", (ev) => {
+        for (const section of sections) {
+            section.removeEventListener("dragover", dragOver);
+            section.removeEventListener("drop", drop);
         }
     });
 }
