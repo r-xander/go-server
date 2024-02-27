@@ -35,23 +35,19 @@
                 {{- end -}}
             </div>
         </div>
-        <div class="@container/form grow overflow-auto bg-white dark:bg-neutral-900">
-            <div
+        <div class="@container/form p-4 grow overflow-auto bg-white dark:bg-neutral-900">
+            <!-- <div
                 class="flex justify-center gap-3 border-b border-neutral-300 dark:bg-neutral-800 dark:border-neutral-700"
             >
                 <span class="py-4 px-6">Section</span>
                 <span class="py-4 px-6">Tab</span>
-            </div>
-            <div class="grid grid-cols-1 auto-rows-[minmax(max-content,20rem)] p-4 @[35rem]/form:grid-cols-2 gap-4">
-                <div
-                    class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
-                    data-section
-                ></div>
-                <div
-                    class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
-                    data-section
-                ></div>
-            </div>
+            </div> -->
+            <button
+                id="add-section-button"
+                class="flex align-center justify-center p-6 w-full border border-neutral-700 dark:text-neutral-500 dark:hover:text-sky-500 dark:hover:border-sky-500"
+            >
+                Add Section
+            </button>
         </div>
         <div
             class="grid grid-rows-[auto_1fr] basis-[max(20rem,20%)] overflow-hidden border-l border-neutral-300 dark:border-neutral-700"
@@ -63,7 +59,7 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="/js/form_designer.js" type="text/javascript" charset="utf-8"></script>
-{{ template "text_field" }} {{ end }} {{ define "text_field" }}
+{{ template "text_field" }} {{ template "section" }} {{ end }} {{ define "text_field" }}
 <template id="Text">
     <div class="grid p-3 rounded gap-3 bg-neutral-800">
         <div class="flex justify-between">
@@ -84,6 +80,19 @@
                 id="text"
             />
         </div>
+    </div>
+</template>
+{{ end }} {{ define "section" }}
+<template id="section-template">
+    <div class="grid grid-cols-1 auto-rows-[minmax(max-content,20rem)] @[35rem]/form:grid-cols-2 gap-4">
+        <div
+            class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
+            data-section
+        ></div>
+        <div
+            class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
+            data-section
+        ></div>
     </div>
 </template>
 {{ end }}

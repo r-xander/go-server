@@ -1,4 +1,44 @@
-// @ts-check
+//// @ts-check
+
+const addSectionBtn = /** @type {HTMLInputElement} */ (document.getElementById("add-section-button"));
+const sectionSortables = [];
+
+addSectionBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    const sectionTemplate = /** @type {HTMLTemplateElement} */ (document.getElementById("section-template"));
+    const section = sectionTemplate.content.cloneNode(true);
+    e.target.parentNode.insertBefore(section, e.target);
+
+    const fieldContainers = section.querySelectorAll("[data-section]");
+    for (let i = 0; i < fieldContainers.length; ++i) {
+        const container = fieldContainers[i];
+        sectionSortables.push(
+            new Sortable(container, {
+                group: {
+                    name: "sections",
+                    pull: true,
+                    put: true,
+                },
+                animation: 150,
+                // onAdd: function (evt) {
+                //     console.log(evt);
+                //     const template = evt.item.getAttribute("dd-template");
+                //     const templateElement = document.querySelector("#" + template);
+                //     evt.clone = templateElement.content.cloneNode(true);
+                // },
+                onClone: function (evt) {
+                    console.log(evt);
+                    ghost = document.createElement("div");
+                    ghost.innerText = "testing and shit";
+                    evt.item = ghost;
+                },
+            })
+        );
+    }
+});
 
 const nodeList = /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll("[type=checkbox]"));
 const listLen = nodeList.length;
@@ -7,7 +47,7 @@ for (let i = 0; i < listLen; i += 2) {
     const node = nodeList[i];
     const hiddenNode = nodeList[i + 1];
 
-    const handlerFactory = function (/** @type {HTMLInputElement}*/ node) {
+    const handlerFactory = function (/** @type {HTMLInputElement} */ node) {
         return function (/** @type {Event} */ e) {
             node.checked = !(/** @type {HTMLInputElement}*/ (e.target).checked);
             e.stopImmediatePropagation();
@@ -107,7 +147,7 @@ for (const field of newFields) {
         // @ts-ignore
         const templateId = ev.target.getAttribute("dd-template");
         ev.dataTransfer?.setData("text/plain", /** @type {string} */ (templateId));
-        console.log(ev);
+        // console.log(ev);
     });
     field.addEventListener("dragend", (ev) => {
         for (const section of sections) {
