@@ -1,4 +1,4 @@
-//// @ts-check
+// @ts-check
 
 const addSectionBtn = /** @type {HTMLInputElement} */ (document.getElementById("add-section-button"));
 const sectionSortables = [];
@@ -9,34 +9,26 @@ addSectionBtn.addEventListener("click", (e) => {
     e.stopImmediatePropagation();
 
     const sectionTemplate = /** @type {HTMLTemplateElement} */ (document.getElementById("section-template"));
-    const section = sectionTemplate.content.cloneNode(true);
-    e.target.parentNode.insertBefore(section, e.target);
+    const section = /** @type {DocumentFragment} */ (sectionTemplate.content.cloneNode(true));
+    const sectionContainer = /** @type {HTMLDivElement} */ (e.target);
+    const newSection = sectionContainer.insertAdjacentElement("beforebegin", section.firstElementChild);
 
-    const fieldContainers = section.querySelectorAll("[data-section]");
+    const fieldContainers = newSection.querySelectorAll("[data-section]");
     for (let i = 0; i < fieldContainers.length; ++i) {
         const container = fieldContainers[i];
-        sectionSortables.push(
-            new Sortable(container, {
-                group: {
-                    name: "sections",
-                    pull: true,
-                    put: true,
-                },
-                animation: 150,
-                // onAdd: function (evt) {
-                //     console.log(evt);
-                //     const template = evt.item.getAttribute("dd-template");
-                //     const templateElement = document.querySelector("#" + template);
-                //     evt.clone = templateElement.content.cloneNode(true);
-                // },
-                onClone: function (evt) {
-                    console.log(evt);
-                    ghost = document.createElement("div");
-                    ghost.innerText = "testing and shit";
-                    evt.item = ghost;
-                },
-            })
-        );
+
+        /** @type {import("../types").Sortable} */
+        // @ts-ignore
+        let sortable = new Sortable(container, {
+            group: {
+                name: "sections",
+                pull: true,
+                put: true,
+            },
+            animation: 150,
+        });
+
+        sectionSortables.push(sortable);
     }
 });
 

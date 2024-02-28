@@ -8,11 +8,11 @@
                 class="flex gap-1 my-3 p-1.5 self-center justify-self-center rounded-xl text-sm font-bold border border-[#ddd] bg-white shadow-[inset_0_0_6px_#ddd] dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-none"
             >
                 <span
-                    class="py-1.5 px-4 rounded-md cursor-pointer text-white bg-indigo-800 dark:bg-sky-600 dark:shadow-[inset_0_0_6px_2px_#0369A1]"
+                    class="py-1.5 px-4 rounded-md cursor-pointer border text-teal-800 bg-teal-800/20 border-teal-800/40 dark:text-teal-500 dark:bg-teal-500/20 dark:border-teal-500/40"
                 >
                     Fields
                 </span>
-                <span class="py-1.5 px-4 rounded-md cursor-pointer">Components</span>
+                <span class="py-1.5 px-4 rounded-md cursor-pointer opacity-75">Components</span>
             </div>
             <div
                 id="action-element-container"
@@ -84,15 +84,18 @@
 </template>
 {{ end }} {{ define "section" }}
 <template id="section-template">
-    <div class="grid grid-cols-1 auto-rows-[minmax(max-content,20rem)] @[35rem]/form:grid-cols-2 gap-4">
-        <div
-            class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
-            data-section
-        ></div>
-        <div
-            class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
-            data-section
-        ></div>
+    <div class="grid gap-4 p-4 mb-4 rounded-md bg-neutral-100 dark:bg-neutral-800">
+        <h2 data-section-title></h2>
+        <div class="grid grid-cols-1 auto-rows-[minmax(max-content,20rem)] @[35rem]/form:grid-cols-2 gap-4">
+            <div
+                class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
+                data-section
+            ></div>
+            <div
+                class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
+                data-section
+            ></div>
+        </div>
     </div>
 </template>
 {{ end }}
