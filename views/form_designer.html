@@ -8,7 +8,7 @@
                 class="flex gap-1 my-3 p-1.5 self-center justify-self-center rounded-xl text-sm font-bold border border-[#ddd] bg-white shadow-[inset_0_0_6px_#ddd] dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-none"
             >
                 <span
-                    class="py-1.5 px-4 rounded-md cursor-pointer border text-teal-800 bg-teal-800/20 border-teal-800/40 dark:text-teal-500 dark:bg-teal-500/20 dark:border-teal-500/40"
+                    class="py-1.5 px-4 rounded-md cursor-pointer border text-sky-800 bg-sky-800/20 border-sky-800/40 dark:text-sky-500 dark:bg-sky-500/20 dark:border-sky-500/40"
                 >
                     Fields
                 </span>
@@ -44,7 +44,7 @@
             </div> -->
             <button
                 id="add-section-button"
-                class="flex align-center justify-center p-6 w-full border border-neutral-700 dark:text-neutral-500 dark:hover:text-sky-500 dark:hover:border-sky-500"
+                class="flex align-center justify-center rounded-md p-6 w-full border border-neutral-700 dark:text-neutral-500 dark:hover:text-sky-500 dark:hover:border-sky-500"
             >
                 Add Section
             </button>
@@ -52,47 +52,129 @@
         <div
             class="grid grid-rows-[auto_1fr] basis-[max(20rem,20%)] overflow-hidden border-l border-neutral-300 dark:border-neutral-700"
         >
-            <h2 class="my-3 font-bold text-center">Details</h2>
-            <div id="field-details" class=""></div>
+            <details
+                style="
+                    padding: 0.75rem;
+                    border-bottom: 1px solid;
+                    --tw-border-opacity: 1;
+                    border-color: rgb(64 64 64 / var(--tw-border-opacity));
+                "
+            >
+                <summary
+                    class="my-3 font-bold text-center"
+                    style="
+                        margin: 0;
+                        text-align: left;
+                        display: flex;
+                        justify-content: space-between;
+                        transition: transform 150ms ease-in-out;
+                    "
+                >
+                    Form Details
+                    <div
+                        style="
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 24px;
+                            aspect-ratio: 1;
+                            user-select: none;
+                            transform: scaleY(0.5);
+                            /* transition: all 150ms ease-in-out; */
+                        "
+                    >
+                        ▼
+                    </div>
+                </summary>
+                <div style="padding: 1rem; display: flex; gap: 2rem; justify-content: center">
+                    <label style="display: flex; align-items: center; gap: 0.75rem"
+                        ><input type="checkbox" />Single Page</label
+                    >
+                    <label style="display: flex; align-items: center; gap: 0.75rem"
+                        ><input type="checkbox" />Tabbed</label
+                    >
+                </div>
+            </details>
+            <div>
+                <h2 class="my-3 font-bold text-center">Details</h2>
+                <div id="field-details" class=""></div>
+            </div>
         </div>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="/js/form_designer.js" type="text/javascript" charset="utf-8"></script>
-{{ template "text_field" }} {{ template "section" }} {{ end }} {{ define "text_field" }}
+{{ template "text_field" }} {{ template "section" }} {{ end }} {{ define "field_icons" }}
+<div class="flex gap-1">
+    <span class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-emerald-400 hover:bg-emerald-400/20">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M16.8617 4.48667L18.5492 2.79917C19.2814 2.06694 20.4686 2.06694 21.2008 2.79917C21.9331 3.53141 21.9331 4.71859 21.2008 5.45083L10.5822 16.0695C10.0535 16.5981 9.40144 16.9868 8.68489 17.2002L6 18L6.79978 15.3151C7.01323 14.5986 7.40185 13.9465 7.93052 13.4178L16.8617 4.48667ZM16.8617 4.48667L19.5 7.12499M18 14V18.75C18 19.9926 16.9926 21 15.75 21H5.25C4.00736 21 3 19.9926 3 18.75V8.24999C3 7.00735 4.00736 5.99999 5.25 5.99999H10"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            />
+        </svg>
+    </span>
+    <span class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-indigo-400 hover:bg-indigo-400/20">
+        <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M1 9.50006C1 10.3285 1.67157 11.0001 2.5 11.0001H4L4 10.0001H2.5C2.22386 10.0001 2 9.7762 2 9.50006L2 2.50006C2 2.22392 2.22386 2.00006 2.5 2.00006L9.5 2.00006C9.77614 2.00006 10 2.22392 10 2.50006V4.00002H5.5C4.67158 4.00002 4 4.67159 4 5.50002V12.5C4 13.3284 4.67158 14 5.5 14H12.5C13.3284 14 14 13.3284 14 12.5V5.50002C14 4.67159 13.3284 4.00002 12.5 4.00002H11V2.50006C11 1.67163 10.3284 1.00006 9.5 1.00006H2.5C1.67157 1.00006 1 1.67163 1 2.50006V9.50006ZM5 5.50002C5 5.22388 5.22386 5.00002 5.5 5.00002H12.5C12.7761 5.00002 13 5.22388 13 5.50002V12.5C13 12.7762 12.7761 13 12.5 13H5.5C5.22386 13 5 12.7762 5 12.5V5.50002Z"
+                fill="currentColor"
+            />
+        </svg>
+    </span>
+    <span
+        class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-rose-400 hover:bg-rose-400/20"
+        onclick="(() => this.closest('[data-textfield]').remove())()"
+        onmousedown="(arguments[0] || window.event).stopPropagation()"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" fill-rule="evenodd">
+            <path
+                d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
+            />
+        </svg>
+    </span>
+</div>
+{{ end }} {{ define "text_field" }}
 <template id="Text">
-    <div class="grid p-3 rounded gap-3 bg-neutral-800">
-        <div class="flex justify-between">
-            <span>Text</span>
-            <div>
-                <span>E</span>
-                <span>C</span>
-                <span>D</span>
-                <span>S</span>
-            </div>
+    <div
+        data-textfield
+        class="p-2.5 rounded transition-colors"
+        onmousedown="(() => { this.classList.toggle('bg-neutral-700/60') })()"
+        onmouseup="(() => { this.classList.toggle('bg-neutral-700/60') })()"
+        ondragend="(() => { this.classList.toggle('bg-neutral-700/60') })()"
+    >
+        <div class="flex items-center justify-between mb-1 text-xs font-mono italic">
+            <span>Text Field</span>
+            {{ template "field_icons" }}
         </div>
-        <div class="grid @[22rem]/section:grid-cols-[3fr_4fr] w-full items-center transition-all duration-300">
+        <div class="grid @[22rem]/section:grid-cols-[3fr_4fr] w-full items-center">
             <label class="font-medium" for="text">Text <span class="text-rose-500 font-semibold">*</span></label>
             <input
                 class="form-input p-1.5 border-neutral-400 ![--tw-ring-color:none] focus:border-indigo-800 dark:focus:[--tw-ring-color:#6366f1] dark:focus:border-indigo-500 dark:bg-neutral-700 rounded"
                 type="text"
                 name="text"
                 id="text"
+                disabled
             />
         </div>
     </div>
 </template>
 {{ end }} {{ define "section" }}
 <template id="section-template">
-    <div class="grid gap-4 p-4 mb-4 rounded-md bg-neutral-100 dark:bg-neutral-800">
+    <div class="grid gap-3 p-3 mb-4 rounded-md bg-neutral-100 dark:bg-neutral-800">
         <h2 data-section-title></h2>
         <div class="grid grid-cols-1 auto-rows-[minmax(max-content,20rem)] @[35rem]/form:grid-cols-2 gap-4">
             <div
-                class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
+                class="@container/section grid auto-rows-max min-w-64 p-3 gap-3 border border-dashed border-yellow-600 rounded-md"
                 data-section
             ></div>
             <div
-                class="@container/section grid auto-rows-max min-w-64 p-4 gap-4 border border-dashed border-yellow-600 rounded-md"
+                class="@container/section grid auto-rows-max min-w-64 p-3 gap-3 border border-dashed border-yellow-600 rounded-md"
                 data-section
             ></div>
         </div>
