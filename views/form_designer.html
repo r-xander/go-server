@@ -8,7 +8,7 @@
                 class="flex gap-1 my-3 p-1.5 self-center justify-self-center rounded-xl text-sm font-bold border border-[#ddd] bg-white shadow-[inset_0_0_6px_#ddd] dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-none"
             >
                 <span
-                    class="py-1.5 px-4 rounded-md cursor-pointer border text-sky-800 bg-sky-800/20 border-sky-800/40 dark:text-sky-500 dark:bg-sky-500/20 dark:border-sky-500/40"
+                    class="py-1.5 px-4 rounded-md cursor-pointer text-sky-800 bg-sky-800/20 dark:text-sky-500 dark:bg-sky-500/20"
                 >
                     Fields
                 </span>
@@ -35,18 +35,20 @@
                 {{- end -}}
             </div>
         </div>
-        <div class="@container/form p-4 grow overflow-auto bg-white dark:bg-neutral-900">
-            <button
-                id="add-section-button"
-                class="flex align-center justify-center rounded-md p-6 w-full border border-neutral-700 dark:text-neutral-500 dark:hover:text-sky-500 dark:hover:border-sky-500"
-            >
-                Add Section
-            </button>
+        <div class="grow overflow-auto bg-white dark:bg-neutral-900">
+            <div id="form_container" class="@container/form max-w-[75rem] mx-auto p-4 relative">
+                <button
+                    id="add-section-button"
+                    class="flex align-center justify-center w-full p-6 rounded-md transition-all text-neutral-500 ring-1 ring-black/10 hover:text-sky-800 hover:bg-sky-800/20 dark:bg-neutral-800 dark:text-neutral-500 dark:hover:text-sky-400 dark:hover:bg-sky-400/20"
+                >
+                    Add Section
+                </button>
+            </div>
         </div>
         <div
-            class="grid grid-rows-[auto_1fr] basis-[max(20rem,20%)] overflow-hidden border-l border-neutral-300 dark:border-neutral-700"
+            class="basis-[max(20rem,20%)] overflow-hidden divide-y border-l border-neutral-300 dark:border-neutral-700"
         >
-            <details class="p-3 border-b border-neutral-700 [&_summary_div]:open:rotate-180">
+            <details class="p-3 [&_summary_div]:open:rotate-180">
                 <summary class="flex font-bold justify-between transition-transform">
                     Form Details
                     <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
@@ -67,7 +69,9 @@
 <script src="/js/form_designer.js" type="text/javascript" charset="utf-8"></script>
 {{ template "text_field" }} {{ template "section" }} {{ end }} {{ define "field_icons" }}
 <div class="flex gap-1">
-    <span class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-emerald-400 hover:bg-emerald-400/20">
+    <span
+        class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-emerald-800 hover:bg-emerald-800/20 dark:hover:text-emerald-400 dark:hover:bg-emerald-400/20"
+    >
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M16.8617 4.48667L18.5492 2.79917C19.2814 2.06694 20.4686 2.06694 21.2008 2.79917C21.9331 3.53141 21.9331 4.71859 21.2008 5.45083L10.5822 16.0695C10.0535 16.5981 9.40144 16.9868 8.68489 17.2002L6 18L6.79978 15.3151C7.01323 14.5986 7.40185 13.9465 7.93052 13.4178L16.8617 4.48667ZM16.8617 4.48667L19.5 7.12499M18 14V18.75C18 19.9926 16.9926 21 15.75 21H5.25C4.00736 21 3 19.9926 3 18.75V8.24999C3 7.00735 4.00736 5.99999 5.25 5.99999H10"
@@ -78,7 +82,9 @@
             />
         </svg>
     </span>
-    <span class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-indigo-400 hover:bg-indigo-400/20">
+    <span
+        class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-indigo-800 hover:bg-indigo-800/20 dark:hover:text-indigo-400 dark:hover:bg-indigo-400/20"
+    >
         <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
                 fill-rule="evenodd"
@@ -89,8 +95,8 @@
         </svg>
     </span>
     <span
-        class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-rose-400 hover:bg-rose-400/20"
-        onclick="(() => this.closest('[data-textfield]').remove())()"
+        class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-rose-800 hover:bg-rose-800/20 dark:hover:text-rose-400 dark:hover:bg-rose-400/20"
+        onclick="this.closest('[data-textfield]').remove()"
     >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" fill-rule="evenodd">
             <path
@@ -102,27 +108,32 @@
 {{ end }} {{ define "text_field" }}
 <template id="Text">
     <div data-textfield class="p-2.5 rounded transition-colors">
-        <div class="flex items-center justify-between mb-1 text-xs font-mono italic">
-            <span>Text Field</span>
+        <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
+            <span class="font-mono font-bold italic cursor-default select-none">Text Field</span>
             {{ template "field_icons" }}
         </div>
         <div class="grid @[22rem]/section:grid-cols-[3fr_4fr] w-full items-center">
-            <label class="font-medium" for="text">Text <span class="text-rose-500 font-semibold">*</span></label>
+            <label class="font-medium select-none" for="text" dd-label="Text Field" onclick="event.preventDefault();">
+                Text <span class="text-rose-500 font-semibold">*</span>
+            </label>
             <input
-                class="form-input p-1.5 border-neutral-400 ![--tw-ring-color:none] focus:border-indigo-800 dark:focus:[--tw-ring-color:#6366f1] dark:focus:border-indigo-500 dark:bg-neutral-700 rounded"
+                class="form-input p-1.5 rounded cursor-default border-neutral-400 dark:bg-neutral-700"
                 type="text"
                 name="text"
                 id="text"
-                disabled
+                onmousedown="event.preventDefault();"
+                onmouseup="event.preventDefault();"
             />
         </div>
     </div>
 </template>
 {{ end }} {{ define "section" }}
 <template id="section-template">
-    <div class="grid gap-3 p-3 mb-4 rounded-md bg-neutral-100 dark:bg-neutral-800">
+    <div
+        class="grid gap-3 p-3 mb-4 rounded-md animate-insert ring-1 ring-gray-900/5 shadow-md bg-white dark:bg-neutral-800"
+    >
         <h2 data-section-title></h2>
-        <div class="grid grid-cols-1 auto-rows-[minmax(max-content,20rem)] @[35rem]/form:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 min-h-16 @[35rem]/form:grid-cols-2 gap-4">
             <div
                 class="@container/section grid auto-rows-max min-w-64 p-3 gap-3 border border-dashed border-yellow-600 rounded-md"
                 data-section

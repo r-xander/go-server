@@ -6,28 +6,26 @@
     --border-color: #555651;
     --font-color: rgb(255 255 255 / 0.87);
     --accent-color: rgb(56 56 56);
-    /* --bg-color: rgb(39, 40, 34); */
 
     color-scheme: light dark;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     color: #333333;
 }
 
-::-webkit-scrollbar-button {
+/* ::-webkit-scrollbar-button {
     display: none;
-}
+} */
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
     width: 20px;
-}
+} */
 
-::-webkit-scrollbar-track {
+/* ::-webkit-scrollbar-track {
     background-color: transparent;
-}
+} */
 
-::-webkit-scrollbar-thumb {
+/* ::-webkit-scrollbar-thumb {
     border-radius: 16px;
-}
+} */
 
 @media (prefers-color-scheme: dark) {
     :root {
@@ -35,17 +33,17 @@
         color: rgb(255 255 255 / 0.87);
     }
 
-    ::-webkit-scrollbar-thumb {
+    /* ::-webkit-scrollbar-thumb {
         background-color: rgb(64 64 64);
         border: 5px solid var(--bg-color);
-    }
+    } */
 }
 
 @media (prefers-color-scheme: light) {
-    ::-webkit-scrollbar-thumb {
+    /* ::-webkit-scrollbar-thumb {
         background-color: rgb(229 229 229);
         border: 5px solid rgb(250 250 250);
-    }
+    } */
 }
 
 input:-webkit-autofill {
@@ -143,6 +141,16 @@ input:-webkit-autofill {
 
 .sortable-ghost {
     background-color: #0ea5e933;
+}
+
+@media (prefers-color-scheme: dark) {
+    .sortable-ghost {
+        background-color: #07598533;
+    }
+}
+
+.sortable-fallback {
+    display: none;
 }
 
 .sortable-chosen {

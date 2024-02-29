@@ -4,6 +4,17 @@ const addSectionBtn = /** @type {HTMLInputElement} */ (document.getElementById("
 const sectionSortables = [];
 const sections = [];
 const containers = [];
+let mouseDown = false;
+
+/** @type {HTMLElement} */
+let fakeGhost = null;
+
+/**
+ * @param {DragEvent} e
+ */
+function drag(e) {
+    fakeGhost.style.translate = `${e.pageX}px ${e.pageY}px`;
+}
 
 addSectionBtn.addEventListener("click", (e) => {
     e.preventDefault();
@@ -19,13 +30,6 @@ addSectionBtn.addEventListener("click", (e) => {
     for (let i = 0; i < fieldContainers.length; ++i) {
         const container = fieldContainers[i];
 
-        function handleGhostMovement(e) {
-            const el = document.getElementById("fake_ghost");
-            el.style.position = "fixed";
-            el.style.left = e.pageX + "px";
-            el.style.top = e.pageY + 5 + "px";
-        }
-
         /** @type {import("../types").Sortable.Options} */
         const sortableOptions = {
             group: {
@@ -34,23 +38,34 @@ addSectionBtn.addEventListener("click", (e) => {
                 put: true,
             },
             animation: 150,
-            delay: 100,
+            forceFallback: true,
+            fallbackOnBody: true,
+            // @ts-ignore
+            supportPointer: true,
             setData: function (dataTransfer, dragEl) {
-                const el = document.createElement("div");
-                dataTransfer.setDragImage(el, 0, 0);
+                dataTransfer.setDragImage(new Image(), 0, 0);
+            },
+            onStart: function (e) {
+                mouseDown = true;
+                fakeGhost = /** @type {HTMLDivElement} */ (e.item.cloneNode(true));
+                fakeGhost.classList.add(
+                    "fixed",
+                    "py-2",
+                    "px-4",
+                    "pointer-events-none",
+                    "z-[9999]",
+                    "bg-sky-800/20",
+                    "dark:bg-sky-400/20"
+                );
+                fakeGhost.innerText = e.item.querySelector(":scope label").getAttribute("dd-label");
+                document.body.appendChild(fakeGhost);
 
-                const movingEl = document.createElement("div");
-                movingEl.id = "fake_ghost";
-                movingEl.classList.add("bg-black", "text-white");
-                movingEl.innerText = /** @type {HTMLInputElement} */ (dragEl.querySelector(":scope input")).name;
-                document.body.appendChild(movingEl);
-
-                document.addEventListener("drag", handleGhostMovement);
+                document.addEventListener("mousemove", drag);
             },
             onEnd: function (e) {
-                const fakeGhostEl = document.getElementById("fake_ghost");
-                fakeGhostEl.remove();
-                document.removeEventListener("drag", handleGhostMovement);
+                document.removeEventListener("mousemove", drag);
+                fakeGhost && fakeGhost.remove();
+                fakeGhost = null;
             },
         };
 
@@ -112,7 +127,6 @@ for (const field of newFields) {
         // @ts-ignore
         const templateId = ev.target.getAttribute("dd-template");
         ev.dataTransfer?.setData("text/plain", /** @type {string} */ (templateId));
-        // console.log(ev);
     });
     field.addEventListener("dragend", (ev) => {
         for (const container of containers) {
