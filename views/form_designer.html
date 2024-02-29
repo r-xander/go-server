@@ -36,12 +36,6 @@
             </div>
         </div>
         <div class="@container/form p-4 grow overflow-auto bg-white dark:bg-neutral-900">
-            <!-- <div
-                class="flex justify-center gap-3 border-b border-neutral-300 dark:bg-neutral-800 dark:border-neutral-700"
-            >
-                <span class="py-4 px-6">Section</span>
-                <span class="py-4 px-6">Tab</span>
-            </div> -->
             <button
                 id="add-section-button"
                 class="flex align-center justify-center rounded-md p-6 w-full border border-neutral-700 dark:text-neutral-500 dark:hover:text-sky-500 dark:hover:border-sky-500"
@@ -52,47 +46,14 @@
         <div
             class="grid grid-rows-[auto_1fr] basis-[max(20rem,20%)] overflow-hidden border-l border-neutral-300 dark:border-neutral-700"
         >
-            <details
-                style="
-                    padding: 0.75rem;
-                    border-bottom: 1px solid;
-                    --tw-border-opacity: 1;
-                    border-color: rgb(64 64 64 / var(--tw-border-opacity));
-                "
-            >
-                <summary
-                    class="my-3 font-bold text-center"
-                    style="
-                        margin: 0;
-                        text-align: left;
-                        display: flex;
-                        justify-content: space-between;
-                        transition: transform 150ms ease-in-out;
-                    "
-                >
+            <details class="p-3 border-b border-neutral-700 [&_summary_div]:open:rotate-180">
+                <summary class="flex font-bold justify-between transition-transform">
                     Form Details
-                    <div
-                        style="
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            width: 24px;
-                            aspect-ratio: 1;
-                            user-select: none;
-                            transform: scaleY(0.5);
-                            /* transition: all 150ms ease-in-out; */
-                        "
-                    >
-                        ▼
-                    </div>
+                    <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
                 </summary>
-                <div style="padding: 1rem; display: flex; gap: 2rem; justify-content: center">
-                    <label style="display: flex; align-items: center; gap: 0.75rem"
-                        ><input type="checkbox" />Single Page</label
-                    >
-                    <label style="display: flex; align-items: center; gap: 0.75rem"
-                        ><input type="checkbox" />Tabbed</label
-                    >
+                <div class="p-4 flex gap-8 justify-center">
+                    <label class="flex items-center gap-3"><input type="checkbox" /> Single Page </label>
+                    <label class="flex items-center gap-3"><input type="checkbox" /> Tabbed </label>
                 </div>
             </details>
             <div>
@@ -130,7 +91,6 @@
     <span
         class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-rose-400 hover:bg-rose-400/20"
         onclick="(() => this.closest('[data-textfield]').remove())()"
-        onmousedown="(arguments[0] || window.event).stopPropagation()"
     >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" fill-rule="evenodd">
             <path
@@ -141,13 +101,7 @@
 </div>
 {{ end }} {{ define "text_field" }}
 <template id="Text">
-    <div
-        data-textfield
-        class="p-2.5 rounded transition-colors"
-        onmousedown="(() => { this.classList.toggle('bg-neutral-700/60') })()"
-        onmouseup="(() => { this.classList.toggle('bg-neutral-700/60') })()"
-        ondragend="(() => { this.classList.toggle('bg-neutral-700/60') })()"
-    >
+    <div data-textfield class="p-2.5 rounded transition-colors">
         <div class="flex items-center justify-between mb-1 text-xs font-mono italic">
             <span>Text Field</span>
             {{ template "field_icons" }}

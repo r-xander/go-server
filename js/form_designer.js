@@ -19,6 +19,13 @@ addSectionBtn.addEventListener("click", (e) => {
     for (let i = 0; i < fieldContainers.length; ++i) {
         const container = fieldContainers[i];
 
+        function handleGhostMovement(e) {
+            const el = document.getElementById("fake_ghost");
+            el.style.position = "fixed";
+            el.style.left = e.pageX + "px";
+            el.style.top = e.pageY + 5 + "px";
+        }
+
         /** @type {import("../types").Sortable.Options} */
         const sortableOptions = {
             group: {
@@ -27,6 +34,24 @@ addSectionBtn.addEventListener("click", (e) => {
                 put: true,
             },
             animation: 150,
+            delay: 100,
+            setData: function (dataTransfer, dragEl) {
+                const el = document.createElement("div");
+                dataTransfer.setDragImage(el, 0, 0);
+
+                const movingEl = document.createElement("div");
+                movingEl.id = "fake_ghost";
+                movingEl.classList.add("bg-black", "text-white");
+                movingEl.innerText = /** @type {HTMLInputElement} */ (dragEl.querySelector(":scope input")).name;
+                document.body.appendChild(movingEl);
+
+                document.addEventListener("drag", handleGhostMovement);
+            },
+            onEnd: function (e) {
+                const fakeGhostEl = document.getElementById("fake_ghost");
+                fakeGhostEl.remove();
+                document.removeEventListener("drag", handleGhostMovement);
+            },
         };
 
         /** @type {import("../types").Sortable} */

@@ -134,3 +134,20 @@ input:-webkit-autofill {
     background: rgba(124, 124, 124, 0.35);
     z-index: 10000;
 }
+
+/****************************************************/
+/*                                                  */
+/*                  Sortable Styles                 */
+/*                                                  */
+/****************************************************/
+
+.sortable-ghost {
+    background-color: #0ea5e933;
+}
+
+.sortable-chosen {
+}
+
+.sortable-drag {
+    opacity: 1;
+}
