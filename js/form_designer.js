@@ -126,6 +126,7 @@ for (const field of newFields) {
         /** @type {string} */
         // @ts-ignore
         const templateId = ev.target.getAttribute("dd-template");
+        console.log(templateId);
         ev.dataTransfer?.setData("text/plain", /** @type {string} */ (templateId));
     });
     field.addEventListener("dragend", (ev) => {

@@ -9,8 +9,7 @@ module.exports = {
             },
             keyframes: {
                 insert: {
-                    "0%": { scaleY: "0", opacity: "0" },
-                    "100%": { scaleY: "1", opacity: "1" },
+                    "100%": { clip: "rect(auto, auto, 20rem, auto)" },
                 },
             },
             animation: {
