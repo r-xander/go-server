@@ -125,7 +125,7 @@
     </span>
     <span
         class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-rose-800 hover:bg-rose-800/20 dark:hover:text-rose-400 dark:hover:bg-rose-400/20"
-        onclick="this.closest('[data-textfield],[data-section-container]').remove()"
+        onclick="this.closest('[textfield],[numberfield],[selectfield],[section-container]').remove()"
     >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" fill-rule="evenodd">
             <path
@@ -136,7 +136,7 @@
 </div>
 {{ end }} {{ define "text_field" }}
 <template id="Text">
-    <div data-textfield class="p-2.5 rounded transition-colors">
+    <div textfield class="p-2.5 rounded transition-colors">
         <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
             <span class="font-mono font-bold italic cursor-default select-none">Text Field</span>
             {{ template "field_icons" }}
@@ -158,7 +158,7 @@
 </template>
 {{ end }} {{ define "number_field" }}
 <template id="Number">
-    <div data-numberfield class="p-2.5 rounded transition-colors">
+    <div numberfield class="p-2.5 rounded transition-colors">
         <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
             <span class="font-mono font-bold italic cursor-default select-none">Number Field</span>
             {{ template "field_icons" }}
@@ -180,7 +180,7 @@
 </template>
 {{ end }} {{ define "select_field" }}
 <template id="Select">
-    <div data-numberfield class="p-2.5 rounded transition-colors">
+    <div selectfield class="p-2.5 rounded transition-colors">
         <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
             <span class="font-mono font-bold italic cursor-default select-none">Select Field</span>
             {{ template "field_icons" }}
@@ -202,14 +202,14 @@
 {{ end }} {{ define "section" }}
 <template id="section-template">
     <div
-        data-section-container
-        class="grid gap-3 p-3 mb-4 rounded-md [clip:rect(auto,auto,9,auto)] animate-insert ring-1 ring-gray-900/5 shadow-md bg-white dark:bg-neutral-800"
+        section-container
+        class="grid gap-3 p-3 mb-4 rounded-md ring-1 ring-gray-900/5 shadow-md bg-white dark:bg-neutral-800"
     >
         <div class="flex items-center justify-between mb-1">
             <h2 data-section-title>Section 1</h2>
             {{ template "field_icons" }}
         </div>
-        <div class="grid grid-cols-1 @[35rem]/form:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 min-h-28 @[35rem]/form:grid-cols-2 gap-4">
             <div
                 class="@container/section grid auto-rows-max min-w-64 p-3 gap-3 border border-dashed border-yellow-600 rounded-md"
                 data-section
