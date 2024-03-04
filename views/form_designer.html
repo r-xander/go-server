@@ -16,10 +16,10 @@
             </div>
             <div
                 id="action-element-container"
-                class="grid grid-cols-fill-20 auto-rows-max gap-3 py-2 pl-6 pr-1 font-bold text-indigo-900/70 dark:text-sky-100/70 overflow-y-auto [scrollbar-gutter:stable]"
+                class="grid grid-cols-fill-20 auto-rows-max gap-3 py-2 pl-6 pr-1 font-bold text-indigo-900/70 dark:text-white/70 overflow-y-auto [scrollbar-gutter:stable]"
             >
                 <div
-                    class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg hover:text-indigo-900 hover:dark:text-sky-100"
+                    class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg hover:text-indigo-900 hover:dark:text-white"
                     draggable="true"
                     dd-template="Text"
                 >
@@ -32,7 +32,7 @@
                     <h3 class="text-center">Text</h3>
                 </div>
                 <div
-                    class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg hover:text-indigo-900 hover:dark:text-sky-100"
+                    class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg hover:text-indigo-900 hover:dark:text-white"
                     draggable="true"
                     dd-template="Number"
                 >
@@ -47,7 +47,7 @@
                     <h3 class="text-center">Number</h3>
                 </div>
                 <div
-                    class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg hover:text-indigo-900 hover:dark:text-sky-100"
+                    class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg hover:text-indigo-900 hover:dark:text-white"
                     draggable="true"
                     dd-template="Select"
                 >
@@ -136,7 +136,7 @@
 </div>
 {{ end }} {{ define "text_field" }}
 <template id="Text">
-    <div textfield class="p-2.5 rounded transition-colors">
+    <div textfield class="p-2.5 rounded">
         <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
             <span class="font-mono font-bold italic cursor-default select-none">Text Field</span>
             {{ template "field_icons" }}
@@ -158,7 +158,7 @@
 </template>
 {{ end }} {{ define "number_field" }}
 <template id="Number">
-    <div numberfield class="p-2.5 rounded transition-colors">
+    <div numberfield class="p-2.5 rounded">
         <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
             <span class="font-mono font-bold italic cursor-default select-none">Number Field</span>
             {{ template "field_icons" }}
@@ -180,7 +180,7 @@
 </template>
 {{ end }} {{ define "select_field" }}
 <template id="Select">
-    <div selectfield class="p-2.5 rounded transition-colors">
+    <div selectfield class="p-2.5 rounded">
         <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
             <span class="font-mono font-bold italic cursor-default select-none">Select Field</span>
             {{ template "field_icons" }}

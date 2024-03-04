@@ -1,6 +1,6 @@
 // @ts-check
 
-const addSectionBtn = /** @type {HTMLInputElement} */ (document.getElementById("add-section-button"));
+const addSectionBtn = document.getElementById("add-section-button");
 const sectionSortables = [];
 const sections = [];
 const containers = [];
@@ -22,9 +22,11 @@ addSectionBtn.addEventListener("click", (e) => {
     e.stopImmediatePropagation();
 
     const sectionTemplate = /** @type {HTMLTemplateElement} */ (document.getElementById("section-template"));
-    const section = /** @type {DocumentFragment} */ (sectionTemplate.content.cloneNode(true));
+    const section = /** @type {DocumentFragment} */ (sectionTemplate.content.cloneNode(true)).firstElementChild;
     const sectionContainer = /** @type {HTMLDivElement} */ (e.target);
-    const newSection = sectionContainer.insertAdjacentElement("beforebegin", section.firstElementChild);
+    const newSection = sectionContainer.insertAdjacentElement("beforebegin", section);
+
+    transition(section, "vertical");
 
     const fieldContainers = newSection.querySelectorAll("[data-section]");
     for (let i = 0; i < fieldContainers.length; ++i) {
@@ -42,6 +44,8 @@ addSectionBtn.addEventListener("click", (e) => {
             fallbackOnBody: true,
             // @ts-ignore
             supportPointer: true,
+            delay: 100,
+            touchStartThreshold: 3,
             setData: function (dataTransfer, dragEl) {
                 dataTransfer.setDragImage(new Image(), 0, 0);
             },
@@ -55,12 +59,14 @@ addSectionBtn.addEventListener("click", (e) => {
                     "pointer-events-none",
                     "z-[9999]",
                     "bg-sky-800/20",
-                    "dark:bg-sky-400/20"
+                    "dark:bg-sky-400/20",
+                    "opacity-0"
                 );
                 fakeGhost.innerText = e.item.querySelector(":scope label").getAttribute("dd-label");
                 document.body.appendChild(fakeGhost);
 
                 document.addEventListener("mousemove", drag);
+                document.addEventListener("mousemove", () => fakeGhost.classList.remove("opacity-0"), { once: true });
             },
             onEnd: function (e) {
                 document.removeEventListener("mousemove", drag);
@@ -103,15 +109,28 @@ function drop(e) {
     if (data !== null || data != undefined) {
         const target = /** @type {HTMLDivElement} */ (e.target).closest("[data-section]");
         const template = /** @type {HTMLTemplateElement} */ (document.getElementById(data));
-        const docFrag = document.importNode(template.content, true);
-        target.append(docFrag);
-
-        const child = /** @type {HTMLDivElement} */ (target?.lastElementChild);
-        child.style.opacity = "0";
-        child.style.translate = "-12px 0";
-        window.getComputedStyle(child).opacity;
-        child.removeAttribute("style");
+        const child = document.importNode(template.content, true).firstElementChild;
+        target.append(child);
+        transition(child, "horizontal");
     }
+}
+
+/**
+ *
+ * @param {Element} el
+ * @param {"vertical" | "horizontal"} direction
+ */
+function transition(el, direction) {
+    const translate = direction === "vertical" ? "translate-y-3" : "-translate-x-3";
+    el.classList.add("opacity-0", translate, "transition-all", "duration-300", "delay-100");
+    window.getComputedStyle(el).opacity;
+    el.classList.remove("opacity-0", translate);
+
+    function transitionEnd() {
+        el.classList.remove("transition-all", "duration-300", "delay-100");
+    }
+
+    el.addEventListener("transitionend", transitionEnd, { once: true });
 }
 
 const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[dd-template]"));
@@ -126,7 +145,6 @@ for (const field of newFields) {
         /** @type {string} */
         // @ts-ignore
         const templateId = ev.target.getAttribute("dd-template");
-        console.log(templateId);
         ev.dataTransfer?.setData("text/plain", /** @type {string} */ (templateId));
     });
     field.addEventListener("dragend", (ev) => {
