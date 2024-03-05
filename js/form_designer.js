@@ -23,8 +23,8 @@ addSectionBtn.addEventListener("click", (e) => {
 
     const sectionTemplate = /** @type {HTMLTemplateElement} */ (document.getElementById("section-template"));
     const section = /** @type {DocumentFragment} */ (sectionTemplate.content.cloneNode(true)).firstElementChild;
-    const sectionContainer = /** @type {HTMLDivElement} */ (e.target);
-    const newSection = sectionContainer.insertAdjacentElement("beforebegin", section);
+    const sectionContainer = /** @type {HTMLDivElement} */ (document.getElementById("form_container"));
+    const newSection = sectionContainer.insertAdjacentElement("beforeend", section);
 
     transition(section, "vertical");
 
@@ -44,8 +44,6 @@ addSectionBtn.addEventListener("click", (e) => {
             fallbackOnBody: true,
             // @ts-ignore
             supportPointer: true,
-            delay: 100,
-            touchStartThreshold: 3,
             setData: function (dataTransfer, dragEl) {
                 dataTransfer.setDragImage(new Image(), 0, 0);
             },
@@ -83,6 +81,7 @@ addSectionBtn.addEventListener("click", (e) => {
     }
 
     sections.push(newSection);
+    sectionContainer.parentElement.scrollTop = sectionContainer.parentElement.scrollHeight;
 });
 
 /************************************************/
