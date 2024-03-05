@@ -45,33 +45,10 @@ addSectionBtn.addEventListener("click", (e) => {
             // @ts-ignore
             supportPointer: true,
             setData: function (dataTransfer, dragEl) {
-                const ghost = /** @type {HTMLElement} */ (dragEl.cloneNode());
-                dataTransfer.setDragImage(ghost, 0, 0);
+                dataTransfer.setDragImage(new Image(), 0, 0);
             },
-            onStart: function (e) {
-                mouseDown = true;
-                fakeGhost = /** @type {HTMLDivElement} */ (e.item.cloneNode(true));
-                fakeGhost.classList.add(
-                    "fixed",
-                    "py-2",
-                    "px-4",
-                    "pointer-events-none",
-                    "z-[9999]",
-                    "bg-sky-800/20",
-                    "dark:bg-sky-400/20",
-                    "opacity-0"
-                );
-                fakeGhost.innerText = e.item.querySelector(":scope label").getAttribute("dd-label");
-                document.body.appendChild(fakeGhost);
-
-                document.addEventListener("mousemove", drag);
-                document.addEventListener("mousemove", () => fakeGhost.classList.remove("opacity-0"), { once: true });
-            },
-            onEnd: function (e) {
-                document.removeEventListener("mousemove", drag);
-                fakeGhost && fakeGhost.remove();
-                fakeGhost = null;
-            },
+            onStart: function (e) {},
+            onEnd: function (e) {},
         };
 
         /** @type {import("../types").Sortable} */

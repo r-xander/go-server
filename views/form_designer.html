@@ -167,6 +167,37 @@
                 onmouseup="event.preventDefault();"
             />
         </div>
+        <div class="grid gap-4">
+            <div class="grid gap-2">
+                <label for="id">Field ID</label>
+                <input type="text" name="id" id="id" />
+            </div>
+            <div class="grid gap-2">
+                <label for="label">Label</label>
+                <input type="text" name="label" id="label" />
+            </div>
+            <div class="grid gap-2">
+                <label for="placeholder">Placeholder</label>
+                <input type="text" name="placeholder" id="placeholder" />
+            </div>
+            <div class="grid gap-2">
+                <label for="minlength">Minimum Length</label>
+                <input type="text" name="minlength" id="minlength" />
+            </div>
+            <div class="grid gap-2">
+                <label for="maxlength">Minimum Length</label>
+                <input type="text" name="maxlength" id="maxlength" />
+            </div>
+            <div class="grid gap-2">
+                <label for="default">Default</label>
+                <input type="text" name="default" id="default" />
+            </div>
+            <div class="grid gap-2">
+                <label for="required" class="flex items-center gap-2">
+                    <input type="checkbox" name="required" id="required" />Required
+                </label>
+            </div>
+        </div>
     </div>
 </template>
 {{ end }} {{ define "number_field" }}
