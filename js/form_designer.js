@@ -47,7 +47,8 @@ addSectionBtn.addEventListener("click", (e) => {
             delay: 100,
             touchStartThreshold: 3,
             setData: function (dataTransfer, dragEl) {
-                dataTransfer.setDragImage(new Image(), 0, 0);
+                const ghost = /** @type {HTMLElement} */ (dragEl.cloneNode());
+                dataTransfer.setDragImage(ghost, 0, 0);
             },
             onStart: function (e) {
                 mouseDown = true;
