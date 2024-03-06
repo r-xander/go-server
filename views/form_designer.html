@@ -8,7 +8,7 @@
                 class="flex gap-1 my-3 p-1.5 self-center justify-self-center rounded-xl text-sm font-bold border border-[#ddd] bg-white shadow-[inset_0_0_6px_#ddd] dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-none"
             >
                 <span
-                    class="py-1.5 px-4 rounded-md cursor-pointer text-sky-800 bg-sky-800/20 dark:text-sky-500 dark:bg-sky-500/20"
+                    class="py-1.5 px-4 rounded-md cursor-pointer text-sky-800 bg-sky-800/20 dark:text-sky-400 dark:bg-sky-400/20"
                 >
                     Fields
                 </span>
@@ -76,7 +76,7 @@
                 <div class="justify-self-end">
                     <button
                         id="add-section-button"
-                        class="text-sm text-sky-800/70 hover:text-sky-800 dark:text-sky-400/70 dark:hover:text-sky-400"
+                        class="text-sm text-sky-800/80 hover:text-sky-800 dark:text-sky-400/80 dark:hover:text-sky-400"
                     >
                         + Add Section
                     </button>
@@ -95,13 +95,54 @@
                     <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
                 </summary>
                 <div class="p-4 flex gap-8 justify-center">
-                    <label class="flex items-center gap-3"><input type="checkbox" /> Single Page </label>
-                    <label class="flex items-center gap-3"><input type="checkbox" /> Tabbed </label>
+                    <label class="flex items-center gap-3">
+                        <input type="checkbox" />
+                        Single Page
+                    </label>
+                    <label class="flex items-center gap-3"> <input type="checkbox" /> Tabbed </label>
                 </div>
             </details>
             <div>
                 <h2 class="my-3 font-bold text-center">Details</h2>
-                <div id="field-details" class=""></div>
+                <div id="field-details" class="px-8">
+                    <div class="grid gap-4">
+                        <div class="flex justify-evenly">
+                            <label for="required" class="flex items-center gap-2">
+                                <input type="checkbox" name="required" id="required" />Required
+                            </label>
+                            <label for="readonly" class="flex items-center gap-2">
+                                <input type="checkbox" name="readonly" id="readonly" />Read Only
+                            </label>
+                            <label for="hidden" class="flex items-center gap-2">
+                                <input type="checkbox" name="hidden" id="hidden" />Hidden
+                            </label>
+                        </div>
+                        <div class="grid gap-2">
+                            <label for="id">Id</label>
+                            <input type="text" name="id" id="id" class="" />
+                        </div>
+                        <div class="grid gap-2">
+                            <label for="label">Label</label>
+                            <input type="text" name="label" id="label" />
+                        </div>
+                        <div class="grid gap-2">
+                            <label for="placeholder">Placeholder</label>
+                            <input type="text" name="placeholder" id="placeholder" />
+                        </div>
+                        <div class="grid gap-2">
+                            <label for="minlength">Minimum Length</label>
+                            <input type="text" name="minlength" id="minlength" />
+                        </div>
+                        <div class="grid gap-2">
+                            <label for="maxlength">Minimum Length</label>
+                            <input type="text" name="maxlength" id="maxlength" />
+                        </div>
+                        <div class="grid gap-2">
+                            <label for="default">Default</label>
+                            <input type="text" name="default" id="default" />
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -159,44 +200,13 @@
                 Text <span class="text-rose-500 font-semibold">*</span>
             </label>
             <input
-                class="form-input p-1.5 rounded cursor-default border-neutral-400 dark:bg-neutral-700"
+                class="p-1.5 rounded cursor-default border-neutral-400 dark:bg-neutral-700"
                 type="text"
                 name="text"
                 id="text"
                 onmousedown="event.preventDefault();"
                 onmouseup="event.preventDefault();"
             />
-        </div>
-        <div class="grid gap-4">
-            <div class="grid gap-2">
-                <label for="id">Field ID</label>
-                <input type="text" name="id" id="id" />
-            </div>
-            <div class="grid gap-2">
-                <label for="label">Label</label>
-                <input type="text" name="label" id="label" />
-            </div>
-            <div class="grid gap-2">
-                <label for="placeholder">Placeholder</label>
-                <input type="text" name="placeholder" id="placeholder" />
-            </div>
-            <div class="grid gap-2">
-                <label for="minlength">Minimum Length</label>
-                <input type="text" name="minlength" id="minlength" />
-            </div>
-            <div class="grid gap-2">
-                <label for="maxlength">Minimum Length</label>
-                <input type="text" name="maxlength" id="maxlength" />
-            </div>
-            <div class="grid gap-2">
-                <label for="default">Default</label>
-                <input type="text" name="default" id="default" />
-            </div>
-            <div class="grid gap-2">
-                <label for="required" class="flex items-center gap-2">
-                    <input type="checkbox" name="required" id="required" />Required
-                </label>
-            </div>
         </div>
     </div>
 </template>
@@ -212,7 +222,7 @@
                 Number <span class="text-rose-500 font-semibold">*</span>
             </label>
             <input
-                class="form-input p-1.5 rounded cursor-default border-neutral-400 dark:bg-neutral-700"
+                class="p-1.5 rounded cursor-default border-neutral-400 dark:bg-neutral-700"
                 type="number"
                 name="number"
                 id="number"
@@ -234,7 +244,7 @@
                 Select <span class="text-rose-500 font-semibold">*</span>
             </label>
             <select
-                class="form-input p-1.5 rounded cursor-default border-neutral-400 dark:bg-neutral-700"
+                class="p-1.5 rounded cursor-default border-neutral-400 dark:bg-neutral-700"
                 name="select"
                 id="select"
                 onmousedown="event.preventDefault();"

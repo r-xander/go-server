@@ -20,13 +20,13 @@
     * {
         border-color: rgb(64 64 64);
     }
-}
 
-input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0px 1000px rgb(92 92 92) inset !important;
-    -webkit-text-fill-color: var(--font-color) !important;
-    border: 1px solid rgb(206, 206, 206) !important;
-    caret-color: var(--font-color);
+    input:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0px 1000px rgb(92 92 92) inset !important;
+        -webkit-text-fill-color: var(--font-color) !important;
+        border: 1px solid rgb(206, 206, 206) !important;
+        caret-color: var(--font-color);
+    }
 }
 
 /****************************************************/
@@ -136,4 +136,273 @@ input:-webkit-autofill {
 
 .sortable-drag {
     opacity: 1;
+}
+
+/****************************************************/
+/*                                                  */
+/*               Default Input Styles               */
+/*                                                  */
+/****************************************************/
+
+label {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+[multiple],
+[type="date"],
+[type="datetime-local"],
+[type="email"],
+[type="month"],
+[type="number"],
+[type="password"],
+[type="search"],
+[type="tel"],
+[type="text"],
+[type="time"],
+[type="url"],
+[type="week"],
+select,
+textarea {
+    --tw-shadow: 0 0 #0000;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #fff;
+    border-color: #ccc;
+    border-radius: 4px;
+    border-width: 1px;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    padding: 0.375rem 0.5rem;
+}
+
+[multiple]:focus,
+[type="date"]:focus,
+[type="datetime-local"]:focus,
+[type="email"]:focus,
+[type="month"]:focus,
+[type="number"]:focus,
+[type="password"]:focus,
+[type="search"]:focus,
+[type="tel"]:focus,
+[type="text"]:focus,
+[type="time"]:focus,
+[type="url"]:focus,
+[type="week"]:focus,
+select:focus,
+textarea:focus {
+    --tw-ring-inset: var(--tw-empty, /*!*/ /*!*/);
+    --tw-ring-offset-width: 0px;
+    --tw-ring-offset-color: #fff;
+    --tw-ring-color: #0284c7;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    border-color: #0284c7;
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    outline: 2px solid #0000;
+    outline-offset: 2px;
+}
+
+input::-moz-placeholder,
+textarea::-moz-placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: #6b7280;
+    opacity: 1;
+}
+
+::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+}
+
+::-webkit-date-and-time-value {
+    min-height: 1.5em;
+}
+
+::-webkit-datetime-edit,
+::-webkit-datetime-edit-day-field,
+::-webkit-datetime-edit-hour-field,
+::-webkit-datetime-edit-meridiem-field,
+::-webkit-datetime-edit-millisecond-field,
+::-webkit-datetime-edit-minute-field,
+::-webkit-datetime-edit-month-field,
+::-webkit-datetime-edit-second-field,
+::-webkit-datetime-edit-year-field {
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+select {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+[multiple] {
+    background-image: none;
+    background-position: 0 0;
+    background-repeat: unset;
+    background-size: initial;
+    padding-right: 0.75rem;
+    -webkit-print-color-adjust: unset;
+    print-color-adjust: unset;
+}
+
+[type="checkbox"],
+[type="radio"] {
+    --tw-shadow: 0 0 #0000;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #fff;
+    background-origin: border-box;
+    border-color: #ccc;
+    border-width: 1px;
+    color: #0284c7;
+    display: inline-block;
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    vertical-align: middle;
+}
+
+[type="checkbox"] {
+    border-radius: 4px;
+}
+
+[type="radio"] {
+    border-radius: 100%;
+}
+
+[type="checkbox"]:focus,
+[type="radio"]:focus {
+    --tw-ring-inset: var(--tw-empty, /*!*/ /*!*/);
+    --tw-ring-offset-width: 2px;
+    --tw-ring-offset-color: #fff;
+    --tw-ring-color: #0284c7;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    border-color: #0284c7;
+    outline: 2px solid #0000;
+    outline-offset: 2px;
+}
+
+[type="checkbox"]:checked,
+[type="radio"]:checked {
+    background-color: currentColor;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    border-color: #0000;
+}
+
+[type="checkbox"]:checked {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 16 16'%3E%3Cpath d='M12.207 4.793a1 1 0 0 1 0 1.414l-5 5a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L6.5 9.086l4.293-4.293a1 1 0 0 1 1.414 0z'/%3E%3C/svg%3E");
+}
+
+[type="radio"]:checked {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='3'/%3E%3C/svg%3E");
+}
+
+[type="checkbox"]:checked:focus,
+[type="checkbox"]:checked:hover,
+[type="checkbox"]:indeterminate,
+[type="radio"]:checked:focus,
+[type="radio"]:checked:hover {
+    background-color: currentColor;
+    border-color: #0000;
+}
+
+[type="checkbox"]:indeterminate {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8h8'/%3E%3C/svg%3E");
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
+
+[type="checkbox"]:indeterminate:focus,
+[type="checkbox"]:indeterminate:hover {
+    background-color: currentColor;
+    border-color: #0000;
+}
+
+[type="file"] {
+    background: unset;
+    border-color: inherit;
+    border-radius: 0;
+    border-width: 0;
+    font-size: unset;
+    line-height: inherit;
+    padding: 0;
+}
+
+[type="file"]:focus {
+    outline: 1px solid ButtonText;
+    outline: 1px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: dark) {
+    [multiple],
+    [type="date"],
+    [type="datetime-local"],
+    [type="email"],
+    [type="month"],
+    [type="number"],
+    [type="password"],
+    [type="search"],
+    [type="tel"],
+    [type="text"],
+    [type="time"],
+    [type="url"],
+    [type="week"],
+    select,
+    textarea,
+    [type="checkbox"],
+    [type="radio"] {
+        background: #404040;
+        border-color: #737373;
+    }
+
+    [multiple]:focus,
+    [type="date"]:focus,
+    [type="datetime-local"]:focus,
+    [type="email"]:focus,
+    [type="month"]:focus,
+    [type="number"]:focus,
+    [type="password"]:focus,
+    [type="search"]:focus,
+    [type="tel"]:focus,
+    [type="text"]:focus,
+    [type="time"]:focus,
+    [type="url"]:focus,
+    [type="week"]:focus,
+    select:focus,
+    textarea:focus,
+    [type="checkbox"]:focus,
+    [type="radio"]:focus {
+        --tw-ring-offset-color: #262626;
+        border-color: #0284c7;
+    }
+
+    input::-moz-placeholder,
+    textarea::-moz-placeholder,
+    input::placeholder,
+    textarea::placeholder {
+        color: #a3a3a3cc;
+    }
 }

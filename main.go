@@ -52,12 +52,13 @@ func main() {
 func GetIndex(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("views/query_index.html", "views/query_screen.html")
 	if err != nil {
-		// TODO: do something
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if err = tmpl.Execute(w, nil); err != nil {
-		// TODO: do something
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -67,7 +68,7 @@ func FileServer(r chi.Router, path string, root http.Handler) {
 	}
 
 	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		r.Get(path, http.RedirectHandler(path+"/", http.StatusMovedPermanently).ServeHTTP)
 		path += "/"
 	}
 	path += "*"
