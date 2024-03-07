@@ -7,5 +7,6 @@
     { "name": "Utilisphere Form Custom Fields", "filename": "query6" },
     { "name": "Verify Odorant Sampling", "filename": "query7" },
     { "name": "Contactor Odorant Sample Run Date", "filename": "query8" },
-    { "name": "Asset Hierarchy Data", "filename": "query9" }
+    { "name": "Asset Hierarchy Data", "filename": "query9" },
+    { "name": "Add Work Order CSV Generator", "filename": "query10" }
 ]
