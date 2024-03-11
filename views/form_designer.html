@@ -91,67 +91,37 @@
                     <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
                 </summary>
                 <div class="p-4 flex gap-8 justify-center">
-                    <label class="flex items-center gap-3">
-                        <input type="checkbox" />
-                        Single Page
-                    </label>
-                    <label class="flex items-center gap-3"> <input type="checkbox" /> Tabbed </label>
+                    <label class="flex items-center gap-3"><input type="checkbox" />Single Page</label>
+                    <label class="flex items-center gap-3"><input type="checkbox" />Tabbed</label>
                 </div>
             </details>
             <div>
                 <h2 class="my-3 font-bold text-center">Details</h2>
-                <div id="field-details" class="px-8">
-                    <div class="grid gap-4">
-                        <div class="flex justify-evenly">
-                            <label for="required" class="flex items-center gap-2">
-                                <input type="checkbox" name="required" id="required" />Required
-                            </label>
-                            <label for="readonly" class="flex items-center gap-2">
-                                <input type="checkbox" name="readonly" id="readonly" />Read Only
-                            </label>
-                            <label for="hidden" class="flex items-center gap-2">
-                                <input type="checkbox" name="hidden" id="hidden" />Hidden
-                            </label>
-                        </div>
-                        <div class="grid gap-2">
-                            <label for="id">Id</label>
-                            <input type="text" name="id" id="id" placeholder="id..." />
-                        </div>
-                        <div class="grid gap-2">
-                            <label for="label">Label</label>
-                            <input type="text" name="label" id="label" placeholder="label..." />
-                        </div>
-                        <div class="grid gap-2">
-                            <label for="placeholder">Placeholder</label>
-                            <input type="text" name="placeholder" id="placeholder" placeholder="placeholder..." />
-                        </div>
-                        <div class="grid gap-2">
-                            <label for="minlength">Minimum Length</label>
-                            <input type="text" name="minlength" id="minlength" placeholder="min Length..." />
-                        </div>
-                        <div class="grid gap-2">
-                            <label for="maxlength">Minimum Length</label>
-                            <input type="text" name="maxlength" id="maxlength" placeholder="max Length..." />
-                        </div>
-                        <div class="grid gap-2">
-                            <label for="default">Default</label>
-                            <input type="text" name="default" id="default" placeholder="default..." />
-                        </div>
-                    </div>
-                </div>
+                <div id="field-details" class="px-8"></div>
             </div>
         </div>
     </div>
 </div>
 {{ template "text_field" }} {{ template "number_field" }} {{ template "select_field" }} {{ template "section" }}
+<script>
+    document.addEventListener("alpine:init", function () {
+        Alpine.store("formData", {
+            formName: "Test Form",
+            formAcronym: "tf",
+            currentIndex: 1,
+        });
+    });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script src="/js/form_designer.js" type="text/javascript" charset="utf-8"></script>
 {{ end }} {{ define "field_icons" }}
 <div class="flex gap-1">
     <span
         class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-emerald-800 hover:bg-emerald-800/20 dark:hover:text-emerald-400 dark:hover:bg-emerald-400/20"
     >
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg @click="showFieldPanel = true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M16.8617 4.48667L18.5492 2.79917C19.2814 2.06694 20.4686 2.06694 21.2008 2.79917C21.9331 3.53141 21.9331 4.71859 21.2008 5.45083L10.5822 16.0695C10.0535 16.5981 9.40144 16.9868 8.68489 17.2002L6 18L6.79978 15.3151C7.01323 14.5986 7.40185 13.9465 7.93052 13.4178L16.8617 4.48667ZM16.8617 4.48667L19.5 7.12499M18 14V18.75C18 19.9926 16.9926 21 15.75 21H5.25C4.00736 21 3 19.9926 3 18.75V8.24999C3 7.00735 4.00736 5.99999 5.25 5.99999H10"
                 stroke="currentColor"
@@ -186,7 +156,25 @@
 </div>
 {{ end }} {{ define "text_field" }}
 <template id="Text">
-    <div textfield class="p-2.5 rounded">
+    <div
+        textfield
+        id="tf-0001"
+        class="p-2.5 rounded"
+        x-data="{
+            showFieldPanel: false,
+            fieldData: { 
+                id: 'tf-0001',
+                label: '',
+                placeholder: '',
+                minLenth: '',
+                maxLength: '',
+                default: '',
+                required: false,
+                readonly: false,
+                hidden: false 
+            } 
+        }"
+    >
         <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
             <span class="font-mono font-bold italic cursor-default select-none">Text Field</span>
             {{ template "field_icons" }}
@@ -203,6 +191,73 @@
                 onmousedown="event.preventDefault();"
                 onmouseup="event.preventDefault();"
             />
+        </div>
+        <div
+            x-show="showFieldPanel"
+            x-anchor="document.getElementById('tf-0001')"
+            class="grid gap-4 w-full px-8 py-6 rounded-md bg-white border border-neutral-200 dark:bg-neutral-800 dark:border-neutral-700"
+        >
+            <div class="flex justify-evenly">
+                <label for="required" class="flex items-center gap-2">
+                    <input x-model="fieldData.required" type="checkbox" name="required" id="required" />Required
+                </label>
+                <label for="readonly" class="flex items-center gap-2">
+                    <input x-model="fieldData.readonly" type="checkbox" name="readonly" id="readonly" />Read Only
+                </label>
+                <label for="hidden" class="flex items-center gap-2">
+                    <input x-model="fieldData.hidden" type="checkbox" name="hidden" id="hidden" />Hidden
+                </label>
+            </div>
+            <div class="grid gap-2">
+                <label for="id">Id</label>
+                <input x-model="fieldData.id" type="text" name="id" id="id" placeholder="id..." />
+            </div>
+            <div class="grid gap-2">
+                <label for="label">Label</label>
+                <input x-model="fieldData.label" type="text" name="label" id="label" placeholder="label..." />
+            </div>
+            <div class="grid gap-2">
+                <label for="placeholder">Placeholder</label>
+                <input
+                    x-model="fieldData.placeholder"
+                    type="text"
+                    name="placeholder"
+                    id="placeholder"
+                    placeholder="placeholder..."
+                />
+            </div>
+            <div class="grid gap-2">
+                <label for="minlength">Minimum Length</label>
+                <input
+                    x-model="fieldData.minLenth"
+                    type="text"
+                    name="minlength"
+                    id="minlength"
+                    placeholder="min length..."
+                />
+            </div>
+            <div class="grid gap-2">
+                <label for="maxlength">Minimum Length</label>
+                <input
+                    x-model="fieldData.maxLength"
+                    type="text"
+                    name="maxlength"
+                    id="maxlength"
+                    placeholder="max length..."
+                />
+            </div>
+            <div class="grid gap-2">
+                <label for="default">Default</label>
+                <input x-model="fieldData.default" type="text" name="default" id="default" placeholder="default..." />
+            </div>
+            <div class="flex justify-between mt-4">
+                <button
+                    class="px-8 py-2 rounded border border-neutral-200 text-neutral-600 dark:border-neutral-700 dark:text-white/70"
+                >
+                    Cancel
+                </button>
+                <button class="px-8 py-2 rounded border bg-sky-600 text-white/80">Save</button>
+            </div>
         </div>
     </div>
 </template>
