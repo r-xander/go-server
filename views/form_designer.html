@@ -1,17 +1,15 @@
 {{ define "title" }} Form Designer {{ end }} {{ define "body" }}
-<div class="flex flex-col h-full overflow-hidden bg-neutral-50 dark:bg-neutral-800">
-    <div class="flex overflow-hidden h-full w-full">
-        <div
-            class="flex flex-col basis-[max(20rem,20%)] overflow-hidden border-r select-none border-neutral-300 dark:border-neutral-700"
-        >
-            <div>
-                <h3 class="py-1.5 px-4 text-sm rounded-md opacity-80">Fields</h3>
+<div class="flex flex-col m-4 h-full overflow-hidden">
+    <div class="flex gap-4 h-full w-full overflow-hidden">
+        <div class="flex flex-col gap-4 basis-[max(20rem,20%)] overflow-hidden select-none">
+            <div class="h-1/2 rounded-md border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900">
+                <h3 class="py-1.5 px-4 rounded-md opacity-80">Fields</h3>
                 <div
                     id="action-element-container"
                     class="grid grid-cols-fill-20 auto-rows-max gap-3 py-2 pl-6 pr-1 font-semibold text-indigo-900/70 dark:text-white/70 overflow-y-auto [scrollbar-gutter:stable]"
                 >
                     <div
-                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-neutral-700 dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_0_2px_0_#00000033] hover:text-indigo-900 hover:dark:text-white"
+                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-neutral-700 dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         draggable="true"
                         dd-template="Text"
                     >
@@ -24,7 +22,7 @@
                         <span class="text-center">Text</span>
                     </div>
                     <div
-                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg hover:text-indigo-900 hover:dark:text-white"
+                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-neutral-700 dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         draggable="true"
                         dd-template="Number"
                     >
@@ -39,7 +37,7 @@
                         <span class="text-center">Number</span>
                     </div>
                     <div
-                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 shadow-md dark:bg-neutral-700 dark:border-none hover:[transform:scale(105%)] hover:shadow-lg hover:text-indigo-900 hover:dark:text-white"
+                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-neutral-700 dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         draggable="true"
                         dd-template="Select"
                     >
@@ -55,11 +53,13 @@
                     </div>
                 </div>
             </div>
-            <div>
+            <div class="h-1/2 rounded-md border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900">
                 <h3 class="py-1.5 px-4 text-sm rounded-md opacity-80">Components</h3>
             </div>
         </div>
-        <div class="grow grid grid-rows-[max-content_1fr] overflow-hidden bg-white dark:bg-neutral-900">
+        <div
+            class="grow grid grid-rows-[max-content_1fr] overflow-hidden rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900"
+        >
             <div
                 class="grid grid-cols-[1fr_3fr_1fr] py-2 px-4 sticky top-0 z-10 items-center border-b bg-neutral-50 dark:bg-neutral-800"
             >
@@ -82,10 +82,10 @@
                 <div id="form_container" class="@container/form relative grid gap-4 max-w-[75rem] mx-auto"></div>
             </div>
         </div>
-        <div
-            class="basis-[max(20rem,20%)] overflow-hidden divide-y border-l border-neutral-300 dark:border-neutral-700"
-        >
-            <details class="p-3 [&_summary_div]:open:rotate-180">
+        <div class="flex flex-col gap-4 basis-[max(20rem,20%)] overflow-hidden">
+            <details
+                class="p-4 rounded-md border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 [&_summary_div]:open:rotate-180"
+            >
                 <summary class="flex font-bold justify-between transition-transform">
                     Form Details
                     <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
@@ -95,7 +95,7 @@
                     <label class="flex items-center gap-3"><input type="checkbox" />Tabbed</label>
                 </div>
             </details>
-            <div>
+            <div class="h-full rounded-md border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900">
                 <h2 class="my-3 font-bold text-center">Details</h2>
                 <div id="field-details" class="px-8"></div>
             </div>
@@ -215,7 +215,7 @@
                 x-show="showFieldPanel"
                 x-cloak
                 x-transition.opacity
-                class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-700/50 dark:bg-neutral-500/50"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-[#1f232880] dark:bg-[#000000b3]"
             >
                 <div
                     x-show="showFieldPanel"
