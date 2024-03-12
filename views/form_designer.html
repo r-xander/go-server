@@ -1,15 +1,15 @@
 {{ define "title" }} Form Designer {{ end }} {{ define "body" }}
-<div class="flex flex-col m-4 h-full overflow-hidden">
+<div class="flex flex-col m-4 h-full overflow-hidden dark:bg-base-dark">
     <div class="flex gap-4 h-full w-full overflow-hidden">
         <div class="flex flex-col gap-4 basis-[max(20rem,20%)] overflow-hidden select-none">
-            <div class="h-1/2 rounded-md border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="h-1/2 rounded-md border border-neutral-300 dark:bg-card-dark dark:border-none">
                 <h3 class="py-1.5 px-4 rounded-md opacity-80">Fields</h3>
                 <div
                     id="action-element-container"
                     class="grid grid-cols-fill-20 auto-rows-max gap-3 py-2 pl-6 pr-1 font-semibold text-indigo-900/70 dark:text-white/70 overflow-y-auto [scrollbar-gutter:stable]"
                 >
                     <div
-                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-neutral-700 dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
+                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         draggable="true"
                         dd-template="Text"
                     >
@@ -22,7 +22,7 @@
                         <span class="text-center">Text</span>
                     </div>
                     <div
-                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-neutral-700 dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
+                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         draggable="true"
                         dd-template="Number"
                     >
@@ -37,7 +37,7 @@
                         <span class="text-center">Number</span>
                     </div>
                     <div
-                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-neutral-700 dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
+                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         draggable="true"
                         dd-template="Select"
                     >
@@ -53,15 +53,15 @@
                     </div>
                 </div>
             </div>
-            <div class="h-1/2 rounded-md border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="h-1/2 rounded-md border border-neutral-300 dark:bg-card-dark dark:border-none">
                 <h3 class="py-1.5 px-4 text-sm rounded-md opacity-80">Components</h3>
             </div>
         </div>
         <div
-            class="grow grid grid-rows-[max-content_1fr] overflow-hidden rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900"
+            class="grow grid grid-rows-[max-content_1fr] gap-4 overflow-hidden border border-neutral-300 bg-white dark:bg-base-dark dark:border-none"
         >
             <div
-                class="grid grid-cols-[1fr_3fr_1fr] py-2 px-4 sticky top-0 z-10 items-center border-b bg-neutral-50 dark:bg-neutral-800"
+                class="grid grid-cols-[1fr_3fr_1fr] py-2 px-4 sticky top-0 z-10 items-center rounded-md bg-neutral-50 dark:bg-card-dark"
             >
                 <div></div>
                 <div class="flex gap-2 justify-self-center">
@@ -84,7 +84,7 @@
         </div>
         <div class="flex flex-col gap-4 basis-[max(20rem,20%)] overflow-hidden">
             <details
-                class="p-4 rounded-md border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 [&_summary_div]:open:rotate-180"
+                class="p-4 rounded-md border border-neutral-300 dark:bg-card-dark dark:border-none [&_summary_div]:open:rotate-180"
             >
                 <summary class="flex font-bold justify-between transition-transform">
                     Form Details
@@ -95,7 +95,7 @@
                     <label class="flex items-center gap-3"><input type="checkbox" />Tabbed</label>
                 </div>
             </details>
-            <div class="h-full rounded-md border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="h-full rounded-md border border-neutral-300 dark:bg-card-dark dark:border-none">
                 <h2 class="my-3 font-bold text-center">Details</h2>
                 <div id="field-details" class="px-8"></div>
             </div>
@@ -194,20 +194,32 @@
         form-field="text"
         class="p-2.5 rounded"
     >
-        <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
-            <span class="font-mono font-bold italic cursor-default select-none">Text Field</span>
+        <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/60">
+            <div class="font-mono flex gap-3">
+                <span class="font-bold italic cursor-default select-none">Text Field</span>
+                <span
+                    x-show="fieldData.hidden || fieldData.readonly"
+                    x-text="fieldData.hidden ? '[Hidden]' : fieldData.readonly ? '[Readonly]' : ''"
+                    class="text-black/40 dark:text-white/40"
+                ></span>
+            </div>
             {{ template "field_icons" }}
         </div>
-        <div class="grid @[22rem]/section:grid-cols-[3fr_4fr] w-full items-center">
-            <div class="flex gap-1">
+        <div
+            :class="{ 'opacity-50': fieldData.hidden }"
+            class="grid @[22rem]/section:grid-cols-[3fr_4fr] w-full items-center"
+        >
+            <div class="flex gap-1 items-center">
                 <label x-text="fieldData.label" class="font-medium select-none" dd-label="Text Field"></label>
-                <span x-show="fieldData.required" class="leading-4 text-rose-500 font-semibold">*</span>
+                <span x-show="fieldData.required" class="leading-4 font-semibold text-rose-500">*</span>
             </div>
-            <span
-                x-text="fieldData.default ?? fieldData.placeholder ?? '&nbsp;'"
-                class="p-1.5 rounded cursor-default shadow-sm border border-[#ccc] dark:bg-neutral-700 dark:border-neutral-500"
-                :class="{ 'text-neutral-500': fieldData.placeholder != null && fieldData.default == null }"
-            ></span>
+            <input
+                :value="fieldData.default ? fieldData.default : ''"
+                :placeholder="fieldData.placeholder"
+                :readonly="fieldData.readonly || fieldData.hidden"
+                @change="$el.value = fieldData.default ? fieldData.default : ''"
+                type="text"
+            />
         </div>
         <template x-teleport="body">
             <div
@@ -215,12 +227,12 @@
                 x-show="showFieldPanel"
                 x-cloak
                 x-transition.opacity
-                class="fixed inset-0 z-50 flex items-center justify-center bg-[#1f232880] dark:bg-[#000000b3]"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-[#1f232880] dark:bg-[#00000080]"
             >
                 <div
                     x-show="showFieldPanel"
                     x-transition
-                    class="grid gap-4 w-1/4 min-w-96 px-8 py-6 rounded-md shadow-xl bg-white dark:bg-neutral-800"
+                    class="grid gap-4 w-1/4 min-w-96 px-8 py-6 rounded-md shadow-xl bg-white dark:bg-card-dark"
                 >
                     <div class="flex justify-evenly">
                         <label for="required" class="flex items-center gap-2">
@@ -281,16 +293,16 @@
                             placeholder="default..."
                         />
                     </div>
-                    <div class="flex justify-between mt-4">
+                    <div class="flex gap-4 justify-end mt-4 text-sm">
                         <button
-                            @click="showFieldPanel = false; editData = getFieldData();"
-                            class="px-4 py-2 rounded-md border border-neutral-200 text-neutral-600 dark:border-neutral-700 dark:text-white/70"
+                            @click="showFieldPanel = false;"
+                            class="px-4 py-2 rounded-md border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-aux-dark dark:border-none dark:hover:text-white/90 dark:hover:bg-aux-dark/70"
                         >
                             Cancel
                         </button>
                         <button
                             @click="showFieldPanel = false; setFieldData(editData);"
-                            class="px-4 py-2 rounded-md border bg-sky-600 text-white"
+                            class="px-4 py-2 rounded-md font-semibold transition-all text-white bg-sky-600 hover:bg-sky-700 dark:hover:bg-sky-700/90"
                         >
                             Save
                         </button>
@@ -303,24 +315,24 @@
                 x-cloak
                 x-show="showDeleteDialog"
                 x-transition.opacity
-                class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-500/50"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-[#1f232880] dark:bg-[#00000080]"
             >
                 <div
                     x-show="showDeleteDialog"
                     x-transition
-                    class="grid gap-4 w-max p-6 rounded-md bg-white border border-neutral-200 dark:bg-neutral-800 dark:border-neutral-700"
+                    class="grid gap-4 w-max p-6 rounded-md bg-white dark:bg-card-dark"
                 >
                     <h1>Are you sure you want to delete this field?</h1>
-                    <div class="flex justify-between mt-4">
+                    <div class="flex gap-4 justify-end mt-4 text-sm">
                         <button
                             @click="showDeleteDialog = false;"
-                            class="px-4 py-2 rounded-md border border-neutral-200 text-neutral-600 dark:border-neutral-600 dark:text-white/80"
+                            class="px-4 py-2 rounded-md border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-aux-dark dark:border-none dark:hover:text-white/90 dark:hover:bg-aux-dark/70"
                         >
                             Cancel
                         </button>
                         <button
                             @click.self="showDeleteDialog = false;"
-                            class="px-4 py-2 rounded-md bg-red-800 text-white"
+                            class="px-4 py-2 rounded-md font-semibold transition-all text-white bg-rose-600 hover:bg-rose-700 dark:bg-rose-700 dark:hover:bg-rose-700/90"
                         >
                             Delete
                         </button>
@@ -342,7 +354,7 @@
                 Number <span class="text-rose-500 font-semibold">*</span>
             </label>
             <input
-                class="p-1.5 rounded cursor-default border-neutral-400 dark:bg-neutral-700"
+                class="p-1.5 rounded cursor-default border-neutral-400 dark:bg-aux-dark"
                 type="number"
                 name="number"
                 id="number"
@@ -364,7 +376,7 @@
                 Select <span class="text-rose-500 font-semibold">*</span>
             </label>
             <select
-                class="p-1.5 rounded cursor-default border-neutral-400 dark:bg-neutral-700"
+                class="p-1.5 rounded cursor-default border-neutral-400 dark:bg-aux-dark"
                 name="select"
                 id="select"
                 onmousedown="event.preventDefault();"
@@ -377,7 +389,7 @@
 <template id="section-template">
     <div
         section-container
-        class="grid gap-3 p-3 rounded-md ring-1 ring-gray-900/5 shadow-md bg-white dark:bg-neutral-800"
+        class="grid gap-3 p-3 rounded-md ring-1 ring-gray-900/5 shadow-md bg-white dark:bg-card-dark"
     >
         <div class="flex items-center justify-between mb-1">
             <h2 data-section-title>Section 1</h2>

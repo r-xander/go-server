@@ -9,7 +9,7 @@
     --input-color: #0284c7;
 
     color-scheme: light dark;
-    color: #333333;
+    color: #525252;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -349,6 +349,13 @@ label:active [type="radio"] {
     outline: 1px auto -webkit-focus-ring-color;
 }
 
+input::placeholder,
+textarea::placeholder {
+    color: #a3a3a3;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
 @media (prefers-color-scheme: dark) {
     [multiple],
     [type="date"],
@@ -401,13 +408,12 @@ label:active [type="radio"] {
         /* border-color: #0284c7; */
     }
 
-    input::-moz-placeholder,
-    textarea::-moz-placeholder {
-        color: #a3a3a3b3 !important;
-    }
-
     input::placeholder,
     textarea::placeholder {
         color: #a3a3a3b3 !important;
+    }
+
+    :focus-visible {
+        outline: 2px solid #0284c7e6;
     }
 }
