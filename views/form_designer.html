@@ -72,7 +72,7 @@
                 <div class="justify-self-end">
                     <button
                         id="add-section-button"
-                        class="text-sm font-semibold text-sky-800/80 hover:text-sky-800 dark:text-sky-400/80 dark:hover:text-sky-400"
+                        class="text-sm py-1 px-2 rounded font-semibold text-sky-800/80 hover:text-sky-800 dark:text-sky-400/80 dark:hover:text-sky-400"
                     >
                         +Add Section
                     </button>
@@ -130,7 +130,7 @@
 <div @pointerdown.stop class="flex gap-1">
     <button
         @click="showFieldPanel = true; console.log($el.closest('[form-field]')._x_dataStack[0].fieldData)"
-        class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-emerald-800 hover:bg-emerald-800/20 dark:hover:text-emerald-400 dark:hover:bg-emerald-400/20"
+        class="w-6 h-6 p-1 cursor-pointer transition rounded hover:text-emerald-800 hover:bg-emerald-800/20 dark:hover:text-emerald-400 dark:hover:bg-emerald-400/20"
     >
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -143,7 +143,7 @@
         </svg>
     </button>
     <button
-        class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-indigo-800 hover:bg-indigo-800/20 dark:hover:text-indigo-400 dark:hover:bg-indigo-400/20"
+        class="w-6 h-6 p-1 cursor-pointer transition rounded hover:text-indigo-800 hover:bg-indigo-800/20 dark:hover:text-indigo-400 dark:hover:bg-indigo-400/20"
     >
         <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -155,7 +155,7 @@
         </svg>
     </button>
     <button
-        class="w-6 h-6 p-1 cursor-pointer transition-all rounded hover:text-rose-800 hover:bg-rose-800/20 dark:hover:text-rose-400 dark:hover:bg-rose-400/20"
+        class="w-6 h-6 p-1 cursor-pointer transition rounded hover:text-rose-800 hover:bg-rose-800/20 dark:hover:text-rose-400 dark:hover:bg-rose-400/20"
         @click="showDeleteDialog = true"
     >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" fill-rule="evenodd">
@@ -179,6 +179,7 @@
                 minLenth: null,
                 maxLength: null,
                 default: null,
+                layout: 'inline',
                 required: false,
                 readonly: false,
                 hidden: false 
@@ -194,20 +195,20 @@
         form-field="text"
         class="p-2.5 rounded"
     >
-        <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/60">
+        <div class="flex items-center justify-between mb-1 text-xs text-neutral-500 dark:text-white/60">
             <div class="font-mono flex gap-3">
                 <span class="font-bold italic cursor-default select-none">Text Field</span>
                 <span
                     x-show="fieldData.hidden || fieldData.readonly"
                     x-text="fieldData.hidden ? '[Hidden]' : fieldData.readonly ? '[Readonly]' : ''"
-                    class="text-black/40 dark:text-white/40"
+                    class="text-neutral-400 dark:text-white/40"
                 ></span>
             </div>
             {{ template "field_icons" }}
         </div>
         <div
-            :class="{ 'opacity-50': fieldData.hidden }"
-            class="grid @[22rem]/section:grid-cols-[3fr_4fr] w-full items-center"
+            :class="{ 'opacity-50': fieldData.hidden, 'grid-cols-[3fr_4fr]': fieldData.layout === 'inline'  }"
+            class="grid gap-1 w-full items-center"
         >
             <div class="flex gap-1 items-center">
                 <label x-text="fieldData.label" class="font-medium select-none" dd-label="Text Field"></label>
@@ -293,6 +294,19 @@
                             placeholder="default..."
                         />
                     </div>
+                    <div class="grid gap-2">
+                        <label for="default">Layout</label>
+                        <select
+                            x-model="editData.layout"
+                            type="text"
+                            name="default"
+                            id="default"
+                            placeholder="default..."
+                        >
+                            <option value="inline">Inline</option>
+                            <option value="block">Block</option>
+                        </select>
+                    </div>
                     <div class="flex gap-4 justify-end mt-4 text-sm">
                         <button
                             @click="showFieldPanel = false;"
@@ -302,7 +316,7 @@
                         </button>
                         <button
                             @click="showFieldPanel = false; setFieldData(editData);"
-                            class="px-4 py-2 rounded-md font-semibold transition-all text-white bg-sky-600 hover:bg-sky-700 dark:hover:bg-sky-700/90"
+                            class="px-4 py-2 rounded-md font-semibold tracking-wide transition-all text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
                         >
                             Save
                         </button>
@@ -332,7 +346,7 @@
                         </button>
                         <button
                             @click.self="showDeleteDialog = false;"
-                            class="px-4 py-2 rounded-md font-semibold transition-all text-white bg-rose-600 hover:bg-rose-700 dark:bg-rose-700 dark:hover:bg-rose-700/90"
+                            class="px-4 py-2 rounded-md font-semibold traking-wide transition-all text-white bg-rose-500 hover:bg-rose-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
                         >
                             Delete
                         </button>

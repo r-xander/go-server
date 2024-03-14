@@ -30,6 +30,10 @@
     }
 }
 
+:focus-visible {
+    outline: 2px solid currentColor;
+}
+
 /****************************************************/
 /*                                                  */
 /*               query data container               */
@@ -411,9 +415,5 @@ textarea::placeholder {
     input::placeholder,
     textarea::placeholder {
         color: #a3a3a3b3 !important;
-    }
-
-    :focus-visible {
-        outline: 2px solid #0284c7e6;
     }
 }
