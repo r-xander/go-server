@@ -2,34 +2,40 @@
 <div class="flex flex-col m-4 h-full overflow-hidden dark:bg-base-dark">
     <div class="flex gap-4 h-full w-full overflow-hidden">
         <div class="flex flex-col gap-4 basis-[max(20rem,20%)] overflow-hidden select-none">
-            <div class="h-1/2 rounded-md border border-neutral-300 dark:bg-card-dark dark:border-none">
+            <div class="flex flex-col h-1/2 rounded-md border border-neutral-300 dark:bg-card-dark dark:border-none">
                 <h3 class="py-1.5 px-4 rounded-md opacity-80">Fields</h3>
                 <div
                     id="action-element-container"
-                    class="grid grid-cols-fill-20 auto-rows-max gap-3 py-2 pl-6 pr-1 font-semibold text-indigo-900/70 dark:text-white/70 overflow-y-auto [scrollbar-gutter:stable]"
+                    class="grid grid-cols-[1fr_1fr] gap-3 py-2 pl-6 pr-1 text-lg font-semibold text-indigo-900/70 dark:text-white/70 overflow-y-auto [scrollbar-gutter:stable]"
                 >
                     <div
-                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
+                        class="flex gap-6 p-3 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         draggable="true"
                         dd-template="Text"
                     >
                         <svg
-                            viewBox="0 0 14 20"
-                            class="justify-self-center fill-current aspect-square w-[max(1.5rem,calc((100%+1rem)/3.33))]"
+                            class="w-6"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
                         >
-                            <path d="M14 2v4h-2v-2h-4v12h2v2h-6v-2h2v-12h-4v2h-2v-4h11z"></path>
+                            <path d="M5 4h1a3 3 0 0 1 3 3 3 3 0 0 1 3-3h1" />
+                            <path d="M13 20h-1a3 3 0 0 1-3-3 3 3 0 0 1-3 3H5" />
+                            <path d="M5 16H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h1" />
+                            <path d="M13 8h7a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-7" />
+                            <path d="M9 7v10" />
                         </svg>
                         <span class="text-center">Text</span>
                     </div>
                     <div
-                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
+                        class="flex gap-6 p-3 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         draggable="true"
                         dd-template="Number"
                     >
-                        <svg
-                            viewBox="0 0 1024 1024"
-                            class="justify-self-center fill-current aspect-square w-[max(1.5rem,calc((100%+1rem)/3.33))]"
-                        >
+                        <svg viewBox="0 0 1024 1024" class="w-6 fill-current">
                             <path
                                 d="M872 394c4.4 0 8-3.6 8-8v-60c0-4.4-3.6-8-8-8H708V152c0-4.4-3.6-8-8-8h-64c-4.4 0-8 3.6-8 8v166H400V152c0-4.4-3.6-8-8-8h-64c-4.4 0-8 3.6-8 8v166H152c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h168v236H152c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h168v166c0 4.4 3.6 8 8 8h64c4.4 0 8-3.6 8-8V706h228v166c0 4.4 3.6 8 8 8h64c4.4 0 8-3.6 8-8V706h164c4.4 0 8-3.6 8-8v-60c0-4.4-3.6-8-8-8H708V394h164zM628 630H400V394h228v236z"
                             ></path>
@@ -37,14 +43,11 @@
                         <span class="text-center">Number</span>
                     </div>
                     <div
-                        class="grid p-2 items-center rounded aspect-square origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
+                        class="flex gap-6 p-3 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_3px_3px_-1px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         draggable="true"
                         dd-template="Select"
                     >
-                        <svg
-                            viewBox="0 0 24 24"
-                            class="justify-self-center fill-current aspect-square w-[max(1.5rem,calc((100%+1rem)/3.33))]"
-                        >
+                        <svg viewBox="0 0 24 24" class="w-6 fill-current">
                             <path
                                 d="M2.625 6.75C2.625 6.12868 3.12868 5.625 3.75 5.625C4.37132 5.625 4.875 6.12868 4.875 6.75C4.875 7.37132 4.37132 7.875 3.75 7.875C3.12868 7.875 2.625 7.37132 2.625 6.75ZM7.5 6.75C7.5 6.33579 7.83579 6 8.25 6H20.25C20.6642 6 21 6.33579 21 6.75C21 7.16421 20.6642 7.5 20.25 7.5H8.25C7.83579 7.5 7.5 7.16421 7.5 6.75ZM2.625 12C2.625 11.3787 3.12868 10.875 3.75 10.875C4.37132 10.875 4.875 11.3787 4.875 12C4.875 12.6213 4.37132 13.125 3.75 13.125C3.12868 13.125 2.625 12.6213 2.625 12ZM7.5 12C7.5 11.5858 7.83579 11.25 8.25 11.25H20.25C20.6642 11.25 21 11.5858 21 12C21 12.4142 20.6642 12.75 20.25 12.75H8.25C7.83579 12.75 7.5 12.4142 7.5 12ZM2.625 17.25C2.625 16.6287 3.12868 16.125 3.75 16.125C4.37132 16.125 4.875 16.6287 4.875 17.25C4.875 17.8713 4.37132 18.375 3.75 18.375C3.12868 18.375 2.625 17.8713 2.625 17.25ZM7.5 17.25C7.5 16.8358 7.83579 16.5 8.25 16.5H20.25C20.6642 16.5 21 16.8358 21 17.25C21 17.6642 20.6642 18 20.25 18H8.25C7.83579 18 7.5 17.6642 7.5 17.25Z"
                             ></path>
@@ -167,22 +170,22 @@
     <div
         x-show="deleteDialogOpen"
         x-transition
-        class="flex gap-4 w-max p-6 absolute -right-2 rounded-md bg-white dark:bg-card-dark"
+        class="flex justify-between items-center w-[calc(100%-1.5rem)] p-2.5 absolute top-3 right-3 z-50 text-sm rounded-md bg-white border border-neutral-200 dark:bg-card-dark dark:border-aux-dark"
         @keydown.escape.prevent.stop="deleteDialogOpen = false"
     >
         <h1>Are you sure you want to delete this field?</h1>
-        <div class="flex gap-4 justify-end mt-4 text-sm">
-            <button
-                @click="deleteDialogOpen = false;"
-                class="px-4 py-2 rounded-md border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-aux-dark dark:border-none dark:hover:text-white/90 dark:hover:bg-aux-dark/70"
-            >
-                Cancel
-            </button>
+        <div class="flex gap-2">
             <button
                 @click.self="deleteDialogOpen = false;"
                 class="px-4 py-2 rounded-md font-semibold traking-wide transition-all text-white bg-rose-500 hover:bg-rose-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
             >
                 Delete
+            </button>
+            <button
+                @click="deleteDialogOpen = false;"
+                class="px-4 py-2 rounded-md border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-aux-dark dark:border-none dark:hover:text-white/90 dark:hover:bg-aux-dark/70"
+            >
+                Cancel
             </button>
         </div>
     </div>
