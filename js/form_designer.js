@@ -1,10 +1,11 @@
 // @ts-check
 
 const addSectionBtn = document.getElementById("add-section-button");
+const formContainer = /** @type {HTMLDivElement} */ (document.getElementById("form_container"));
+
 const sectionSortables = [];
 const sections = [];
 const containers = [];
-let mouseDown = false;
 
 /** @type {HTMLElement} */
 let fakeGhost = null;
@@ -23,8 +24,7 @@ addSectionBtn.addEventListener("click", (e) => {
 
     const sectionTemplate = /** @type {HTMLTemplateElement} */ (document.getElementById("section-template"));
     const section = /** @type {DocumentFragment} */ (sectionTemplate.content.cloneNode(true)).firstElementChild;
-    const sectionContainer = /** @type {HTMLDivElement} */ (document.getElementById("form_container"));
-    const newSection = sectionContainer.insertAdjacentElement("beforeend", section);
+    const newSection = formContainer.insertAdjacentElement("beforeend", section);
 
     transition(section, "vertical");
 
@@ -40,10 +40,15 @@ addSectionBtn.addEventListener("click", (e) => {
                 put: true,
             },
             animation: 150,
-            forceFallback: true,
-            fallbackOnBody: true,
-            // @ts-ignore
+            forceFallback: false,
             supportPointer: true,
+
+            scroll: true,
+            forceAutoScrollFallback: true,
+            scrollSensitivity: 100,
+            scrollSpeed: 25,
+            bubbleScroll: true,
+
             setData: function (dataTransfer, dragEl) {
                 dataTransfer.setDragImage(new Image(), 0, 0);
             },
@@ -59,7 +64,7 @@ addSectionBtn.addEventListener("click", (e) => {
     }
 
     sections.push(newSection);
-    sectionContainer.parentElement.scrollTop = sectionContainer.parentElement.scrollHeight;
+    newSection.scrollIntoView({ behavior: "smooth", block: "center" });
 });
 
 /************************************************/

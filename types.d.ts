@@ -225,6 +225,10 @@ declare namespace Sortable {
          * old index within parent
          */
         oldIndex: number | undefined;
+        /**
+         * the original event 
+         */
+        originalEvent: DragEvent;
         target: HTMLElement;
         /**
          * list, in which moved element.
@@ -462,6 +466,10 @@ declare namespace Sortable {
                   set: (sortable: Sortable) => void;
               }
             | undefined;
+        /**
+         * support pointer events
+         */
+        supportPointer?: boolean | undefined;
         /**
          * Threshold of the swap zone.
          * Defaults to `1`

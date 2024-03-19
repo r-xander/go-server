@@ -26,9 +26,9 @@
                         label: "Text Input",
                         placeholder: "",
                         minLenth: 0,
-                        maxLength: Infinity,
+                        maxLength: 2000,
                         defaultValue: "",
-                        layout: "inline",
+                        layout: "Form Setting",
                         required: false,
                         readonly: false,
                         hidden: false,
@@ -59,115 +59,123 @@
     });
 </script>
 
-<div x-data="formData" class="flex flex-col h-full overflow-hidden dark:bg-base-dark">
-    <div class="flex gap-4 h-full w-full overflow-hidden">
-        <div
-            class="flex flex-col w-[max(24rem,20%)] min-w-48 font-semibold overflow-hidden select-none border-r border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
-        >
-            <details
-                open
-                class="border-b border-neutral-300 dark:border-aux-dark open:h-full [&_summary_div]:open:rotate-180"
-            >
-                <summary class="flex p-4 justify-between transition-transform">
-                    Fields
-                    <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
-                </summary>
-                <div
-                    id="action-element-container"
-                    class="grid grid-cols-[1fr_1fr] gap-3 py-2 pl-6 pr-1 text-indigo-900/70 dark:text-white/70 overflow-y-auto [scrollbar-gutter:stable]"
-                >
-                    <div
-                        class="flex p-3 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
-                        draggable="true"
-                        dd-template="Text"
-                    >
-                        <svg
-                            viewBox="0 0 24 24"
-                            class="w-6 min-w-6 stroke-current stroke-2 fill-none [stroke-linecap:round] [stroke-linejoin:round]"
-                        >
-                            <path
-                                d="M5 4H6A3 3 0 019 7 3 3 0 0112 4M13 20H12A3 3 0 019 17 3 3 0 016 20H5M5 16H4A2 2 0 012 14V10A2 2 0 014 8H5M13 8H20A2 2 0 0122 10V14A2 2 0 0120 16H13M9 7V17"
-                            ></path>
-                        </svg>
-                        <span class="w-full text-center">Text</span>
-                    </div>
-                    <div
-                        class="flex p-3 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
-                        draggable="true"
-                        dd-template="Number"
-                    >
-                        <svg viewBox="0 0 24 24" class="w-6 min-w-6 fill-current">
-                            <path
-                                d="M7 7 7 3 9 3 9 7 14 7 14 3 16 3 16 7 20 7 20 9 16 9 16 14 20 14 20 16 16 16 16 20 14 20 14 16 9 16 9 20 7 20 7 16 3 16 3 14 7 14 7 9 3 9 3 7 7 7M9 9 9 14 14 14 14 9 9 9"
-                            ></path>
-                        </svg>
-                        <span class="w-full text-center">Number</span>
-                    </div>
-                    <div
-                        class="flex p-3 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
-                        draggable="true"
-                        dd-template="Select"
-                    >
-                        <svg viewBox="0 0 24 24" class="w-6 min-w-6 fill-current">
-                            <path
-                                d="M3 6 5 6 5 8 3 8ZM8 6H21L21 8H8ZM3 11 5 11 5 13 3 13 3 11ZM8 11H8L21 11 21 13 8 13 8 11ZM3 16 5 16 5 18 3 18 3 16ZM8 16 21 16 21 18 8 18 8 16"
-                            ></path>
-                        </svg>
-                        <span class="w-full text-center">Select</span>
-                    </div>
-                </div>
-            </details>
-            <details
-                class="border-b border-neutral-300 dark:border-aux-dark open:h-full [&_summary_div]:open:rotate-180"
-            >
-                <summary class="flex p-4 justify-between transition-transform">
-                    Components
-                    <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
-                </summary>
-                <div></div>
-            </details>
-        </div>
-        <div
-            class="grow grid grid-rows-[max-content_1fr] gap-4 overflow-hidden border border-neutral-300 bg-white dark:bg-base-dark dark:border-none"
-        >
+<main x-data="formData">
+    <div class="pt-[53px]">
+        <div class="flex h-full w-full">
             <div
-                class="grid grid-cols-[1fr_3fr_1fr] py-2 px-4 sticky top-0 z-10 items-center rounded-md bg-neutral-50 dark:bg-card-dark"
+                class="sticky top-[53px] flex flex-col w-[max(24rem,20%)] min-w-48 h-[calc(100vh-53px)] font-semibold overflow-hidden select-none border-r border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
             >
-                <div></div>
-                <div class="flex gap-2 justify-self-center">
-                    <div id="form" class="py-1 px-8 border rounded">Form</div>
-                    <div id="Process" class="py-1 px-8 border rounded">Work Flow</div>
-                    <div id="form" class="py-1 px-8 border rounded">Form Rules</div>
-                </div>
-                <div class="justify-self-end">
-                    <button
-                        id="add-section-button"
-                        class="text-sm py-1 px-2 rounded font-semibold text-sky-800/80 hover:text-sky-800 dark:text-sky-400/80 dark:hover:text-sky-400"
+                <details
+                    open
+                    class="border-b border-neutral-300 dark:border-aux-dark open:h-full [&_summary_div]:open:rotate-180"
+                >
+                    <summary class="flex p-4 justify-between transition-transform">
+                        Fields
+                        <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
+                    </summary>
+                    <div
+                        id="action-element-container"
+                        class="grid grid-cols-[1fr_1fr] gap-3 py-2 pl-6 pr-1 text-indigo-900/70 dark:text-white/70 overflow-y-auto [scrollbar-gutter:stable]"
                     >
-                        +Add Section
-                    </button>
+                        <div
+                            class="flex p-3 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
+                            draggable="true"
+                            dd-template="Text"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                class="w-6 min-w-6 stroke-current stroke-2 fill-none [stroke-linecap:round] [stroke-linejoin:round]"
+                            >
+                                <path
+                                    d="M5 4H6A3 3 0 019 7 3 3 0 0112 4M13 20H12A3 3 0 019 17 3 3 0 016 20H5M5 16H4A2 2 0 012 14V10A2 2 0 014 8H5M13 8H20A2 2 0 0122 10V14A2 2 0 0120 16H13M9 7V17"
+                                ></path>
+                            </svg>
+                            <span class="w-full text-center">Text</span>
+                        </div>
+                        <div
+                            class="flex p-3 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
+                            draggable="true"
+                            dd-template="Number"
+                        >
+                            <svg viewBox="0 0 24 24" class="w-6 min-w-6 fill-current">
+                                <path
+                                    d="M7 7 7 3 9 3 9 7 14 7 14 3 16 3 16 7 20 7 20 9 16 9 16 14 20 14 20 16 16 16 16 20 14 20 14 16 9 16 9 20 7 20 7 16 3 16 3 14 7 14 7 9 3 9 3 7 7 7M9 9 9 14 14 14 14 9 9 9"
+                                ></path>
+                            </svg>
+                            <span class="w-full text-center">Number</span>
+                        </div>
+                        <div
+                            class="flex p-3 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
+                            draggable="true"
+                            dd-template="Select"
+                        >
+                            <svg viewBox="0 0 24 24" class="w-6 min-w-6 fill-current">
+                                <path
+                                    d="M3 6 5 6 5 8 3 8ZM8 6H21L21 8H8ZM3 11 5 11 5 13 3 13 3 11ZM8 11H8L21 11 21 13 8 13 8 11ZM3 16 5 16 5 18 3 18 3 16ZM8 16 21 16 21 18 8 18 8 16"
+                                ></path>
+                            </svg>
+                            <span class="w-full text-center">Select</span>
+                        </div>
+                    </div>
+                </details>
+                <details
+                    open
+                    class="border-b border-neutral-300 dark:border-aux-dark open:h-full [&_summary_div]:open:rotate-180"
+                >
+                    <summary class="flex p-4 justify-between transition-transform">
+                        Components
+                        <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
+                    </summary>
+                    <div></div>
+                </details>
+            </div>
+            <div class="grow grid grid-rows-[max-content_1fr]">
+                <div
+                    class="sticky top-[53px] grid grid-cols-[1fr_3fr_1fr] py-3 z-10 items-center bg-neutral-50 border-b border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
+                >
+                    <div></div>
+                    <div class="flex gap-2 justify-self-center">
+                        <div id="form" class="py-1 px-8">Form</div>
+                        <div id="Process" class="py-1 px-8">Work Flow</div>
+                        <div id="form" class="py-1 px-8">Form Rules</div>
+                    </div>
+                    <div class="justify-self-end">
+                        <button
+                            id="add-section-button"
+                            class="text-sm py-1 px-2 rounded font-semibold text-sky-800/80 hover:text-sky-800 dark:text-sky-400/80 dark:hover:text-sky-400"
+                        >
+                            +Add Section
+                        </button>
+                    </div>
+                </div>
+                <div class="p-4 overflow-auto w-full">
+                    <div id="form_container" class="@container/form relative grid gap-4 max-w-[75rem] mx-auto"></div>
                 </div>
             </div>
-            <div class="py-4 pl-8 pr-4 overflow-auto w-full [scrollbar-gutter:stable]">
-                <div id="form_container" class="@container/form relative grid gap-4 max-w-[75rem] mx-auto"></div>
-            </div>
-        </div>
-        <div class="flex flex-col gap-4 basis-[max(20rem,20%)] overflow-hidden">
-            <details
-                class="rounded-md border border-neutral-300 dark:bg-card-dark dark:border-none [&_summary_div]:open:rotate-180"
+            <div
+                class="sticky top-[53px] flex flex-col w-[max(24rem,20%)] min-w-48 h-[calc(100vh-53px)] font-semibold overflow-hidden select-none border-l border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
             >
-                <summary class="flex p-4 font-bold justify-between transition-transform">
-                    Form Details
-                    <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
-                </summary>
-                <div class="p-4 flex gap-8 justify-center">
-                    <label class="flex items-center gap-3"><input type="checkbox" />Single Page</label>
-                    <label class="flex items-center gap-3"><input type="checkbox" />Tabbed</label>
-                </div>
-            </details>
-            <div class="h-full rounded-md border border-neutral-300 dark:bg-card-dark dark:border-none">
-                <h2 class="my-3 font-bold text-center">Details</h2>
-                <div id="field-details" class="px-8"></div>
+                <details
+                    class="border-b border-neutral-300 dark:border-aux-dark open:h-full [&_summary_div]:open:rotate-180"
+                >
+                    <summary class="flex p-4 justify-between transition-transform">
+                        Form Details
+                        <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
+                    </summary>
+                    <div class="p-4 flex gap-8 justify-center">
+                        <label class="flex items-center gap-3"><input type="checkbox" />Single Page</label>
+                        <label class="flex items-center gap-3"><input type="checkbox" />Tabbed</label>
+                    </div>
+                </details>
+                <details
+                    class="border-b border-neutral-300 dark:border-aux-dark open:h-full [&_summary_div]:open:rotate-180"
+                >
+                    <summary class="flex p-4 justify-between transition-transform">
+                        Details
+                        <div class="w-6 h-6 flex items-center justify-center scale-y-50 select-none">▼</div>
+                    </summary>
+                    <div id="field-details" class="px-8"></div>
+                </details>
             </div>
         </div>
     </div>
@@ -213,32 +221,35 @@
                 />
             </div>
             <div class="grid gap-2">
-                <label for="minlength">Minimum Length</label>
-                <input
-                    x-model="editData.minLenth"
-                    type="text"
-                    name="minlength"
-                    id="minlength"
-                    placeholder="min length..."
-                />
-            </div>
-            <div class="grid gap-2">
-                <label for="maxlength">Minimum Length</label>
-                <input
-                    x-model="editData.maxLength"
-                    type="text"
-                    name="maxlength"
-                    id="maxlength"
-                    placeholder="max length..."
-                />
-            </div>
-            <div class="grid gap-2">
                 <label for="default">Default</label>
                 <input x-model="editData.default" type="text" name="default" id="default" placeholder="default..." />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="grid gap-2">
+                    <label for="minlength">Minimum Length</label>
+                    <input
+                        x-model="editData.minLenth"
+                        type="number"
+                        name="minlength"
+                        id="minlength"
+                        placeholder="min length..."
+                    />
+                </div>
+                <div class="grid gap-2">
+                    <label for="maxlength">Minimum Length</label>
+                    <input
+                        x-model="editData.maxLength"
+                        type="number"
+                        name="maxlength"
+                        id="maxlength"
+                        placeholder="max length..."
+                    />
+                </div>
             </div>
             <div class="grid gap-2">
                 <label for="default">Layout</label>
                 <select x-model="editData.layout" type="text" name="default" id="default" placeholder="default...">
+                    <option value="inline">Form Setting</option>
                     <option value="inline">Inline</option>
                     <option value="block">Block</option>
                 </select>
@@ -259,14 +270,14 @@
             </div>
         </div>
     </div>
-</div>
+</main>
 {{ template "text_field" }} {{ template "number_field" }} {{ template "select_field" }} {{ template "section" }}
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script src="/js/form_designer.js" type="text/javascript" charset="utf-8"></script>
 {{ end }} {{ define "field_icons" }}
-<div @pointerdown.stop class="flex gap-1 relative">
+<div @pointerdown.stop class="flex gap-1 relative text-neutral-500 dark:text-white/60">
     <div>
         <button
             @click="editFieldData($data.id)"
@@ -274,7 +285,7 @@
         >
             <svg
                 viewBox="0 0 24 24"
-                class="fill-none stroke-current stroke-1 [stroke-linecap:round] [stroke-linejoin:round]"
+                class="fill-none stroke-current stroke-[1.5px] [stroke-linecap:round] [stroke-linejoin:round]"
             >
                 <path
                     d="M16.8617 4.48667L18.5492 2.79917C19.2814 2.06694 20.4686 2.06694 21.2008 2.79917C21.9331 3.53141 21.9331 4.71859 21.2008 5.45083L10.5822 16.0695C10.0535 16.5981 9.40144 16.9868 8.68489 17.2002L6 18L6.79978 15.3151C7.01323 14.5986 7.40185 13.9465 7.93052 13.4178L16.8617 4.48667ZM16.8617 4.48667L19.5 7.12499M18 14V18.75C18 19.9926 16.9926 21 15.75 21H5.25C4.00736 21 3 19.9926 3 18.75V8.24999C3 7.00735 4.00736 5.99999 5.25 5.99999H10"
@@ -331,7 +342,14 @@
 </div>
 {{ end }} {{ define "text_field" }}
 <template id="Text">
-    <div @click.stop x-data="initNewTextField()" x-init="" :id="id" form-field="text" class="p-2.5 rounded">
+    <div
+        @click.stop
+        x-data="initNewTextField()"
+        x-init="console.log($data)"
+        :id="id"
+        form-field="text"
+        class="p-2.5 rounded"
+    >
         <div class="flex items-center justify-between mb-1 text-xs text-neutral-500 dark:text-white/60">
             <div class="font-mono flex gap-3">
                 <span class="font-bold italic cursor-default select-none">Text Field</span>
