@@ -1,23 +1,65 @@
 {{ define "title" }} Form Designer {{ end }} {{ define "body" }}
-<div
-    x-data="{
-        formName: 'Test Form',
-        formAcronym: 'tf',
-        currentIndex: 1,
-        getId(name) {
-            if (!idCache.has(name)) {
-                idCache.add(name, 0);
-            }
+<script>
+    document.addEventListener("alpine:init", function () {
+        let idCache = new Map();
 
-            let index = idCache.get(name);
-            return `${name}-${index}`;
-        },
-        log() {
-            console.log(this);
-        },
-    }"
-    class="flex flex-col h-full overflow-hidden dark:bg-base-dark"
->
+        Alpine.data("formData", () => ({
+            formName: "Test Form",
+            formAcronym: "tf",
+            currentFieldIndex: 1,
+            fieldData: {},
+            setions: [],
+
+            editData: {},
+            editModalOpen: false,
+
+            getId() {
+                let id = this.formAcronym + "-" + this.currentFieldIndex.toString().padStart(4, "0");
+                this.currentFieldIndex++;
+                return id;
+            },
+            initNewTextField(data) {
+                let newFieldData = Object.assign(
+                    {
+                        id: this.getId(),
+                        type: "text",
+                        label: "Text Input",
+                        placeholder: "",
+                        minLenth: 0,
+                        maxLength: Infinity,
+                        defaultValue: "",
+                        layout: "inline",
+                        required: false,
+                        readonly: false,
+                        hidden: false,
+                    },
+                    data
+                );
+
+                this.fieldData[newFieldData.id] = newFieldData;
+                return this.fieldData[newFieldData.id];
+            },
+            editFieldData(id) {
+                const fieldData = this.fieldData[id];
+                this.editData = { ...fieldData };
+
+                switch (fieldData.type) {
+                    case "text":
+                        this.editModalOpen = true;
+                        break;
+                    default:
+                        console.log("unsupported field type: " + fieldData.type);
+                }
+            },
+            setFieldData(data) {
+                this.fieldData[data.id] = { ...data };
+                this.editModalOpen = false;
+            },
+        }));
+    });
+</script>
+
+<div x-data="formData" class="flex flex-col h-full overflow-hidden dark:bg-base-dark">
     <div class="flex gap-4 h-full w-full overflow-hidden">
         <div
             class="flex flex-col w-[max(24rem,20%)] min-w-48 font-semibold overflow-hidden select-none border-r border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
@@ -129,30 +171,96 @@
             </div>
         </div>
     </div>
+    <div
+        x-data="editData"
+        x-show="editModalOpen"
+        x-cloak
+        x-transition.opacity
+        class="fixed inset-0 z-50 flex items-center justify-center bg-[#1f232880] dark:bg-[#00000080]"
+    >
+        <div
+            x-show="editModalOpen"
+            x-transition
+            class="grid gap-4 w-1/4 min-w-96 px-8 py-6 rounded-md shadow-xl bg-white dark:bg-card-dark"
+        >
+            <div class="flex justify-evenly">
+                <label for="required" class="flex items-center gap-2">
+                    <input x-model="editData.required" type="checkbox" name="required" id="required" />Required
+                </label>
+                <label for="readonly" class="flex items-center gap-2">
+                    <input x-model="editData.readonly" type="checkbox" name="readonly" id="readonly" />Read Only
+                </label>
+                <label for="hidden" class="flex items-center gap-2">
+                    <input x-model="editData.hidden" type="checkbox" name="hidden" id="hidden" />Hidden
+                </label>
+            </div>
+            <div class="grid gap-2">
+                <label for="id">ID</label>
+                <input x-model="editData.id" type="text" name="id" id="id" placeholder="id..." />
+            </div>
+            <div class="grid gap-2">
+                <label for="label">Label</label>
+                <input x-model="editData.label" type="text" name="label" id="label" placeholder="label..." />
+            </div>
+            <div class="grid gap-2">
+                <label for="placeholder">Placeholder</label>
+                <input
+                    x-model="editData.placeholder"
+                    type="text"
+                    name="placeholder"
+                    id="placeholder"
+                    placeholder="placeholder..."
+                />
+            </div>
+            <div class="grid gap-2">
+                <label for="minlength">Minimum Length</label>
+                <input
+                    x-model="editData.minLenth"
+                    type="text"
+                    name="minlength"
+                    id="minlength"
+                    placeholder="min length..."
+                />
+            </div>
+            <div class="grid gap-2">
+                <label for="maxlength">Minimum Length</label>
+                <input
+                    x-model="editData.maxLength"
+                    type="text"
+                    name="maxlength"
+                    id="maxlength"
+                    placeholder="max length..."
+                />
+            </div>
+            <div class="grid gap-2">
+                <label for="default">Default</label>
+                <input x-model="editData.default" type="text" name="default" id="default" placeholder="default..." />
+            </div>
+            <div class="grid gap-2">
+                <label for="default">Layout</label>
+                <select x-model="editData.layout" type="text" name="default" id="default" placeholder="default...">
+                    <option value="inline">Inline</option>
+                    <option value="block">Block</option>
+                </select>
+            </div>
+            <div class="flex gap-4 justify-end mt-4 text-sm">
+                <button
+                    @click="editModalOpen = false;"
+                    class="px-4 py-2 rounded-md border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-aux-dark dark:border-none dark:hover:text-white/90 dark:hover:bg-aux-dark/70"
+                >
+                    Cancel
+                </button>
+                <button
+                    @click="setFieldData(editData)"
+                    class="px-4 py-2 rounded-md font-semibold tracking-wide transition-all text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
+                >
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 {{ template "text_field" }} {{ template "number_field" }} {{ template "select_field" }} {{ template "section" }}
-<script>
-    document.addEventListener("alpine:init", function () {
-        let idCache = new Map();
-
-        Alpine.store("formData", {
-            formName: "Test Form",
-            formAcronym: "tf",
-            currentIndex: 1,
-            getId(name) {
-                if (!idCache.has(name)) {
-                    idCache.add(name, 0);
-                }
-
-                let index = idCache.get(name);
-                return `${name}-${index}`;
-            },
-            log() {
-                console.log(this);
-            },
-        });
-    });
-</script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -161,16 +269,15 @@
 <div @pointerdown.stop class="flex gap-1 relative">
     <div>
         <button
-            @click="showFieldPanel = true; console.log($root._x_dataStack)"
+            @click="editFieldData($data.id)"
             class="w-6 h-6 p-1 cursor-pointer transition rounded hover:text-emerald-800 hover:bg-emerald-800/20 dark:hover:text-emerald-400 dark:hover:bg-emerald-400/20"
         >
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg
+                viewBox="0 0 24 24"
+                class="fill-none stroke-current stroke-1 [stroke-linecap:round] [stroke-linejoin:round]"
+            >
                 <path
                     d="M16.8617 4.48667L18.5492 2.79917C19.2814 2.06694 20.4686 2.06694 21.2008 2.79917C21.9331 3.53141 21.9331 4.71859 21.2008 5.45083L10.5822 16.0695C10.0535 16.5981 9.40144 16.9868 8.68489 17.2002L6 18L6.79978 15.3151C7.01323 14.5986 7.40185 13.9465 7.93052 13.4178L16.8617 4.48667ZM16.8617 4.48667L19.5 7.12499M18 14V18.75C18 19.9926 16.9926 21 15.75 21H5.25C4.00736 21 3 19.9926 3 18.75V8.24999C3 7.00735 4.00736 5.99999 5.25 5.99999H10"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
                 />
             </svg>
         </button>
@@ -179,12 +286,9 @@
         <button
             class="w-6 h-6 p-1 cursor-pointer transition rounded hover:text-indigo-800 hover:bg-indigo-800/20 dark:hover:text-indigo-400 dark:hover:bg-indigo-400/20"
         >
-            <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 15 15" class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]">
                 <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
                     d="M1 9.50006C1 10.3285 1.67157 11.0001 2.5 11.0001H4L4 10.0001H2.5C2.22386 10.0001 2 9.7762 2 9.50006L2 2.50006C2 2.22392 2.22386 2.00006 2.5 2.00006L9.5 2.00006C9.77614 2.00006 10 2.22392 10 2.50006V4.00002H5.5C4.67158 4.00002 4 4.67159 4 5.50002V12.5C4 13.3284 4.67158 14 5.5 14H12.5C13.3284 14 14 13.3284 14 12.5V5.50002C14 4.67159 13.3284 4.00002 12.5 4.00002H11V2.50006C11 1.67163 10.3284 1.00006 9.5 1.00006H2.5C1.67157 1.00006 1 1.67163 1 2.50006V9.50006ZM5 5.50002C5 5.22388 5.22386 5.00002 5.5 5.00002H12.5C12.7761 5.00002 13 5.22388 13 5.50002V12.5C13 12.7762 12.7761 13 12.5 13H5.5C5.22386 13 5 12.7762 5 12.5V5.50002Z"
-                    fill="currentColor"
                 />
             </svg>
         </button>
@@ -194,7 +298,7 @@
             class="w-6 h-6 p-1 cursor-pointer transition relative rounded hover:text-rose-800 hover:bg-rose-800/20 dark:hover:text-rose-400 dark:hover:bg-rose-400/20"
             @click="deleteDialogOpen = true"
         >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" fill-rule="evenodd">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" class="fill-current [fill-rule:evenodd]">
                 <path
                     d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
                 />
@@ -227,195 +331,74 @@
 </div>
 {{ end }} {{ define "text_field" }}
 <template id="Text">
-    <div
-        @click.stop
-        x-data="{
-            showFieldPanel: false,
-            showDeleteDialog: false,
-            fieldData: { 
-                id: 'tf-0001',
-                label: 'Text Input',
-                placeholder: null,
-                minLenth: null,
-                maxLength: null,
-                default: null,
-                layout: 'inline',
-                required: false,
-                readonly: false,
-                hidden: false 
-            },
-            getFieldData() {
-                return this.fieldData
-            },
-            setFieldData(data) {
-                this.fieldData = { ...data }
-            }
-        }"
-        id="tf-0001"
-        form-field="text"
-        class="p-2.5 rounded"
-    >
+    <div @click.stop x-data="initNewTextField()" x-init="" :id="id" form-field="text" class="p-2.5 rounded">
         <div class="flex items-center justify-between mb-1 text-xs text-neutral-500 dark:text-white/60">
             <div class="font-mono flex gap-3">
                 <span class="font-bold italic cursor-default select-none">Text Field</span>
                 <span
-                    x-show="fieldData.hidden || fieldData.readonly"
-                    x-text="fieldData.hidden ? '[Hidden]' : fieldData.readonly ? '[Readonly]' : ''"
+                    x-show="hidden || readonly"
+                    x-text="hidden ? '[Hidden]' : readonly ? '[Readonly]' : ''"
                     class="text-neutral-400 dark:text-white/40"
                 ></span>
             </div>
             {{ template "field_icons" }}
         </div>
         <div
-            :class="{ 'opacity-50': fieldData.hidden, 'grid-cols-[3fr_4fr]': fieldData.layout === 'inline'  }"
+            :class="{ 'opacity-50': hidden, 'grid-cols-[3fr_4fr]': layout === 'inline'  }"
             class="grid gap-1 w-full items-center"
         >
             <div class="flex gap-1 items-center">
-                <label x-text="fieldData.label" class="font-medium select-none" dd-label="Text Field"></label>
-                <span x-show="fieldData.required" class="leading-4 font-semibold text-rose-500">*</span>
+                <label x-text="label" :for="id" class="font-medium select-none" dd-label="Text Field"></label>
+                <span x-show="required" class="leading-4 font-semibold text-rose-500">*</span>
             </div>
             <input
-                :value="fieldData.default ? fieldData.default : ''"
-                :placeholder="fieldData.placeholder"
-                :readonly="fieldData.readonly || fieldData.hidden"
-                @change="$el.value = fieldData.default ? fieldData.default : ''"
+                :id="id"
+                :value="defaultValue ? defaultValue : ''"
+                :placeholder="placeholder"
+                :readonly="readonly || hidden"
+                @change="$el.value = defaultValue ? defaultValue : ''"
                 type="text"
             />
         </div>
-        <template x-teleport="body">
-            <div
-                x-data="{ editData: getFieldData() }"
-                x-show="showFieldPanel"
-                x-cloak
-                x-transition.opacity
-                class="fixed inset-0 z-50 flex items-center justify-center bg-[#1f232880] dark:bg-[#00000080]"
-            >
-                <div
-                    x-show="showFieldPanel"
-                    x-transition
-                    class="grid gap-4 w-1/4 min-w-96 px-8 py-6 rounded-md shadow-xl bg-white dark:bg-card-dark"
-                >
-                    <div class="flex justify-evenly">
-                        <label for="required" class="flex items-center gap-2">
-                            <input x-model="editData.required" type="checkbox" name="required" id="required" />Required
-                        </label>
-                        <label for="readonly" class="flex items-center gap-2">
-                            <input x-model="editData.readonly" type="checkbox" name="readonly" id="readonly" />Read Only
-                        </label>
-                        <label for="hidden" class="flex items-center gap-2">
-                            <input x-model="editData.hidden" type="checkbox" name="hidden" id="hidden" />Hidden
-                        </label>
-                    </div>
-                    <div class="grid gap-2">
-                        <label for="id">ID</label>
-                        <input x-model="editData.id" type="text" name="id" id="id" placeholder="id..." />
-                    </div>
-                    <div class="grid gap-2">
-                        <label for="label">Label</label>
-                        <input x-model="editData.label" type="text" name="label" id="label" placeholder="label..." />
-                    </div>
-                    <div class="grid gap-2">
-                        <label for="placeholder">Placeholder</label>
-                        <input
-                            x-model="editData.placeholder"
-                            type="text"
-                            name="placeholder"
-                            id="placeholder"
-                            placeholder="placeholder..."
-                        />
-                    </div>
-                    <div class="grid gap-2">
-                        <label for="minlength">Minimum Length</label>
-                        <input
-                            x-model="editData.minLenth"
-                            type="text"
-                            name="minlength"
-                            id="minlength"
-                            placeholder="min length..."
-                        />
-                    </div>
-                    <div class="grid gap-2">
-                        <label for="maxlength">Minimum Length</label>
-                        <input
-                            x-model="editData.maxLength"
-                            type="text"
-                            name="maxlength"
-                            id="maxlength"
-                            placeholder="max length..."
-                        />
-                    </div>
-                    <div class="grid gap-2">
-                        <label for="default">Default</label>
-                        <input
-                            x-model="editData.default"
-                            type="text"
-                            name="default"
-                            id="default"
-                            placeholder="default..."
-                        />
-                    </div>
-                    <div class="grid gap-2">
-                        <label for="default">Layout</label>
-                        <select
-                            x-model="editData.layout"
-                            type="text"
-                            name="default"
-                            id="default"
-                            placeholder="default..."
-                        >
-                            <option value="inline">Inline</option>
-                            <option value="block">Block</option>
-                        </select>
-                    </div>
-                    <div class="flex gap-4 justify-end mt-4 text-sm">
-                        <button
-                            @click="showFieldPanel = false;"
-                            class="px-4 py-2 rounded-md border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-aux-dark dark:border-none dark:hover:text-white/90 dark:hover:bg-aux-dark/70"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            @click="showFieldPanel = false; setFieldData(editData);"
-                            class="px-4 py-2 rounded-md font-semibold tracking-wide transition-all text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
-                        >
-                            Save
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </template>
-        <template x-teleport="body">
-            <div
-                x-cloak
-                x-show="showDeleteDialog"
-                x-transition.opacity
-                class="fixed inset-0 z-50 flex items-center justify-center bg-[#1f232880] dark:bg-[#00000080]"
-            >
-                <div
-                    x-show="showDeleteDialog"
-                    x-transition
-                    class="grid gap-4 w-max p-6 rounded-md bg-white dark:bg-card-dark"
-                >
-                    <h1>Are you sure you want to delete this field?</h1>
-                    <div class="flex gap-4 justify-end mt-4 text-sm">
-                        <button
-                            @click="showDeleteDialog = false;"
-                            class="px-4 py-2 rounded-md border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-aux-dark dark:border-none dark:hover:text-white/90 dark:hover:bg-aux-dark/70"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            @click.self="showDeleteDialog = false;"
-                            class="px-4 py-2 rounded-md font-semibold traking-wide transition-all text-white bg-rose-500 hover:bg-rose-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
-                        >
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </template>
     </div>
 </template>
+<!-- <template id="Text">
+    <div @click.stop x-data="initNewField()" x-init="" :id="id" form-field="text" class="p-2.5 rounded">
+        <div class="flex items-center justify-between mb-1 text-xs text-neutral-500 dark:text-white/60">
+            <div class="font-mono flex gap-3">
+                <span class="font-bold italic cursor-default select-none">Text Field</span>
+                <span
+                    x-show="fieldData[id].hidden || fieldData[id].readonly"
+                    x-text="fieldData[id].hidden ? '[Hidden]' : fieldData[id].readonly ? '[Readonly]' : ''"
+                    class="text-neutral-400 dark:text-white/40"
+                ></span>
+            </div>
+            {{ template "field_icons" }}
+        </div>
+        <div
+            :class="{ 'opacity-50': fieldData[id].hidden, 'grid-cols-[3fr_4fr]': fieldData[id].layout === 'inline'  }"
+            class="grid gap-1 w-full items-center"
+        >
+            <div class="flex gap-1 items-center">
+                <label
+                    x-text="fieldData[id].label"
+                    :for="id"
+                    class="font-medium select-none"
+                    dd-label="Text Field"
+                ></label>
+                <span x-show="fieldData[id].required" class="leading-4 font-semibold text-rose-500">*</span>
+            </div>
+            <input
+                :id="id"
+                :value="fieldData[id].default ? fieldData[id].default : ''"
+                :placeholder="fieldData[id].placeholder"
+                :readonly="fieldData[id].readonly || fieldData[id].hidden"
+                @change="$el.value = fieldData[id].default ? fieldData[id].default : ''"
+                type="text"
+            />
+        </div>
+    </div>
+</template> -->
 {{ end }} {{ define "number_field" }}
 <template id="Number">
     <div form-field="number" class="p-2.5 rounded">
