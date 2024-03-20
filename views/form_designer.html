@@ -5,7 +5,7 @@
 
         Alpine.data("formData", () => ({
             formName: "Test Form",
-            formAcronym: "tf",
+            formAcronym: "TF",
             currentFieldIndex: 1,
             fieldData: {},
             setions: [],
@@ -25,7 +25,7 @@
                         type: "text",
                         label: "Text Input",
                         placeholder: "",
-                        minLenth: "",
+                        minLenth: 0,
                         maxLength: 2000,
                         defaultValue: "",
                         layout: "Form Setting",
@@ -189,99 +189,105 @@
         <div
             x-show="editModalOpen"
             x-transition
-            class="grid grid-cols-[1fr_3fr] gap-4 w-3/4 min-w-96 max-w-lg px-8 py-6 items-start rounded-md shadow-xl bg-white dark:bg-card-dark"
+            class="flex flex-col w-3/4 min-w-96 max-w-4xl h-4/5 items-start overflow-hidden rounded shadow-xl bg-white dark:bg-card-dark"
         >
-            <div
-                class="col-span-full text-lg text-center text-semibold border-b border-neutral-300 dark:border-aux-dark"
-            >
-                Field Configuration
+            <div class="flex items-center justify-between w-full p-4 border-b border-neutral-300 dark:border-aux-dark">
+                <h1 class="text-center text-lg text-semibold">Field Configuration</h1>
+                <span class="font-bold">&#10005;</span>
             </div>
-            <div class="flex flex-col gap-2">
-                <div class="grid grid-col-2 mb-4">
-                    <span>ID: </span>
-                    <span class="font-semibold">tf-00001</span>
-                    <span>Type: </span>
-                    <span class="font-semibold">Text</span>
+            <div class="flex gap-4 h-full w-full overflow-hidden">
+                <div class="flex flex-col gap-2 py-4 px-8 basis-1/3 border-r border-neutral-300 dark:border-aux-dark">
+                    <div class="grid grid-cols-2 mb-4">
+                        <span>ID: </span>
+                        <span class="font-semibold">TF-00001</span>
+                        <span>Type: </span>
+                        <span class="font-semibold">Text</span>
+                    </div>
+                    <label for="required" class="flex items-center gap-2">
+                        <input x-model="editData.required" type="checkbox" name="required" id="required" />Required
+                    </label>
+                    <label for="readonly" class="flex items-center gap-2">
+                        <input x-model="editData.readonly" type="checkbox" name="readonly" id="readonly" />Read Only
+                    </label>
+                    <label for="hidden" class="flex items-center gap-2">
+                        <input x-model="editData.hidden" type="checkbox" name="hidden" id="hidden" />Hidden
+                    </label>
                 </div>
-                <label for="required" class="flex items-center gap-2">
-                    <input x-model="editData.required" type="checkbox" name="required" id="required" value="" />Required
-                </label>
-                <label for="readonly" class="flex items-center gap-2">
-                    <input x-model="editData.readonly" type="checkbox" name="readonly" id="readonly" value="" />Read
-                    Only
-                </label>
-                <label for="hidden" class="flex items-center gap-2">
-                    <input x-model="editData.hidden" type="checkbox" name="hidden" id="hidden" value="" />Hidden
-                </label>
-            </div>
-            <div class="grid gap-4">
-                <div class="grid gap-2">
-                    <label for="label">Label</label>
-                    <input x-model="editData.label" type="text" name="label" id="label" placeholder="label..." />
-                </div>
-                <div class="grid gap-2">
-                    <label for="placeholder">Placeholder</label>
-                    <input
-                        x-model="editData.placeholder"
-                        type="text"
-                        name="placeholder"
-                        id="placeholder"
-                        placeholder="placeholder..."
-                    />
-                </div>
-                <div class="grid gap-2">
-                    <label for="default">Default</label>
-                    <input
-                        x-model="editData.default"
-                        type="text"
-                        name="default"
-                        id="default"
-                        placeholder="default..."
-                    />
-                </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grow flex flex-col p-4 gap-4 overflow-y-auto [scrollbar-gutter:stable]">
                     <div class="grid gap-2">
-                        <label for="minlength">Minimum Length</label>
+                        <label for="label">Label</label>
+                        <input x-model="editData.label" type="text" name="label" id="label" placeholder="label..." />
+                    </div>
+                    <div class="grid gap-2">
+                        <label for="placeholder">Placeholder</label>
                         <input
-                            x-model="editData.minLenth"
-                            type="number"
-                            name="minlength"
-                            id="minlength"
-                            placeholder="min length..."
-                            class="min-w-0"
+                            x-model="editData.placeholder"
+                            type="text"
+                            name="placeholder"
+                            id="placeholder"
+                            placeholder="placeholder..."
                         />
                     </div>
                     <div class="grid gap-2">
-                        <label for="maxlength">Minimum Length</label>
+                        <label for="default">Default</label>
                         <input
-                            x-model="editData.maxLength"
-                            type="number"
-                            name="maxlength"
-                            id="maxlength"
-                            placeholder="max length..."
-                            class="min-w-0"
+                            x-model="editData.default"
+                            type="text"
+                            name="default"
+                            id="default"
+                            placeholder="default..."
                         />
                     </div>
-                </div>
-                <div class="grid gap-2">
-                    <label for="default">Layout</label>
-                    <select x-model="editData.layout" type="text" name="default" id="default" placeholder="default...">
-                        <option value="inline">Form Setting</option>
-                        <option value="inline">Inline</option>
-                        <option value="block">Block</option>
-                    </select>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="grid gap-2">
+                            <label for="minlength">Minimum Length</label>
+                            <input
+                                x-model="editData.minLenth"
+                                type="number"
+                                name="minlength"
+                                id="minlength"
+                                placeholder="min length..."
+                                class="min-w-0"
+                            />
+                        </div>
+                        <div class="grid gap-2">
+                            <label for="maxlength">Minimum Length</label>
+                            <input
+                                x-model="editData.maxLength"
+                                type="number"
+                                name="maxlength"
+                                id="maxlength"
+                                placeholder="max length..."
+                                class="min-w-0"
+                            />
+                        </div>
+                    </div>
+                    <div class="grid gap-2">
+                        <label for="default">Layout</label>
+                        <select
+                            x-model="editData.layout"
+                            type="text"
+                            name="default"
+                            id="default"
+                            placeholder="default..."
+                        >
+                            <option value="inline">Form Setting</option>
+                            <option value="inline">Inline</option>
+                            <option value="block">Block</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-            <div class="col-span-full flex gap-4 justify-end mt-4 text-sm">
+            <div class="flex gap-4 p-4 w-full justify-end text-sm border-t border-neutral-300 dark:border-aux-dark">
                 <button
                     @click="editModalOpen = false;"
-                    class="px-4 py-2 rounded-md border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-aux-dark dark:border-none dark:hover:text-white/90 dark:hover:bg-aux-dark/70"
+                    class="px-4 py-2 rounded-md border transition border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-aux-dark dark:border-none dark:hover:text-white/90 dark:hover:bg-aux-dark/70"
                 >
                     Cancel
                 </button>
                 <button
                     @click="setFieldData(editData)"
-                    class="px-4 py-2 rounded-md font-semibold tracking-wide transition-all text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
+                    class="px-4 py-2 rounded-md font-semibold tracking-wide transition text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
                 >
                     Save
                 </button>

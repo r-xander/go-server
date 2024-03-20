@@ -15,11 +15,11 @@
 @media (prefers-color-scheme: dark) {
     :root {
         --bg-color: rgb(39, 40, 34);
-        color: rgb(255 255 255 / 0.87);
+        color: #d3d3d3;
     }
 
     * {
-        border-color: rgb(64 64 64);
+        border-color: #434343;
     }
 
     input:-webkit-autofill {
@@ -31,7 +31,7 @@
 }
 
 :focus-visible {
-    outline: 2px solid currentColor;
+    outline: 2px solid #0284c7;
 }
 
 [X-cloak] {
@@ -382,7 +382,7 @@ textarea::placeholder {
     textarea {
         background-color: #404040;
         border-color: #737373;
-        color: #ffffffcc;
+        color: #e3e3e3;
     }
 
     [type="checkbox"],
