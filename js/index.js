@@ -1,6 +1,8 @@
 // @ts-check
 
-const nodeList = /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll("[type=checkbox]"));
+const nodeList = /** @type {NodeListOf<HTMLInputElement>} */ (
+    document.querySelectorAll("[type=checkbox][name=sample]")
+);
 const listLen = nodeList.length;
 
 for (let i = 0; i < listLen; i += 2) {
