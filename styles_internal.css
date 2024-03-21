@@ -157,6 +157,7 @@ label {
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
+    font-weight: 500;
 }
 
 [multiple],
@@ -360,8 +361,6 @@ label:active [type="radio"] {
 input::placeholder,
 textarea::placeholder {
     color: #a3a3a3;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -413,11 +412,10 @@ textarea::placeholder {
     label:active [type="checkbox"],
     label:active [type="radio"] {
         --tw-ring-offset-color: #262626;
-        /* border-color: #0284c7; */
     }
 
     input::placeholder,
     textarea::placeholder {
-        color: #a3a3a3b3 !important;
+        color: #a3a3a3d4 !important;
     }
 }

@@ -184,18 +184,20 @@
         x-show="editModalOpen"
         x-cloak
         x-transition.opacity
-        class="fixed inset-0 z-50 flex items-center justify-center bg-[#1f232880] dark:bg-[#00000080]"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-500/30"
     >
         <div
             x-show="editModalOpen"
             x-transition
             class="flex flex-col w-3/4 min-w-96 max-w-4xl h-4/5 items-start overflow-hidden rounded shadow-xl bg-white dark:bg-card-dark"
         >
-            <div class="flex items-center justify-between w-full p-4 border-b border-neutral-300 dark:border-aux-dark">
+            <div class="relative flex items-center justify-center w-full p-3 dark:bg-[#333]">
                 <h1 class="text-center text-lg text-semibold">Field Configuration</h1>
-                <span class="font-bold">&#10005;</span>
+                <span class="absolute right-3 p-2 leading-3 font-bold cursor-pointer">&#10005;</span>
             </div>
-            <div class="flex gap-4 h-full w-full overflow-hidden">
+            <div
+                class="flex gap-4 h-full w-full overflow-hidden border-y border-neutral-200 bg-[#f5f7f8] dark:border-aux-dark dark:bg-card-dark"
+            >
                 <div class="flex flex-col gap-2 py-4 px-8 basis-1/3 border-r border-neutral-300 dark:border-aux-dark">
                     <div class="grid grid-cols-2 mb-4">
                         <span>ID: </span>
@@ -203,22 +205,22 @@
                         <span>Type: </span>
                         <span class="font-semibold">Text</span>
                     </div>
-                    <label for="required" class="flex items-center gap-2">
+                    <label for="required" class="flex items-center gap-3">
                         <input x-model="editData.required" type="checkbox" name="required" id="required" />Required
                     </label>
-                    <label for="readonly" class="flex items-center gap-2">
+                    <label for="readonly" class="flex items-center gap-3">
                         <input x-model="editData.readonly" type="checkbox" name="readonly" id="readonly" />Read Only
                     </label>
-                    <label for="hidden" class="flex items-center gap-2">
+                    <label for="hidden" class="flex items-center gap-3">
                         <input x-model="editData.hidden" type="checkbox" name="hidden" id="hidden" />Hidden
                     </label>
                 </div>
                 <div class="grow flex flex-col p-4 gap-4 overflow-y-auto [scrollbar-gutter:stable]">
-                    <div class="grid gap-2">
+                    <div class="grid gap-1">
                         <label for="label">Label</label>
                         <input x-model="editData.label" type="text" name="label" id="label" placeholder="label..." />
                     </div>
-                    <div class="grid gap-2">
+                    <div class="grid gap-1">
                         <label for="placeholder">Placeholder</label>
                         <input
                             x-model="editData.placeholder"
@@ -228,7 +230,7 @@
                             placeholder="placeholder..."
                         />
                     </div>
-                    <div class="grid gap-2">
+                    <div class="grid gap-1">
                         <label for="default">Default</label>
                         <input
                             x-model="editData.default"
@@ -238,8 +240,8 @@
                             placeholder="default..."
                         />
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="grid gap-2">
+                    <div class="flex gap-4">
+                        <div class="grid gap-1">
                             <label for="minlength">Minimum Length</label>
                             <input
                                 x-model="editData.minLenth"
@@ -250,7 +252,7 @@
                                 class="min-w-0"
                             />
                         </div>
-                        <div class="grid gap-2">
+                        <div class="grid gap-1">
                             <label for="maxlength">Minimum Length</label>
                             <input
                                 x-model="editData.maxLength"
@@ -262,7 +264,7 @@
                             />
                         </div>
                     </div>
-                    <div class="grid gap-2">
+                    <div class="grid gap-1">
                         <label for="default">Layout</label>
                         <select
                             x-model="editData.layout"
@@ -278,19 +280,21 @@
                     </div>
                 </div>
             </div>
-            <div class="flex gap-4 p-4 w-full justify-end text-sm border-t border-neutral-300 dark:border-aux-dark">
-                <button
-                    @click="editModalOpen = false;"
-                    class="px-4 py-2 rounded-md border transition border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-aux-dark dark:border-none dark:hover:text-white/90 dark:hover:bg-aux-dark/70"
-                >
-                    Cancel
-                </button>
-                <button
-                    @click="setFieldData(editData)"
-                    class="px-4 py-2 rounded-md font-semibold tracking-wide transition text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
-                >
-                    Save
-                </button>
+            <div class="flex gap-4 p-3 w-full justify-end dark:bg-[#333]">
+                <div class="grid grid-cols-2 gap-4 w-2/5">
+                    <button
+                        @click="editModalOpen = false;"
+                        class="p-2.5 rounded border transition border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-aux-dark dark:border-none dark:hover:text-white/90 dark:hover:bg-aux-dark/70"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        @click="setFieldData(editData)"
+                        class="p-2.5 rounded font-semibold tracking-wide transition text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
+                    >
+                        Save
+                    </button>
+                </div>
             </div>
         </div>
     </div>
