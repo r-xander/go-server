@@ -418,7 +418,7 @@ select {
     [type="week"],
     select,
     textarea {
-        background-color: #404040;
+        background-color: #434343;
         border-color: #737373;
         color: #e3e3e3;
     }
@@ -474,7 +474,7 @@ select {
 
     [type="checkbox"],
     [type="radio"] {
-        background-color: #404040;
+        background-color: #434343;
         border-color: #737373;
     }
 
