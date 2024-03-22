@@ -232,6 +232,7 @@ textarea:disabled {
     background-color: #f5f7f8;
     border-color: #e3e3e3;
     color: #939393;
+    cursor: not-allowed;
 }
 
 input::placeholder,
@@ -314,11 +315,7 @@ select {
 }
 
 [type="checkbox"]:focus,
-[type="radio"]:focus,
-[type="checkbox"]:active,
-[type="radio"]:active,
-label:active [type="checkbox"],
-label:active [type="radio"] {
+[type="radio"]:focus {
     --tw-ring-inset: var(--tw-empty, /*!*/ /*!*/);
     --tw-ring-offset-width: 2px;
     --tw-ring-offset-color: #fff;
@@ -371,22 +368,24 @@ label:active [type="radio"] {
 
 [type="checkbox"]:disabled,
 [type="radio"]:disabled {
-    background-color: #f5f5f5;
-    border-color: #e3e3e3;
+    cursor: not-allowed;
+}
+
+[type="checkbox"]:disabled:checked,
+[type="radio"]:disabled:checked {
     color: #939393;
 }
 
-[type="checkbox"]:checked:disabled,
-[type="radio"]:checked:disabled {
-    background-color: #0000;
-    border: #0000;
-    color: #939393;
+[type="checkbox"]:disabled:not(:checked),
+[type="radio"]:disabled:not(:checked) {
+    background-color: #f5f7f8;
+    border: #e3e3e3;
 }
-
+/* 
 [type="checkbox"]:checked:disabled:focus,
 [type="radio"]:checked:disabled:focus {
     outline: none;
-}
+} */
 
 [type="file"] {
     background: unset;
@@ -424,12 +423,6 @@ label:active [type="radio"] {
         color: #e3e3e3;
     }
 
-    [type="checkbox"],
-    [type="radio"] {
-        background-color: #404040;
-        border-color: #737373;
-    }
-
     [multiple]:focus,
     [type="date"]:focus,
     [type="datetime-local"]:focus,
@@ -454,8 +447,45 @@ label:active [type="radio"] {
         --tw-ring-offset-color: #262626;
     }
 
+    [multiple]:disabled,
+    [type="date"]:disabled,
+    [type="datetime-local"]:disabled,
+    [type="email"]:disabled,
+    [type="month"]:disabled,
+    [type="number"]:disabled,
+    [type="password"]:disabled,
+    [type="search"]:disabled,
+    [type="tel"]:disabled,
+    [type="text"]:disabled,
+    [type="time"]:disabled,
+    [type="url"]:disabled,
+    [type="week"]:disabled,
+    select:disabled,
+    textarea:disabled {
+        background-color: #363636;
+        border-color: #525252;
+        color: #a3a3a3;
+    }
+
     input::placeholder,
     textarea::placeholder {
         color: #a3a3a3d4 !important;
+    }
+
+    [type="checkbox"],
+    [type="radio"] {
+        background-color: #404040;
+        border-color: #737373;
+    }
+
+    [type="checkbox"]:disabled:checked,
+    [type="radio"]:disabled:checked {
+        color: #737373;
+    }
+
+    [type="checkbox"]:disabled:not(:checked),
+    [type="radio"]:disabled:not(:checked) {
+        background-color: #363636;
+        border-color: #525252;
     }
 }
