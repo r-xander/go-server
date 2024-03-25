@@ -13,9 +13,22 @@
     >
         <div class="relative flex items-center justify-center w-full p-2 dark:bg-[#3c3c3c]">
             <h1 class="text-center text-lg text-semibold">Field Configuration</h1>
-            <button @click="editModalOpen = false;" class="absolute right-3 p-2 leading-3 font-bold cursor-pointer">
-                ✕
+            <button
+                class="absolute right-3 w-6 h-6 p-1 cursor-pointer transition rounded text-neutral-500 hover:text-opacity-70 dark:text-neutral-300"
+                @click="editModalOpen = false"
+            >
+                <svg viewBox="0 0 1024 1024" class="fill-current [fill-rule:evenodd]">
+                    <path
+                        d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
+                    />
+                </svg>
             </button>
+            <!-- <button
+                @click="editModalOpen = false;"
+                class="absolute right-3 p-2 leading-3 rounded font-bold cursor-pointer transition hover:text-white/70 hover:bg-neutral-600"
+            >
+                ✕
+            </button> -->
         </div>
         <div
             class="flex gap-4 h-full w-full overflow-hidden border-y border-neutral-200 bg-[#f5f7f8] dark:border-[#3c3c3c] dark:bg-card-dark"
@@ -118,13 +131,13 @@
             <div class="grid grid-cols-2 gap-4 w-2/5">
                 <button
                     @click="editModalOpen = false;"
-                    class="p-2 rounded border transition border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-neutral-600 dark:border-none dark:hover:text-white/90 dark:hover:bg-neutral-600/70"
+                    class="p-2 rounded border transition border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-neutral-600 dark:border-none dark:hover:bg-neutral-600/70"
                 >
                     Cancel
                 </button>
                 <button
                     @click="setFieldData(editData)"
-                    class="p-2 rounded font-semibold tracking-wide transition text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
+                    class="p-2 rounded font-semibold tracking-wide transition text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70 dark:focus-visible:outline-sky-200/60"
                 >
                     Save
                 </button>

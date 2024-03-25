@@ -3,9 +3,38 @@
 const addSectionBtn = document.getElementById("add-section-button");
 const formContainer = /** @type {HTMLDivElement} */ (document.getElementById("form_container"));
 
+/** @type {import("../types").Sortable.Options} */
+const sortableOptions = {
+    group: {
+        name: "form",
+        pull: false,
+        put: false,
+    },
+    animation: 150,
+    forceFallback: false,
+    supportPointer: true,
+    swapThreshold: 0.25,
+
+    scroll: true,
+    forceAutoScrollFallback: true,
+    scrollSensitivity: 100,
+    scrollSpeed: 25,
+    bubbleScroll: true,
+
+    setData: function (dataTransfer, dragEl) {
+        dataTransfer.setDragImage(new Image(), 0, 0);
+    },
+};
+
+/** @type {import("../types").Sortable} */
+// @ts-ignore
+const formSortable = new Sortable(formContainer, sortableOptions);
+
+const fieldContSortables = [];
+const fieldConts = [];
+
 const sectionSortables = [];
 const sections = [];
-const containers = [];
 
 /** @type {HTMLElement} */
 let fakeGhost = null;
@@ -35,7 +64,7 @@ addSectionBtn.addEventListener("click", (e) => {
         /** @type {import("../types").Sortable.Options} */
         const sortableOptions = {
             group: {
-                name: "sections",
+                name: "fieldCont",
                 pull: true,
                 put: true,
             },
@@ -52,15 +81,13 @@ addSectionBtn.addEventListener("click", (e) => {
             setData: function (dataTransfer, dragEl) {
                 dataTransfer.setDragImage(new Image(), 0, 0);
             },
-            onStart: function (e) {},
-            onEnd: function (e) {},
         };
 
         /** @type {import("../types").Sortable} */
         // @ts-ignore
         let sortable = new Sortable(container, sortableOptions);
-        sectionSortables.push(sortable);
-        containers.push(container);
+        fieldContSortables.push(sortable);
+        fieldConts.push(container);
     }
 
     sections.push(newSection);
@@ -119,7 +146,7 @@ const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelec
 
 for (const field of newFields) {
     field.addEventListener("dragstart", (ev) => {
-        for (const container of containers) {
+        for (const container of fieldConts) {
             container.addEventListener("dragover", dragOver);
             container.addEventListener("drop", drop);
         }
@@ -130,7 +157,7 @@ for (const field of newFields) {
         ev.dataTransfer?.setData("text/plain", /** @type {string} */ (templateId));
     });
     field.addEventListener("dragend", (ev) => {
-        for (const container of containers) {
+        for (const container of fieldConts) {
             container.removeEventListener("dragover", dragOver);
             container.removeEventListener("drop", drop);
         }
