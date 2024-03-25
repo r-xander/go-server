@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type fields []fields
+type fields []field
 
 type field struct {
 	Name string
@@ -20,7 +20,7 @@ type Svg struct {
 
 func formDesignerIndex(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.New("index.html").Funcs(template.FuncMap{
-		"loop": func(slice []field, n int) <-chan field {
+		"loop": func(slice fields, n int) <-chan field {
 			ch := make(chan field)
 			go func() {
 				for i := 0; i < n; i++ {
@@ -32,13 +32,14 @@ func formDesignerIndex(w http.ResponseWriter, r *http.Request) {
 			}()
 			return ch
 		},
-	}).ParseFiles("views/index.html", "views/form_designer.html")
+	}).ParseFiles("views/index.html", "views/form_designer/form_designer.html")
+	tmpl, err = tmpl.ParseGlob("views/form_designer/components/*.html")
 
 	if err != nil {
 		fmt.Printf("[ERROR]: Form designer template parsing error: %v\n", err)
 	}
 
-	fields := []field{
+	fields := fields{
 		{
 			Name: "Text",
 			Svg: Svg{

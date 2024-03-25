@@ -1,0 +1,23 @@
+{{ define "number_field" }}
+<template id="Number">
+    <div form-field="number" class="p-2.5 rounded">
+        <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
+            <span class="font-mono font-bold italic cursor-default select-none">Number Field</span>
+            {{ template "field_icons" }}
+        </div>
+        <div class="grid @[22rem]/section:grid-cols-[3fr_4fr] w-full items-center">
+            <label class="font-medium select-none" for="text" dd-label="Number Field" onclick="event.preventDefault();">
+                Number <span class="text-rose-500 font-semibold">*</span>
+            </label>
+            <input
+                class="p-1.5 rounded cursor-default border-neutral-400 dark:bg-aux-dark"
+                type="number"
+                name="number"
+                id="number"
+                onmousedown="event.preventDefault();"
+                onmouseup="event.preventDefault();"
+            />
+        </div>
+    </div>
+</template>
+{{ end }}

@@ -1,0 +1,135 @@
+{{ define "text_field_edit" }}
+<div
+    x-data="editData"
+    x-show="editModalOpen"
+    x-cloak
+    x-transition.opacity
+    class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-500/40 dark:bg-base-dark/40"
+>
+    <div
+        x-show="editModalOpen"
+        x-transition
+        class="flex flex-col w-3/4 min-w-96 max-w-2xl h-3/4 items-start text-sm overflow-hidden rounded-sm shadow-xl bg-white dark:bg-card-dark"
+    >
+        <div class="relative flex items-center justify-center w-full p-2 dark:bg-[#3c3c3c]">
+            <h1 class="text-center text-lg text-semibold">Field Configuration</h1>
+            <button @click="editModalOpen = false;" class="absolute right-3 p-2 leading-3 font-bold cursor-pointer">
+                ✕
+            </button>
+        </div>
+        <div
+            class="flex gap-4 h-full w-full overflow-hidden border-y border-neutral-200 bg-[#f5f7f8] dark:border-[#3c3c3c] dark:bg-card-dark"
+        >
+            <div class="flex flex-col gap-6 py-4 px-8 basis-1/3 border-r border-neutral-200 dark:border-aux-dark">
+                <div
+                    class="grid justify-center w-28 p-5 mx-auto rounded text-[#92949d] border bg-white border-neutral-200 dark:bg-[#3c3c3c] dark:border-aux-dark"
+                >
+                    <svg viewBox="0 3 16 10" class="w-12 fill-current">
+                        <path
+                            d="M1.226 10.88H0l2.056-6.26h1.42l2.047 6.26h-1.29l-.48-1.61H1.707l-.48 1.61ZM2.76 5.818h-.054l-.75 2.532H3.51zm3.217 5.062V4.62h2.56c1.09 0 1.808.582 1.808 1.54 0 .762-.444 1.22-1.05 1.372v.055c.736.074 1.365.587 1.365 1.528 0 1.119-.89 1.766-2.133 1.766zM7.18 5.55v1.675h.8c.812 0 1.171-.308 1.171-.853 0-.51-.328-.822-.898-.822zm0 2.537V9.95h.903c.951 0 1.342-.312 1.342-.909 0-.591-.382-.954-1.095-.954zm5.089-.711v.775c0 1.156.49 1.803 1.347 1.803.705 0 1.163-.454 1.212-1.096H16v.12C15.942 10.173 14.95 11 13.607 11c-1.648 0-2.573-1.073-2.573-2.849v-.78c0-1.775.934-2.871 2.573-2.871 1.347 0 2.34.849 2.393 2.087v.115h-1.172c-.05-.665-.516-1.156-1.212-1.156-.849 0-1.347.67-1.347 1.83"
+                        />
+                    </svg>
+                    <span class="font-semibold text-center">Text</span>
+                </div>
+                <div class="grid gap-3">
+                    <label for="required" class="flex items-center gap-3">
+                        <input x-model="editData.required" type="checkbox" name="required" id="required" />Required
+                    </label>
+                    <label for="readonly" class="flex items-center gap-3">
+                        <input x-model="editData.readonly" type="checkbox" name="readonly" id="readonly" />Read Only
+                    </label>
+                    <label for="hidden" class="flex items-center gap-3">
+                        <input x-model="editData.hidden" type="checkbox" name="hidden" id="hidden" />Hidden
+                    </label>
+                </div>
+            </div>
+            <div class="grow flex flex-col p-4 gap-4 overflow-y-auto [scrollbar-gutter:stable]">
+                <div class="grid gap-1">
+                    <label for="label">ID</label>
+                    <input :value="editData.id" type="text" name="id" id="id" disabled />
+                </div>
+                <div class="grid gap-1">
+                    <label for="label">Label</label>
+                    <input x-model="editData.label" type="text" name="label" id="label" placeholder="Label..." />
+                </div>
+                <div class="grid gap-1">
+                    <label for="placeholder">Placeholder</label>
+                    <input
+                        x-model="editData.placeholder"
+                        type="text"
+                        name="placeholder"
+                        id="placeholder"
+                        placeholder="Placeholder..."
+                    />
+                </div>
+                <div class="grid gap-1">
+                    <label for="default">Default</label>
+                    <input
+                        x-model="editData.defaultValue"
+                        type="text"
+                        name="default"
+                        id="default"
+                        placeholder="Default..."
+                    />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="grid gap-1">
+                        <label for="minlength">Minimum Length</label>
+                        <input
+                            x-model="editData.minLenth"
+                            type="number"
+                            name="minlength"
+                            id="minlength"
+                            placeholder="Min length..."
+                        />
+                    </div>
+                    <div class="grid gap-1">
+                        <label for="maxlength">Minimum Length</label>
+                        <input
+                            x-model="editData.maxLength"
+                            type="number"
+                            name="maxlength"
+                            id="maxlength"
+                            placeholder="Max length..."
+                        />
+                    </div>
+                </div>
+                <div class="grid gap-1">
+                    <label for="default">Layout</label>
+                    <select x-model="editData.layout" type="text" name="layout" id="layout">
+                        <option value="global">Form Setting</option>
+                        <option value="inline">Inline</option>
+                        <option value="block">Block</option>
+                    </select>
+                </div>
+                <div class="grid gap-1">
+                    <label for="description">Description</label>
+                    <textarea
+                        x-model="editData.description"
+                        rows="3"
+                        name="description"
+                        id="description"
+                        placeholder="Description..."
+                    ></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-4 p-4 w-full justify-end dark:bg-[#3c3c3c]">
+            <div class="grid grid-cols-2 gap-4 w-2/5">
+                <button
+                    @click="editModalOpen = false;"
+                    class="p-2 rounded border transition border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:bg-neutral-600 dark:border-none dark:hover:text-white/90 dark:hover:bg-neutral-600/70"
+                >
+                    Cancel
+                </button>
+                <button
+                    @click="setFieldData(editData)"
+                    class="p-2 rounded font-semibold tracking-wide transition text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
+                >
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}

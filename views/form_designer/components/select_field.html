@@ -1,0 +1,22 @@
+{{ define "select_field" }}
+<template id="Select">
+    <div form-field="select" class="p-2.5 rounded">
+        <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
+            <span class="font-mono font-bold italic cursor-default select-none">Select Field</span>
+            {{ template "field_icons" }}
+        </div>
+        <div class="grid @[22rem]/section:grid-cols-[3fr_4fr] w-full items-center">
+            <label class="font-medium select-none" for="text" dd-label="Select Field" onclick="event.preventDefault();">
+                Select <span class="text-rose-500 font-semibold">*</span>
+            </label>
+            <select
+                class="p-1.5 rounded cursor-default border-neutral-400 dark:bg-aux-dark"
+                name="select"
+                id="select"
+                onmousedown="event.preventDefault();"
+                onmouseup="event.preventDefault();"
+            ></select>
+        </div>
+    </div>
+</template>
+{{ end }}
