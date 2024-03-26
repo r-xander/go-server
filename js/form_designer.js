@@ -100,11 +100,33 @@ addSectionBtn.addEventListener("click", (e) => {
 /*                                              */
 /************************************************/
 
+let tempPreviousSibling = null;
+const tempEl = document.createElement("div");
+tempEl.classList.add(
+    "flex",
+    "justify-center",
+    "items-center",
+    "p-6",
+    "bg-sky-800/20",
+    "text-sky-800",
+    "dark:bg-sky-400/20",
+    "dark:text-sky-400"
+);
+
 /**
  * @param {DragEvent} e
  */
 function dragOver(e) {
     e.preventDefault();
+    const target = /** @type {HTMLElement} */ (e.target);
+    const formField = target.closest("[form-field]");
+
+    if (formField && tempPreviousSibling !== formField) {
+        tempEl.innerText = formField.getAttribute("fomr-field") + " field";
+
+        formField.insertAdjacentElement("afterend", tempEl);
+        tempPreviousSibling = formField;
+    }
 }
 
 /**
@@ -154,7 +176,7 @@ for (const field of newFields) {
         /** @type {string} */
         // @ts-ignore
         const templateId = ev.target.getAttribute("dd-template");
-        ev.dataTransfer?.setData("text/plain", /** @type {string} */ (templateId));
+        ev.dataTransfer.setData("text/plain", /** @type {string} */ (templateId));
     });
     field.addEventListener("dragend", (ev) => {
         for (const container of fieldConts) {
