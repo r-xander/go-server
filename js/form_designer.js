@@ -31,9 +31,8 @@ const sortableOptions = {
 const formSortable = new Sortable(formContainer, sortableOptions);
 
 const fieldContSortables = [];
-const fieldConts = [];
-
 const sectionSortables = [];
+const fieldConts = [];
 const sections = [];
 
 /** @type {HTMLElement} */

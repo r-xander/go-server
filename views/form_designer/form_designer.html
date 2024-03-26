@@ -66,6 +66,9 @@
                 this.fieldData[data.id] = { ...data };
                 this.editModalOpen = false;
             },
+            removeFieldData(id) {
+                delete this.fieldData[id];
+            },
         }));
     });
 </script>

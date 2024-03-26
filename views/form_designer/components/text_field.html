@@ -1,6 +1,19 @@
 {{ define "text_field" }}
 <template id="Text">
-    <div @click.stop x-data="{ data: initField('text') }" :id="data.id" form-field="text" class="p-2.5 rounded">
+    <div
+        @click.stop
+        x-data="{
+            data: initField('text'),
+            removeElement() {
+                $el.remove();
+                removeFieldData(this.data.id);
+                console.log($data) 
+            }
+        }"
+        :id="data.id"
+        form-field="text"
+        class="p-2.5 rounded"
+    >
         <div class="flex items-center justify-between mb-1 text-xs text-neutral-500 dark:text-white/60">
             <div class="font-mono flex gap-3">
                 <span class="font-bold italic cursor-default select-none">Text Field</span>
