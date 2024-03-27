@@ -101,16 +101,7 @@ addSectionBtn.addEventListener("click", (e) => {
 
 let tempPreviousSibling = null;
 const tempEl = document.createElement("div");
-tempEl.classList.add(
-    "flex",
-    "justify-center",
-    "items-center",
-    "p-6",
-    "bg-sky-800/20",
-    "text-sky-800",
-    "dark:bg-sky-400/20",
-    "dark:text-sky-400"
-);
+tempEl.classList.add("rounded", "bg-sky-800/20", "dark:bg-sky-400/20");
 
 /**
  * @param {DragEvent} e
@@ -119,12 +110,20 @@ function dragOver(e) {
     e.preventDefault();
     const target = /** @type {HTMLElement} */ (e.target);
     const formField = target.closest("[form-field]");
+    const section = target.closest("[data-section]");
 
-    if (formField && tempPreviousSibling !== formField) {
-        tempEl.innerText = formField.getAttribute("fomr-field") + " field";
+    if (formField && tempEl.firstElementChild !== formField && tempPreviousSibling !== formField) {
+        section.append(tempEl);
+        const event = new PointerEvent("pointerdown", {
+            view: window,
+            bubbles: true,
+            cancelable: true,
+        });
+        tempEl.dispatchEvent(event);
 
-        formField.insertAdjacentElement("afterend", tempEl);
-        tempPreviousSibling = formField;
+        console.log(formField);
+        // formField.insertAdjacentElement("afterend", tempEl);
+        // tempPreviousSibling = formField;
     }
 }
 
@@ -134,14 +133,16 @@ function dragOver(e) {
 function drop(e) {
     e.preventDefault();
 
-    const data = e.dataTransfer?.getData("text/plain");
+    const data = e.dataTransfer.getData("text/plain");
 
     if (data !== null || data != undefined) {
         const target = /** @type {HTMLDivElement} */ (e.target).closest("[data-section]");
-        const template = /** @type {HTMLTemplateElement} */ (document.getElementById(data));
-        const child = document.importNode(template.content, true).firstElementChild;
+        const child = tempEl.firstElementChild;
         target.append(child);
         transition(child, "horizontal");
+
+        tempEl.remove();
+        tempPreviousSibling = null;
     }
 }
 
@@ -175,12 +176,15 @@ for (const field of newFields) {
         /** @type {string} */
         // @ts-ignore
         const templateId = ev.target.getAttribute("dd-template");
-        ev.dataTransfer.setData("text/plain", /** @type {string} */ (templateId));
+        const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
+        tempEl.append(document.importNode(template.content, true).firstElementChild);
     });
     field.addEventListener("dragend", (ev) => {
         for (const container of fieldConts) {
             container.removeEventListener("dragover", dragOver);
             container.removeEventListener("drop", drop);
         }
+
+        // tempEl.firstElementChild.remove();
     });
 }
