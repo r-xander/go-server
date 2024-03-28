@@ -99,9 +99,8 @@ addSectionBtn.addEventListener("click", (e) => {
 /*                                              */
 /************************************************/
 
-let tempPreviousSibling = null;
-const tempEl = document.createElement("div");
-tempEl.classList.add("rounded", "bg-sky-800/20", "dark:bg-sky-400/20");
+let dragElement = null;
+let tempEl = null;
 
 /**
  * @param {DragEvent} e
@@ -111,20 +110,28 @@ function dragOver(e) {
     const target = /** @type {HTMLElement} */ (e.target);
     const formField = target.closest("[form-field]");
     const section = target.closest("[data-section]");
+    console.log(e);
 
-    if (formField && tempEl.firstElementChild !== formField && tempPreviousSibling !== formField) {
-        section.append(tempEl);
-        const event = new PointerEvent("pointerdown", {
-            view: window,
-            bubbles: true,
-            cancelable: true,
-        });
-        tempEl.dispatchEvent(event);
+    // if (formField && tempEl.firstElementChild !== formField && tempPreviousSibling !== formField) {
+    dragElement.dispatchEvent(new Event("mouseup", { bubbles: true, cancelable: true }));
+    dragElement.dispatchEvent(new Event("pointerup", { bubbles: true, cancelable: true }));
+    dragElement.dispatchEvent(new Event("touchup", { bubbles: true, cancelable: true }));
+    // section.dispatchEvent(new DragEvent("drop"));
+    dragElement = null;
+    section.append(tempEl);
 
-        console.log(formField);
-        // formField.insertAdjacentElement("afterend", tempEl);
-        // tempPreviousSibling = formField;
+    for (const container of fieldConts) {
+        container.removeEventListener("dragover", dragOver);
+        container.removeEventListener("drop", drop);
     }
+
+    const event = new PointerEvent("pointerdown");
+    tempEl.dispatchEvent(event);
+    tempEl = null;
+
+    // formField.insertAdjacentElement("afterend", tempEl);
+    // tempPreviousSibling = formField;
+    // }
 }
 
 /**
@@ -133,17 +140,17 @@ function dragOver(e) {
 function drop(e) {
     e.preventDefault();
 
-    const data = e.dataTransfer.getData("text/plain");
+    // const data = e.dataTransfer.getData("text/plain");
 
-    if (data !== null || data != undefined) {
-        const target = /** @type {HTMLDivElement} */ (e.target).closest("[data-section]");
-        const child = tempEl.firstElementChild;
-        target.append(child);
-        transition(child, "horizontal");
+    // if (data !== null || data != undefined) {
+    //     const target = /** @type {HTMLDivElement} */ (e.target).closest("[data-section]");
+    //     const child = tempEl.firstElementChild;
+    //     target.append(child);
+    //     transition(child, "horizontal");
 
-        tempEl.remove();
-        tempPreviousSibling = null;
-    }
+    //     tempEl.remove();
+    //     tempPreviousSibling = null;
+    // }
 }
 
 /**
@@ -177,7 +184,8 @@ for (const field of newFields) {
         // @ts-ignore
         const templateId = ev.target.getAttribute("dd-template");
         const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
-        tempEl.append(document.importNode(template.content, true).firstElementChild);
+        tempEl = document.importNode(template.content, true).firstElementChild;
+        dragElement = field;
     });
     field.addEventListener("dragend", (ev) => {
         for (const container of fieldConts) {
