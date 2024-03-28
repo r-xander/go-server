@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -27,7 +26,7 @@ const hexagonUrl = "https://us1.eam.hxgnsmartcloud.com/axis/services/EWSConnecto
 func processQuery(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	r.ParseForm()
-	fmt.Println(r.Form)
+
 	respBody, err := getRequestBody(r.Form)
 	if err != nil {
 		errorResponse(w, err.Error(), 400)
@@ -96,7 +95,6 @@ func queryToHtml(w http.ResponseWriter, data io.Reader) {
 			case "faultstring":
 				ftok, _ := d.RawToken()
 				errorResponse(w, string(ftok.(xml.CharData)), 400)
-				break
 			}
 		case xml.EndElement:
 			switch ty.Name.Local {
@@ -153,7 +151,6 @@ func queryToCsv(w http.ResponseWriter, data io.Reader) {
 			case "faultstring":
 				ftok, _ := d.RawToken()
 				errorResponse(w, string(ftok.(xml.CharData)), 400)
-				break
 			}
 		}
 	}
@@ -202,7 +199,7 @@ func validateQueryRequest(values url.Values, qr *queryRequest) error {
 	}
 
 	if len(errs) > 0 {
-		return errors.New(fmt.Sprintf("Missing request values: [%s]", strings.Join(errs, ", ")))
+		return fmt.Errorf("missing request values: [%s]", strings.Join(errs, ", "))
 	}
 
 	qr.Username = values.Get("username")
