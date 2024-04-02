@@ -98,10 +98,10 @@ addSectionBtn.addEventListener("click", (e) => {
 /*             Drag & Drop Handlers             */
 /*                                              */
 /************************************************/
-
+/** @type {HTMLElement} */
 let dragElement = null;
 let tempEl = null;
-
+let tempPreviousSibling = null;
 /**
  * @param {DragEvent} e
  */
@@ -110,24 +110,31 @@ function dragOver(e) {
     const target = /** @type {HTMLElement} */ (e.target);
     const formField = target.closest("[form-field]");
     const section = target.closest("[data-section]");
-    console.log(e);
 
-    // if (formField && tempEl.firstElementChild !== formField && tempPreviousSibling !== formField) {
-    dragElement.dispatchEvent(new Event("mouseup", { bubbles: true, cancelable: true }));
-    dragElement.dispatchEvent(new Event("pointerup", { bubbles: true, cancelable: true }));
-    dragElement.dispatchEvent(new Event("touchup", { bubbles: true, cancelable: true }));
-    // section.dispatchEvent(new DragEvent("drop"));
-    dragElement = null;
-    section.append(tempEl);
-
-    for (const container of fieldConts) {
-        container.removeEventListener("dragover", dragOver);
-        container.removeEventListener("drop", drop);
+    if (section.childElementCount === 0) {
+        section.append(tempEl);
+    } else if (formField && tempEl !== formField && tempPreviousSibling !== formField) {
+        console.log(e);
+        formField.insertAdjacentElement("beforebegin", tempEl);
+        tempPreviousSibling = formField;
     }
 
-    const event = new PointerEvent("pointerdown");
-    tempEl.dispatchEvent(event);
-    tempEl = null;
+    // const eventOptions = { bubbles: true, cancelable: true, composed: true };
+    // section.dispatchEvent(new DragEvent("drop", eventOptions));
+    // dragElement.dispatchEvent(new DragEvent("dragend", eventOptions));
+    // dragElement.dispatchEvent(new PointerEvent("pointerup", eventOptions));
+    // dragElement.dispatchEvent(new MouseEvent("mouseup", eventOptions));
+    // dragElement.dispatchEvent(new TouchEvent("touchend", eventOptions));
+    // dragElement = null;
+
+    // for (const container of fieldConts) {
+    //     container.removeEventListener("dragover", dragOver);
+    //     container.removeEventListener("drop", drop);
+    // }
+
+    // section.append(tempEl);
+    // tempEl.dispatchEvent(new PointerEvent("pointerdown"));
+    // tempEl = null;
 
     // formField.insertAdjacentElement("afterend", tempEl);
     // tempPreviousSibling = formField;
@@ -143,13 +150,10 @@ function drop(e) {
     // const data = e.dataTransfer.getData("text/plain");
 
     // if (data !== null || data != undefined) {
-    //     const target = /** @type {HTMLDivElement} */ (e.target).closest("[data-section]");
-    //     const child = tempEl.firstElementChild;
-    //     target.append(child);
-    //     transition(child, "horizontal");
-
-    //     tempEl.remove();
-    //     tempPreviousSibling = null;
+    const target = /** @type {HTMLDivElement} */ (e.target).closest("[data-section]");
+    // const child = tempEl.firstElementChild;
+    target.append(tempEl);
+    transition(tempEl, "horizontal");
     // }
 }
 
@@ -184,7 +188,23 @@ for (const field of newFields) {
         // @ts-ignore
         const templateId = ev.target.getAttribute("dd-template");
         const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
-        tempEl = document.importNode(template.content, true).firstElementChild;
+
+        tempEl = document.createElement("div");
+        tempEl.classList.add(
+            "flex",
+            "items-center",
+            "justify-center",
+            "h-20",
+            "gap-4",
+            "rounded",
+            "border",
+            "border-dashed",
+            "border-neutral-600"
+        );
+        tempEl.innerHTML = field.innerHTML;
+
+        const templateElement = document.importNode(template.content, true).firstElementChild;
+        ev.dataTransfer.setData("text/html", templateElement.outerHTML);
         dragElement = field;
     });
     field.addEventListener("dragend", (ev) => {
