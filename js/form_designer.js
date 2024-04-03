@@ -98,67 +98,55 @@ addSectionBtn.addEventListener("click", (e) => {
 /*             Drag & Drop Handlers             */
 /*                                              */
 /************************************************/
+
 /** @type {HTMLElement} */
 let dragElement = null;
+
+/** @type {HTMLElement} */
 let tempEl = null;
+
+/** @type {HTMLElement} */
 let tempPreviousSibling = null;
-/**
- * @param {DragEvent} e
- */
+
+/** @param {DragEvent} e */
 function dragOver(e) {
     e.preventDefault();
     const target = /** @type {HTMLElement} */ (e.target);
     const formField = target.closest("[form-field]");
     const section = target.closest("[data-section]");
+    const childCount = section.childElementCount;
 
-    if (section.childElementCount === 0) {
+    if (childCount === 0) {
         section.append(tempEl);
-    } else if (formField && tempEl !== formField && tempPreviousSibling !== formField) {
-        console.log(e);
+    } else if (formField.previousElementSibling === tempEl) {
+        formField.insertAdjacentElement("afterend", tempEl);
+    } else {
         formField.insertAdjacentElement("beforebegin", tempEl);
-        tempPreviousSibling = formField;
     }
-
-    // const eventOptions = { bubbles: true, cancelable: true, composed: true };
-    // section.dispatchEvent(new DragEvent("drop", eventOptions));
-    // dragElement.dispatchEvent(new DragEvent("dragend", eventOptions));
-    // dragElement.dispatchEvent(new PointerEvent("pointerup", eventOptions));
-    // dragElement.dispatchEvent(new MouseEvent("mouseup", eventOptions));
-    // dragElement.dispatchEvent(new TouchEvent("touchend", eventOptions));
-    // dragElement = null;
-
-    // for (const container of fieldConts) {
-    //     container.removeEventListener("dragover", dragOver);
-    //     container.removeEventListener("drop", drop);
-    // }
-
-    // section.append(tempEl);
-    // tempEl.dispatchEvent(new PointerEvent("pointerdown"));
-    // tempEl = null;
-
-    // formField.insertAdjacentElement("afterend", tempEl);
-    // tempPreviousSibling = formField;
-    // }
 }
 
-/**
- * @param {DragEvent} e
- */
+/** @param {DragEvent} e */
+function dragLeave(e) {
+    tempEl.remove();
+}
+
+/** @param {DragEvent} e */
 function drop(e) {
     e.preventDefault();
 
-    // const data = e.dataTransfer.getData("text/plain");
+    const templateId = e.dataTransfer.getData("template");
+    const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
+    const newEl = document.importNode(template.content, true).firstElementChild;
 
     // if (data !== null || data != undefined) {
-    const target = /** @type {HTMLDivElement} */ (e.target).closest("[data-section]");
-    // const child = tempEl.firstElementChild;
-    target.append(tempEl);
-    transition(tempEl, "horizontal");
+    // const target = /** @type {HTMLDivElement} */ (e.target).closest("[data-section]");
+    tempEl.insertAdjacentElement("beforebegin", newEl);
+    tempEl.remove();
+    transition(newEl, "horizontal");
     // }
 }
 
 /**
- *
  * @param {Element} el
  * @param {"vertical" | "horizontal"} direction
  */
@@ -181,13 +169,14 @@ for (const field of newFields) {
     field.addEventListener("dragstart", (ev) => {
         for (const container of fieldConts) {
             container.addEventListener("dragover", dragOver);
+            container.addEventListener("dragleave", dragLeave);
             container.addEventListener("drop", drop);
         }
 
         /** @type {string} */
         // @ts-ignore
         const templateId = ev.target.getAttribute("dd-template");
-        const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
+        // const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
 
         tempEl = document.createElement("div");
         tempEl.classList.add(
@@ -203,16 +192,14 @@ for (const field of newFields) {
         );
         tempEl.innerHTML = field.innerHTML;
 
-        const templateElement = document.importNode(template.content, true).firstElementChild;
-        ev.dataTransfer.setData("text/html", templateElement.outerHTML);
+        ev.dataTransfer.setData("template", templateId);
         dragElement = field;
     });
     field.addEventListener("dragend", (ev) => {
         for (const container of fieldConts) {
             container.removeEventListener("dragover", dragOver);
+            container.removeEventListener("dragleave", dragLeave);
             container.removeEventListener("drop", drop);
         }
-
-        // tempEl.firstElementChild.remove();
     });
 }
