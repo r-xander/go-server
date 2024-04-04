@@ -108,9 +108,11 @@ let tempEl = null;
 /** @type {HTMLElement} */
 let tempPreviousSibling = null;
 
+/** @type {Element} */
+let currSection = null;
+
 /** @param {DragEvent} e */
 function dragOver(e) {
-    e.preventDefault();
     const target = /** @type {HTMLElement} */ (e.target);
     const formField = target.closest("[form-field]");
     const section = target.closest("[data-section]");
@@ -123,11 +125,20 @@ function dragOver(e) {
     } else {
         formField.insertAdjacentElement("beforebegin", tempEl);
     }
+
+    transition(tempEl, "vertical");
+    // e.preventDefault();
+}
+
+/** @param {DragEvent} e */
+function dragEnter(e) {
+    const section = /** @type {HTMLElement} */ (e.target).closest("[data-section]");
+    currSection = section;
 }
 
 /** @param {DragEvent} e */
 function dragLeave(e) {
-    tempEl.remove();
+    // tempEl.remove();
 }
 
 /** @param {DragEvent} e */
@@ -176,7 +187,6 @@ for (const field of newFields) {
         /** @type {string} */
         // @ts-ignore
         const templateId = ev.target.getAttribute("dd-template");
-        // const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
 
         tempEl = document.createElement("div");
         tempEl.classList.add(
