@@ -110,30 +110,45 @@ let tempPreviousSibling = null;
 
 /** @type {Element} */
 let currSection = null;
+let animating = false;
 
 /** @param {DragEvent} e */
 function dragOver(e) {
+    e.preventDefault();
+
     const target = /** @type {HTMLElement} */ (e.target);
     const formField = target.closest("[form-field]");
     const section = target.closest("[data-section]");
     const childCount = section.childElementCount;
+    const children = Array.from(section.children);
 
-    if (childCount === 0) {
-        section.append(tempEl);
-    } else if (formField.previousElementSibling === tempEl) {
-        formField.insertAdjacentElement("afterend", tempEl);
-    } else {
-        formField.insertAdjacentElement("beforebegin", tempEl);
+    if ((childCount > 0 && !formField) || animating) {
+        return;
     }
 
-    transition(tempEl, "vertical");
-    // e.preventDefault();
+    const nearest = children.filter((el) => el === formField)[0];
+
+    animating = true;
+    setTimeout(() => {
+        if (childCount === 0) {
+            section.append(tempEl);
+        } else if (nearest.previousElementSibling === tempEl) {
+            formField.insertAdjacentElement("afterend", tempEl);
+        } else {
+            formField.insertAdjacentElement("beforebegin", tempEl);
+        }
+
+        transition(tempEl, "vertical");
+
+        animating = false;
+        console.log("dragging over end");
+    }, 0);
 }
 
 /** @param {DragEvent} e */
 function dragEnter(e) {
-    const section = /** @type {HTMLElement} */ (e.target).closest("[data-section]");
-    currSection = section;
+    // const section = /** @type {HTMLElement} */ (e.target).closest("[data-section]");
+    // currSection = section;
 }
 
 /** @param {DragEvent} e */
