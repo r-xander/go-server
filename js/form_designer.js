@@ -116,8 +116,13 @@ let animating = false;
 function dragOver(e) {
     e.preventDefault();
 
+    const dropEl = /** @type {HTMLElement} */ (this);
+    const lastChild = dropEl.lastElementChild;
+
     const target = /** @type {HTMLElement} */ (e.target);
     const formField = target.closest("[form-field]");
+    formField.classList.toggle("[&_*]:pointer-events-none");
+
     const section = target.closest("[data-section]");
     const childCount = section.childElementCount;
     const children = Array.from(section.children);
@@ -127,6 +132,8 @@ function dragOver(e) {
     }
 
     const nearest = children.filter((el) => el === formField)[0];
+    const near = document.elementFromPoint(e.clientX, e.clientY);
+    // console.log(near);
 
     animating = true;
     setTimeout(() => {
@@ -141,6 +148,7 @@ function dragOver(e) {
         transition(tempEl, "vertical");
 
         animating = false;
+        formField.classList.toggle("[&_*]:pointer-events-none");
         console.log("dragging over end");
     }, 0);
 }
