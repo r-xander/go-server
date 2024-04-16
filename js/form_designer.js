@@ -111,6 +111,7 @@ let tempPreviousSibling = null;
 /** @type {Element} */
 let currSection = null;
 let animating = false;
+const animationDuration = 250;
 
 /** @param {DragEvent} e */
 function dragOver(e) {
@@ -120,10 +121,8 @@ function dragOver(e) {
     const lastChild = dropEl.lastElementChild;
 
     const target = /** @type {HTMLElement} */ (e.target);
-    const formField = target.closest("[form-field]");
-    formField.classList.toggle("[&_*]:pointer-events-none");
-
     const section = target.closest("[data-section]");
+    const formField = target.closest("[form-field]");
     const childCount = section.childElementCount;
     const children = Array.from(section.children);
 
@@ -148,27 +147,30 @@ function dragOver(e) {
         transition(tempEl, "vertical");
 
         animating = false;
-        formField.classList.toggle("[&_*]:pointer-events-none");
+        // formField.classList.toggle("[&_*]:pointer-events-none");
         console.log("dragging over end");
-    }, 0);
+    }, animationDuration);
 }
 
 /** @param {DragEvent} e */
 function dragEnter(e) {
-    // const section = /** @type {HTMLElement} */ (e.target).closest("[data-section]");
-    // currSection = section;
+    const section = /** @type {HTMLElement} */ (this);
+    section.classList.toggle("[&_*]:pointer-events-none");
+    console.log(e.type, section);
 }
 
 /** @param {DragEvent} e */
 function dragLeave(e) {
-    // tempEl.remove();
+    const section = /** @type {HTMLElement} */ (this);
+    section.classList.toggle("[&_*]:pointer-events-none");
+    console.log(e.type, section);
 }
 
 /** @param {DragEvent} e */
 function drop(e) {
     e.preventDefault();
 
-    const templateId = e.dataTransfer.getData("template");
+    const templateId = e.dataTransfer.getData("text/plain");
     const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
     const newEl = document.importNode(template.content, true).firstElementChild;
 
@@ -203,6 +205,7 @@ for (const field of newFields) {
     field.addEventListener("dragstart", (ev) => {
         for (const container of fieldConts) {
             container.addEventListener("dragover", dragOver);
+            container.addEventListener("dragenter", dragEnter);
             container.addEventListener("dragleave", dragLeave);
             container.addEventListener("drop", drop);
         }
@@ -225,12 +228,13 @@ for (const field of newFields) {
         );
         tempEl.innerHTML = field.innerHTML;
 
-        ev.dataTransfer.setData("template", templateId);
+        ev.dataTransfer.setData("text/plain", templateId);
         dragElement = field;
     });
     field.addEventListener("dragend", (ev) => {
         for (const container of fieldConts) {
             container.removeEventListener("dragover", dragOver);
+            container.removeEventListener("dragenter", dragEnter);
             container.removeEventListener("dragleave", dragLeave);
             container.removeEventListener("drop", drop);
         }
