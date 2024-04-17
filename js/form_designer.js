@@ -154,16 +154,16 @@ function dragOver(e) {
 
 /** @param {DragEvent} e */
 function dragEnter(e) {
-    const section = /** @type {HTMLElement} */ (this);
-    section.classList.toggle("[&_*]:pointer-events-none");
-    console.log(e.type, section);
+    currSection = /** @type {HTMLElement} */ (this);
+    const childArray = Array.from(currSection.children);
+    childArray.forEach((x) => x.classList.toggle("[&_*]:pointer-events-none"));
 }
 
 /** @param {DragEvent} e */
 function dragLeave(e) {
-    const section = /** @type {HTMLElement} */ (this);
-    section.classList.toggle("[&_*]:pointer-events-none");
-    console.log(e.type, section);
+    const childArray = Array.from(currSection.children);
+    childArray.forEach((x) => x.classList.toggle("[&_*]:pointer-events-none"));
+    currSection = null;
 }
 
 /** @param {DragEvent} e */
@@ -174,12 +174,9 @@ function drop(e) {
     const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
     const newEl = document.importNode(template.content, true).firstElementChild;
 
-    // if (data !== null || data != undefined) {
-    // const target = /** @type {HTMLDivElement} */ (e.target).closest("[data-section]");
     tempEl.insertAdjacentElement("beforebegin", newEl);
     tempEl.remove();
     transition(newEl, "horizontal");
-    // }
 }
 
 /**
