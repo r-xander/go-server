@@ -21,6 +21,15 @@ const sortableOptions = {
     scrollSpeed: 25,
     bubbleScroll: true,
 
+    onMove: function (evt, originalEvt) {
+        console.log("onMove:", evt);
+    },
+    onEnd: function (evt) {
+        console.log("onEnd:", evt);
+    },
+    onSort: function (evt) {
+        console.log("onSort:", evt);
+    },
     setData: function (dataTransfer, dragEl) {
         dataTransfer.setDragImage(new Image(), 0, 0);
     },
@@ -77,6 +86,15 @@ addSectionBtn.addEventListener("click", (e) => {
             scrollSpeed: 25,
             bubbleScroll: true,
 
+            onMove: function (evt, originalEvt) {
+                console.log("onMove:", evt);
+            },
+            onEnd: function (evt) {
+                console.log("onEnd:", evt);
+            },
+            onSort: function (evt) {
+                console.log("onSort:", evt);
+            },
             setData: function (dataTransfer, dragEl) {
                 dataTransfer.setDragImage(new Image(), 0, 0);
             },
@@ -116,66 +134,71 @@ const animationDuration = 250;
 /** @param {DragEvent} e */
 function dragOver(e) {
     e.preventDefault();
-
-    const dropEl = /** @type {HTMLElement} */ (this);
-    const lastChild = dropEl.lastElementChild;
-
-    const target = /** @type {HTMLElement} */ (e.target);
-    const section = target.closest("[data-section]");
-    const formField = target.closest("[form-field]");
-    const childCount = section.childElementCount;
-    const children = Array.from(section.children);
-
-    if ((childCount > 0 && !formField) || animating) {
-        return;
-    }
-
-    const nearest = children.filter((el) => el === formField)[0];
-    const near = document.elementFromPoint(e.clientX, e.clientY);
-    // console.log(near);
-
-    animating = true;
-    setTimeout(() => {
-        if (childCount === 0) {
-            section.append(tempEl);
-        } else if (nearest.previousElementSibling === tempEl) {
-            formField.insertAdjacentElement("afterend", tempEl);
-        } else {
-            formField.insertAdjacentElement("beforebegin", tempEl);
-        }
-
-        transition(tempEl, "vertical");
-
-        animating = false;
-        // formField.classList.toggle("[&_*]:pointer-events-none");
-        console.log("dragging over end");
-    }, animationDuration);
 }
 
-/** @param {DragEvent} e */
-function dragEnter(e) {
-    currSection = /** @type {HTMLElement} */ (this);
-    const childArray = Array.from(currSection.children);
-    childArray.forEach((x) => x.classList.toggle("[&_*]:pointer-events-none"));
-}
+// /** @param {DragEvent} e */
+// function dragOver(e) {
+//     e.preventDefault();
 
-/** @param {DragEvent} e */
-function dragLeave(e) {
-    const childArray = Array.from(currSection.children);
-    childArray.forEach((x) => x.classList.toggle("[&_*]:pointer-events-none"));
-    currSection = null;
-}
+//     const dropEl = /** @type {HTMLElement} */ (this);
+//     const lastChild = dropEl.lastElementChild;
+
+//     const target = /** @type {HTMLElement} */ (e.target);
+//     const section = target.closest("[data-section]");
+//     const formField = target.closest("[form-field]");
+//     const childCount = section.childElementCount;
+//     const children = Array.from(section.children);
+
+//     if ((childCount > 0 && !formField) || animating) {
+//         return;
+//     }
+
+//     const nearest = children.filter((el) => el === formField)[0];
+//     const near = document.elementFromPoint(e.clientX, e.clientY);
+//     // console.log(near);
+
+//     animating = true;
+//     setTimeout(() => {
+//         if (childCount === 0) {
+//             section.append(tempEl);
+//         } else if (nearest.previousElementSibling === tempEl) {
+//             formField.insertAdjacentElement("afterend", tempEl);
+//         } else {
+//             formField.insertAdjacentElement("beforebegin", tempEl);
+//         }
+
+//         transition(tempEl, "vertical");
+
+//         animating = false;
+//         // formField.classList.toggle("[&_*]:pointer-events-none");
+//         console.log("dragging over end");
+//     }, animationDuration);
+// }
+
+// /** @param {DragEvent} e */
+// function dragEnter(e) {
+//     currSection = /** @type {HTMLElement} */ (this);
+//     const childArray = Array.from(currSection.children);
+//     childArray.forEach((x) => x.classList.toggle("[&_*]:pointer-events-none"));
+// }
+
+// /** @param {DragEvent} e */
+// function dragLeave(e) {
+//     const childArray = Array.from(currSection.children);
+//     childArray.forEach((x) => x.classList.toggle("[&_*]:pointer-events-none"));
+//     currSection = null;
+// }
 
 /** @param {DragEvent} e */
 function drop(e) {
     e.preventDefault();
 
+    const section = /** @type {HTMLElement} */ (this);
     const templateId = e.dataTransfer.getData("text/plain");
     const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
     const newEl = document.importNode(template.content, true).firstElementChild;
 
-    tempEl.insertAdjacentElement("beforebegin", newEl);
-    tempEl.remove();
+    section.appendChild(newEl);
     transition(newEl, "horizontal");
 }
 
@@ -202,8 +225,8 @@ for (const field of newFields) {
     field.addEventListener("dragstart", (ev) => {
         for (const container of fieldConts) {
             container.addEventListener("dragover", dragOver);
-            container.addEventListener("dragenter", dragEnter);
-            container.addEventListener("dragleave", dragLeave);
+            // container.addEventListener("dragenter", dragEnter);
+            // container.addEventListener("dragleave", dragLeave);
             container.addEventListener("drop", drop);
         }
 
@@ -231,8 +254,8 @@ for (const field of newFields) {
     field.addEventListener("dragend", (ev) => {
         for (const container of fieldConts) {
             container.removeEventListener("dragover", dragOver);
-            container.removeEventListener("dragenter", dragEnter);
-            container.removeEventListener("dragleave", dragLeave);
+            // container.removeEventListener("dragenter", dragEnter);
+            // container.removeEventListener("dragleave", dragLeave);
             container.removeEventListener("drop", drop);
         }
     });

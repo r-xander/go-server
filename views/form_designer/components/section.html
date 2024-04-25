@@ -1,6 +1,14 @@
 {{ define "section" }}
 <template id="section-template">
     <div
+        x-data="{
+            data: initField('text'),
+            removeElement() {
+                $el.remove();
+                removeFieldData(this.data.id);
+                console.log($data);
+            }
+        }"
         section-container
         class="grid gap-3 p-4 rounded-md ring-1 ring-gray-900/5 shadow-md bg-white dark:bg-card-dark"
     >

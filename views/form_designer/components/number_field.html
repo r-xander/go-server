@@ -1,6 +1,16 @@
 {{ define "number_field" }}
 <template id="Number">
-    <div form-field="number" class="p-2.5 rounded">
+    <div
+        x-data="{
+            data: initField('number'),
+            removeElement() {
+                $el.remove();
+                removeFieldData(this.data.id);
+            },
+        }"
+        form-field="number"
+        class="p-2.5 rounded"
+    >
         <div class="flex items-center justify-between mb-1 text-xs text-black/50 dark:text-white/50">
             <span class="font-mono font-bold italic cursor-default select-none">Number Field</span>
             {{ template "field_icons" }}

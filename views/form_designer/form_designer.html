@@ -22,6 +22,19 @@
             readonly: false,
             hidden: false,
         },
+        number: {
+            type: "number",
+            label: "Number Input",
+            placeholder: "",
+            min: 0,
+            max: 1000,
+            defaultValue: "",
+            layout: "global",
+            description: "",
+            required: false,
+            readonly: false,
+            hidden: false,
+        },
     };
 
     document.addEventListener("alpine:init", function () {
@@ -49,6 +62,7 @@
                 const id = this.getId();
                 const data = { id, ...defaults[type] };
                 this.fieldData[id] = data;
+
                 return this.fieldData[id];
             },
             editFieldData(data) {
@@ -70,6 +84,15 @@
                 delete this.fieldData[id];
             },
         }));
+
+        // Alpine.data("field", (type) => ({
+        //     data: $data.initField(type),
+        //     removeElement() {
+        //         $el.remove();
+        //         removeFieldData(this.data.id);
+        //         console.log($data);
+        //     },
+        // }));
     });
 </script>
 
