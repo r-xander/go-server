@@ -35,6 +35,17 @@
             readonly: false,
             hidden: false,
         },
+        select: {
+            type: "select",
+            label: "Select Input",
+            options: [],
+            defaultValue: "",
+            layout: "global",
+            description: "",
+            required: false,
+            readonly: false,
+            hidden: false,
+        },
     };
 
     document.addEventListener("alpine:init", function () {
@@ -301,7 +312,8 @@
     </div>
     {{ template "text_field_edit" }}
 </main>
-{{ template "text_field" "text" }} {{ template "number_field" }} {{ template "select_field" }} {{ template "section" }}
+{{ template "text_field" "text" }} {{ template "text_field" "number" }} {{ template "text_field" "select" }} {{ template
+"section" }}
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

@@ -1,21 +1,24 @@
 {{ define "text_field" }}
-<template id="text">
+<template id="{{ . }}">
     <div
         @click.stop
         x-data="{
-            data: initField('text'),
+            data: initField('{{ . }}'),
             remove() {
                 removeElement($el);
                 removeFieldData(this.data.id);
             },
         }"
         :id="data.id"
-        form-field="text"
+        form-field="{{ . }}"
         class="p-2.5 rounded"
     >
         <div class="flex items-center justify-between mb-1 text-xs text-neutral-500 dark:text-white/60">
             <div class="font-mono flex gap-3">
-                <span class="font-bold italic cursor-default select-none">Text Field</span>
+                <span class="font-bold italic cursor-default select-none">
+                    {{ if eq . "text" }} Text Field {{ else if eq . "number" }} Number Field {{ else if eq . "select" }}
+                    Select Field {{ else if eq . "date" }} Date Field {{ end }}
+                </span>
                 <span
                     x-show="data.hidden || data.readonly"
                     x-text="data.hidden ? '[Hidden]' : data.readonly ? '[Readonly]' : ''"
@@ -29,11 +32,11 @@
             class="grid gap-1 w-full items-center"
         >
             <div class="flex gap-1 items-center">
-                <label x-text="data.label" :for="data.id" class="font-medium select-none" dd-label="Text Field"></label>
+                <label x-text="data.label" :for="data.id" class="font-medium select-none"></label>
                 <span x-show="data.required" class="leading-4 font-semibold text-rose-500">*</span>
             </div>
-            {{ if . eq "text" }} {{ template "text_input" }} {{ else if . eq "number" }} {{ template "number_input" }}
-            {{ else if . eq "select" }} {{ template "select_input" }} {{ else if . eq "date" }} {{ template "date_input"
+            {{ if eq . "text" }} {{ template "text_input" }} {{ else if eq . "number" }} {{ template "number_input" }}
+            {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "date" }} {{ template "date_input"
             }} {{ end }}
             <!-- <input
                 :id="data.id"
@@ -62,17 +65,14 @@
     :placeholder="data.placeholder"
     :readonly="data.readonly || data.hidden"
     @change="$el.value = data.defaultValue ? data.defaultValue : ''"
-    type="text"
+    type="number"
 />
 {{ end }} {{ define "select_input" }}
-<input
+<select
     :id="data.id"
-    :value="data.defaultValue ? data.defaultValue : ''"
-    :placeholder="data.placeholder"
     :readonly="data.readonly || data.hidden"
     @change="$el.value = data.defaultValue ? data.defaultValue : ''"
-    type="text"
-/>
+></select>
 {{ end }} {{ define "date_input" }}
 <input
     :id="data.id"

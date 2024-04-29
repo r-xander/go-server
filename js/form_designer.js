@@ -196,6 +196,7 @@ function drop(e) {
     const section = /** @type {HTMLElement} */ (this);
     const templateId = e.dataTransfer.getData("text/plain");
     const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
+    console.log(template);
     const newEl = document.importNode(template.content, true).firstElementChild;
 
     section.appendChild(newEl);
@@ -222,13 +223,10 @@ function transition(el, direction) {
  * @param {Element} el
  */
 function removeElement(el) {
-    el.classList.add("opacity-0", "scale-0", "transition", "duration-300", "delay-100");
+    el.classList.add("transition", "origin-top");
     window.getComputedStyle(el).opacity;
-
-    function transitionEnd() {
-        el.remove();
-    }
-    el.addEventListener("transitionend", transitionEnd, { once: true });
+    el.classList.add("opacity-0", "scale-y-[25%]", "duration-250");
+    setTimeout(() => el.remove(), 300);
 }
 
 const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[dd-template]"));
