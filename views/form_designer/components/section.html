@@ -3,10 +3,9 @@
     <div
         x-data="{
             data: initField('text'),
-            removeElement() {
-                $el.remove();
+            remove() {
+                removeElement($el);
                 removeFieldData(this.data.id);
-                console.log($data);
             }
         }"
         section-container

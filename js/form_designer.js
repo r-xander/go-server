@@ -208,14 +208,26 @@ function drop(e) {
  */
 function transition(el, direction) {
     const translate = direction === "vertical" ? "translate-y-3" : "-translate-x-3";
-    el.classList.add("opacity-0", translate, "transition-all", "duration-300", "delay-100");
+    el.classList.add("opacity-0", translate, "transition", "duration-300", "delay-100");
     window.getComputedStyle(el).opacity;
     el.classList.remove("opacity-0", translate);
 
     function transitionEnd() {
-        el.classList.remove("transition-all", "duration-300", "delay-100");
+        el.classList.remove("transition", "duration-300", "delay-100");
     }
+    el.addEventListener("transitionend", transitionEnd, { once: true });
+}
 
+/**
+ * @param {Element} el
+ */
+function removeElement(el) {
+    el.classList.add("opacity-0", "scale-0", "transition", "duration-300", "delay-100");
+    window.getComputedStyle(el).opacity;
+
+    function transitionEnd() {
+        el.remove();
+    }
     el.addEventListener("transitionend", transitionEnd, { once: true });
 }
 

@@ -1,5 +1,9 @@
 {{ define "field_icons" }}
-<div @pointerdown.stop class="flex gap-1 relative text-neutral-500 dark:text-white/60">
+<div
+    x-data="{ consoleThis() { console.log($el) } }"
+    @pointerdown.stop
+    class="flex gap-1 relative text-neutral-500 dark:text-white/60"
+>
     <div>
         <button
             @click="editFieldData($data.data)"
@@ -47,7 +51,7 @@
             <h1>Are you sure you want to delete this field?</h1>
             <div class="flex gap-2 justify-self-end">
                 <button
-                    @click.self="removeElement(); deleteDialogOpen = false;"
+                    @click.self="remove(); consoleThis(); deleteDialogOpen = false;"
                     class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 dark:bg-opacity-80 dark:hover:bg-opacity-70"
                 >
                     Delete

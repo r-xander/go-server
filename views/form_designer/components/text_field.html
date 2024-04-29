@@ -1,11 +1,11 @@
 {{ define "text_field" }}
-<template id="Text">
+<template id="text">
     <div
         @click.stop
         x-data="{
             data: initField('text'),
-            removeElement() {
-                $el.remove();
+            remove() {
+                removeElement($el);
                 removeFieldData(this.data.id);
             },
         }"
@@ -32,52 +32,54 @@
                 <label x-text="data.label" :for="data.id" class="font-medium select-none" dd-label="Text Field"></label>
                 <span x-show="data.required" class="leading-4 font-semibold text-rose-500">*</span>
             </div>
-            <input
+            {{ if . eq "text" }} {{ template "text_input" }} {{ else if . eq "number" }} {{ template "number_input" }}
+            {{ else if . eq "select" }} {{ template "select_input" }} {{ else if . eq "date" }} {{ template "date_input"
+            }} {{ end }}
+            <!-- <input
                 :id="data.id"
                 :value="data.defaultValue ? data.defaultValue : ''"
                 :placeholder="data.placeholder"
                 :readonly="data.readonly || data.hidden"
                 @change="$el.value = data.defaultValue ? data.defaultValue : ''"
                 type="text"
-            />
+            /> -->
         </div>
     </div>
 </template>
-<!-- <template id="Text">
-    <div @click.stop x-data="initNewField()" x-init="" :id="id" form-field="text" class="p-2.5 rounded">
-        <div class="flex items-center justify-between mb-1 text-xs text-neutral-500 dark:text-white/60">
-            <div class="font-mono flex gap-3">
-                <span class="font-bold italic cursor-default select-none">Text Field</span>
-                <span
-                    x-show="fieldData[id].hidden || fieldData[id].readonly"
-                    x-text="fieldData[id].hidden ? '[Hidden]' : fieldData[id].readonly ? '[Readonly]' : ''"
-                    class="text-neutral-400 dark:text-white/40"
-                ></span>
-            </div>
-            {{ template "field_icons" }}
-        </div>
-        <div
-            :class="{ 'opacity-50': fieldData[id].hidden, 'grid-cols-[3fr_4fr]': fieldData[id].layout === 'inline'  }"
-            class="grid gap-1 w-full items-center"
-        >
-            <div class="flex gap-1 items-center">
-                <label
-                    x-text="fieldData[id].label"
-                    :for="id"
-                    class="font-medium select-none"
-                    dd-label="Text Field"
-                ></label>
-                <span x-show="fieldData[id].required" class="leading-4 font-semibold text-rose-500">*</span>
-            </div>
-            <input
-                :id="id"
-                :value="fieldData[id].default ? fieldData[id].default : ''"
-                :placeholder="fieldData[id].placeholder"
-                :readonly="fieldData[id].readonly || fieldData[id].hidden"
-                @change="$el.value = fieldData[id].default ? fieldData[id].default : ''"
-                type="text"
-            />
-        </div>
-    </div>
-</template> -->
+{{ end }} {{ define "text_input" }}
+<input
+    :id="data.id"
+    :value="data.defaultValue ? data.defaultValue : ''"
+    :placeholder="data.placeholder"
+    :readonly="data.readonly || data.hidden"
+    @change="$el.value = data.defaultValue ? data.defaultValue : ''"
+    type="text"
+/>
+{{ end }} {{ define "number_input" }}
+<input
+    :id="data.id"
+    :value="data.defaultValue ? data.defaultValue : ''"
+    :placeholder="data.placeholder"
+    :readonly="data.readonly || data.hidden"
+    @change="$el.value = data.defaultValue ? data.defaultValue : ''"
+    type="text"
+/>
+{{ end }} {{ define "select_input" }}
+<input
+    :id="data.id"
+    :value="data.defaultValue ? data.defaultValue : ''"
+    :placeholder="data.placeholder"
+    :readonly="data.readonly || data.hidden"
+    @change="$el.value = data.defaultValue ? data.defaultValue : ''"
+    type="text"
+/>
+{{ end }} {{ define "date_input" }}
+<input
+    :id="data.id"
+    :value="data.defaultValue ? data.defaultValue : ''"
+    :placeholder="data.placeholder"
+    :readonly="data.readonly || data.hidden"
+    @change="$el.value = data.defaultValue ? data.defaultValue : ''"
+    type="text"
+/>
 {{ end }}

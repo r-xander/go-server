@@ -3,8 +3,8 @@
     <div
         x-data="{
             data: initField('number'),
-            removeElement() {
-                $el.remove();
+            remove() {
+                removeElement($el);
                 removeFieldData(this.data.id);
             },
         }"
