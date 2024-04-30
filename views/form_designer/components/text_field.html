@@ -32,8 +32,17 @@
             class="grid gap-1 w-full items-center"
         >
             <div class="flex gap-1 items-center">
-                <label x-text="data.label" :for="data.id" class="font-medium select-none"></label>
-                <span x-show="data.required" class="leading-4 font-semibold text-rose-500">*</span>
+                <label
+                    x-text="data.label"
+                    :for="data.id"
+                    class="font-medium select-none"
+                ></label>
+                <span
+                    x-show="data.required"
+                    class="leading-4 font-semibold text-rose-500"
+                >
+                    *
+                </span>
             </div>
             {{ if eq . "text" }} {{ template "text_input" }} {{ else if eq . "number" }} {{ template "number_input" }}
             {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "date" }} {{ template "date_input"
