@@ -11,7 +11,7 @@
         }"
         :id="data.id"
         form-field="{{ . }}"
-        class="p-2.5 rounded"
+        class="p-3 rounded"
     >
         <div class="flex items-center justify-between mb-1 text-xs text-neutral-500 dark:text-white/60">
             <div class="font-mono flex gap-3">
@@ -47,14 +47,6 @@
             {{ if eq . "text" }} {{ template "text_input" }} {{ else if eq . "number" }} {{ template "number_input" }}
             {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "date" }} {{ template "date_input"
             }} {{ end }}
-            <!-- <input
-                :id="data.id"
-                :value="data.defaultValue ? data.defaultValue : ''"
-                :placeholder="data.placeholder"
-                :readonly="data.readonly || data.hidden"
-                @change="$el.value = data.defaultValue ? data.defaultValue : ''"
-                type="text"
-            /> -->
         </div>
     </div>
 </template>

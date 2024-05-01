@@ -60,7 +60,8 @@ addSectionBtn.addEventListener("click", (e) => {
     e.stopImmediatePropagation();
 
     const sectionTemplate = /** @type {HTMLTemplateElement} */ (document.getElementById("section-template"));
-    const section = /** @type {DocumentFragment} */ (sectionTemplate.content.cloneNode(true)).firstElementChild;
+    const sectionDocFrag = /** @type {DocumentFragment} */ (sectionTemplate.content.cloneNode(true));
+    const section = /** @type {HTMLElement} */ (sectionDocFrag.firstElementChild);
     const newSection = formContainer.insertAdjacentElement("beforeend", section);
 
     transition(section, "vertical");
@@ -197,36 +198,45 @@ function drop(e) {
     const templateId = e.dataTransfer.getData("text/plain");
     const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
     console.log(template);
-    const newEl = document.importNode(template.content, true).firstElementChild;
+    const newEl = /** @type {HTMLElement} */ (document.importNode(template.content, true).firstElementChild);
 
     section.appendChild(newEl);
-    transition(newEl, "horizontal");
+    transition(newEl, "vertical");
 }
 
 /**
- * @param {Element} el
+ * @param {HTMLElement} el
  * @param {"vertical" | "horizontal"} direction
  */
 function transition(el, direction) {
-    const translate = direction === "vertical" ? "translate-y-3" : "-translate-x-3";
-    el.classList.add("opacity-0", translate, "transition", "duration-300", "delay-100");
+    const translate = direction === "vertical" ? "max-h-0" : "max-w-0";
+    el.classList.add("opacity-0", translate, "transition-all", "duration-1000");
+
     window.getComputedStyle(el).opacity;
     el.classList.remove("opacity-0", translate);
+    el.classList.add("max-h-[100rem]");
 
     function transitionEnd() {
-        el.classList.remove("transition", "duration-300", "delay-100");
+        el.classList.remove("transition-all", "duration-1000", "max-h-[100rem]");
     }
     el.addEventListener("transitionend", transitionEnd, { once: true });
 }
 
 /**
- * @param {Element} el
+ * @param {HTMLElement} el
  */
 function removeElement(el) {
-    el.classList.add("transition", "origin-top");
+    el.classList.add("transition-all", "max-h-[100rem]");
     window.getComputedStyle(el).opacity;
-    el.classList.add("opacity-0", "scale-y-[25%]", "duration-250");
-    setTimeout(() => el.remove(), 300);
+    el.classList.remove("max-h-[100rem]");
+    el.classList.add("opacity-0", "max-h-0", "duration-1000");
+    el.style.padding = "0";
+
+    function transitionEnd(e) {
+        console.log(e);
+        el.remove();
+    }
+    el.addEventListener("transitionend", transitionEnd, { once: true });
 }
 
 const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[dd-template]"));

@@ -12,16 +12,21 @@
         class="grid gap-3 p-4 rounded-md ring-1 ring-gray-900/5 shadow-md bg-white dark:bg-card-dark"
     >
         <div class="flex items-center justify-between mb-1">
-            <h2 data-section-title class="font-semibold">Section 1</h2>
+            <h2
+                data-section-title
+                class="font-semibold"
+            >
+                Section 1
+            </h2>
             {{ template "field_icons" }}
         </div>
         <div class="grid grid-cols-1 min-h-28 @[35rem]/form:grid-cols-2 gap-4">
             <div
-                class="@container/section grid auto-rows-max min-w-64 p-3 gap-3 border border-dashed border-yellow-600 rounded-md"
+                class="@container/section grid auto-rows-max min-w-64 p-3 border border-dashed border-yellow-600 rounded-md"
                 data-section
             ></div>
             <div
-                class="@container/section grid auto-rows-max min-w-64 p-3 gap-3 border border-dashed border-yellow-600 rounded-md"
+                class="@container/section grid auto-rows-max min-w-64 p-3 border border-dashed border-yellow-600 rounded-md"
                 data-section
             ></div>
         </div>
