@@ -64,7 +64,7 @@ addSectionBtn.addEventListener("click", (e) => {
     const section = /** @type {HTMLElement} */ (sectionDocFrag.firstElementChild);
     const newSection = formContainer.insertAdjacentElement("beforeend", section);
 
-    transition(section, "vertical");
+    transition(section);
 
     const fieldContainers = newSection.querySelectorAll("[data-section]");
     for (let i = 0; i < fieldContainers.length; ++i) {
@@ -201,42 +201,74 @@ function drop(e) {
     const newEl = /** @type {HTMLElement} */ (document.importNode(template.content, true).firstElementChild);
 
     section.appendChild(newEl);
-    transition(newEl, "vertical");
+    transition(newEl);
 }
+
+// /**
+//  * @param {HTMLElement} el
+//  * @param {"vertical" | "horizontal"} direction
+//  */
+// function transition(el, direction) {
+//     const translate = direction === "vertical" ? "max-h-0" : "max-w-0";
+//     el.classList.add("opacity-0", translate, "transition-all", "duration-1000");
+
+//     window.getComputedStyle(el).opacity;
+//     el.classList.remove("opacity-0", translate);
+//     el.classList.add("max-h-[100rem]");
+
+//     function transitionEnd() {
+//         el.classList.remove("transition-all", "duration-1000", "max-h-[100rem]");
+//     }
+//     el.addEventListener("transitionend", transitionEnd, { once: true });
+// }
 
 /**
  * @param {HTMLElement} el
- * @param {"vertical" | "horizontal"} direction
  */
-function transition(el, direction) {
-    const translate = direction === "vertical" ? "max-h-0" : "max-w-0";
-    el.classList.add("opacity-0", translate, "transition-all", "duration-1000");
-
-    window.getComputedStyle(el).opacity;
-    el.classList.remove("opacity-0", translate);
-    el.classList.add("max-h-[100rem]");
-
-    function transitionEnd() {
-        el.classList.remove("transition-all", "duration-1000", "max-h-[100rem]");
-    }
-    el.addEventListener("transitionend", transitionEnd, { once: true });
+function transition(el) {
+    el.style.overflow = "hidden";
+    el.animate(
+        [
+            {
+                height: "0px",
+                opacity: 0,
+                paddingBlock: "0px",
+            },
+            {
+                height: `${el.scrollHeight}px`,
+                opacity: 1,
+            },
+        ],
+        {
+            duration: 150,
+        }
+    ).addEventListener("finish", () => (el.style.overflow = ""));
 }
 
 /**
  * @param {HTMLElement} el
  */
 function removeElement(el) {
-    el.classList.add("transition-all", "max-h-[100rem]");
-    window.getComputedStyle(el).opacity;
-    el.classList.remove("max-h-[100rem]");
-    el.classList.add("opacity-0", "max-h-0", "duration-1000");
-    el.style.padding = "0";
-
-    function transitionEnd(e) {
-        console.log(e);
+    el.style.overflow = "hidden";
+    el.animate(
+        [
+            {
+                height: `${el.scrollHeight}px`,
+                opacity: 1,
+            },
+            {
+                height: "0px",
+                opacity: 0,
+                paddingBlock: "0px",
+            },
+        ],
+        {
+            duration: 150,
+        }
+    ).addEventListener("finish", () => {
+        el.style.overflow = "";
         el.remove();
-    }
-    el.addEventListener("transitionend", transitionEnd, { once: true });
+    });
 }
 
 const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[dd-template]"));
