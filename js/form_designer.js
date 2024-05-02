@@ -109,7 +109,7 @@ addSectionBtn.addEventListener("click", (e) => {
     }
 
     sections.push(newSection);
-    newSection.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => newSection.scrollIntoView({ behavior: "smooth", block: "end" }), 0);
 });
 
 /************************************************/
@@ -223,9 +223,14 @@ function drop(e) {
 // }
 
 /**
- * @param {HTMLElement} el
+ * @param {HTMLElement & { animationDuration?: number}} el
+ * @param {Number} duration
  */
-function transition(el) {
+function transition(el, duration = 150) {
+    const rect = el.getBoundingClientRect();
+    const animationDuration = el.animationDuration ?? duration;
+    el.animationDuration ??= duration;
+
     el.style.overflow = "hidden";
     el.animate(
         [
@@ -233,37 +238,53 @@ function transition(el) {
                 height: "0px",
                 opacity: 0,
                 paddingBlock: "0px",
+                marginBlock: "0px",
             },
             {
-                height: `${el.scrollHeight}px`,
+                opacity: 0,
+                offset: 0.7,
+            },
+            {
+                height: `${rect.height}px`,
                 opacity: 1,
             },
         ],
         {
-            duration: 150,
+            duration: animationDuration,
+            easing: "cubic-bezier(0, 0, 0.2, 1)",
         }
     ).addEventListener("finish", () => (el.style.overflow = ""));
 }
 
 /**
- * @param {HTMLElement} el
+ * @param {HTMLElement & { animationDuration?: number}} el
+ * @param {Number} duration
  */
-function removeElement(el) {
+function removeElement(el, duration = 150) {
+    const rect = el.getBoundingClientRect();
+    const animationDuration = el.animationDuration ?? duration;
+
     el.style.overflow = "hidden";
     el.animate(
         [
             {
-                height: `${el.scrollHeight}px`,
+                height: `${rect.height}px`,
                 opacity: 1,
+            },
+            {
+                opacity: 0,
+                offset: 0.3,
             },
             {
                 height: "0px",
                 opacity: 0,
                 paddingBlock: "0px",
+                marginBlock: "0px",
             },
         ],
         {
-            duration: 150,
+            duration: animationDuration,
+            easing: "cubic-bezier(0.4, 0, 1, 1)",
         }
     ).addEventListener("finish", () => {
         el.style.overflow = "";
