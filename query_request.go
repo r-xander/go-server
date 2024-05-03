@@ -95,7 +95,7 @@ func queryToHtml(w http.ResponseWriter, data io.Reader) {
 			case "R":
 				w.Write([]byte("<tr>"))
 			case "Metadata":
-
+				w.Write([]byte("<table class=\"data-table\"><thead><tr>"))
 			case "Data":
 				w.Write([]byte("</thead><tbody>"))
 			case "faultstring":
