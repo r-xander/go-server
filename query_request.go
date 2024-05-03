@@ -47,10 +47,16 @@ func processQuery(w http.ResponseWriter, r *http.Request) {
 	start = time.Now()
 
 	processFunc := queryToHtml
-	if procType := r.Header.Get("X-Process-Type"); procType == "csv" {
+
+	switch procType := r.Header.Get("X-Process-Type"); procType {
+	case "csv":
 		processFunc = queryToCsv
 		w.Header().Set("Content-Type", "text/csv")
 		w.Header().Set("Content-Disposition", "attachment; filename=data.csv")
+	case "xlsx":
+		processFunc = queryToXlsx
+		w.Header().Set("Content-Type", "application/application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+		w.Header().Set("Content-Disposition", "attachment; filename=data.xlsx")
 	}
 
 	processFunc(w, resp.Body)
@@ -89,7 +95,7 @@ func queryToHtml(w http.ResponseWriter, data io.Reader) {
 			case "R":
 				w.Write([]byte("<tr>"))
 			case "Metadata":
-				w.Write([]byte(`<table class="data-table"><thead><tr>`))
+
 			case "Data":
 				w.Write([]byte("</thead><tbody>"))
 			case "faultstring":
@@ -108,6 +114,55 @@ func queryToHtml(w http.ResponseWriter, data io.Reader) {
 }
 
 func queryToCsv(w http.ResponseWriter, data io.Reader) {
+	d := xml.NewDecoder(data)
+	newRow := true
+
+	for {
+		tok, err := d.RawToken()
+		if tok == nil && err == nil {
+			continue
+		} else if tok == nil && err == io.EOF {
+			break
+		} else if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			errorResponse(w, err.Error(), 500)
+			return
+		}
+
+		switch ty := tok.(type) {
+		case xml.StartElement:
+			switch ty.Name.Local {
+			case "C":
+				ctok, err := d.RawToken()
+
+				if !newRow {
+					w.Write([]byte(","))
+				}
+
+				if cdata, ok := ctok.(xml.CharData); ok && err == nil {
+					w.Write(cdata)
+					d.RawToken()
+				}
+				newRow = false
+			case "Column":
+				i := slices.IndexFunc(ty.Attr, func(attr xml.Attr) bool { return attr.Name.Local == "label" })
+				if !newRow {
+					w.Write([]byte(","))
+				}
+				w.Write([]byte(ty.Attr[i].Value))
+				newRow = false
+			case "R":
+				w.Write([]byte("\n"))
+				newRow = true
+			case "faultstring":
+				ftok, _ := d.RawToken()
+				errorResponse(w, string(ftok.(xml.CharData)), 400)
+			}
+		}
+	}
+}
+
+func queryToXlsx(w http.ResponseWriter, data io.Reader) {
 	d := xml.NewDecoder(data)
 	newRow := true
 
