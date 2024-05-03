@@ -109,7 +109,7 @@ addSectionBtn.addEventListener("click", (e) => {
     }
 
     sections.push(newSection);
-    setTimeout(() => newSection.scrollIntoView({ behavior: "smooth", block: "end" }), 0);
+    setTimeout(() => newSection.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
 });
 
 /************************************************/
