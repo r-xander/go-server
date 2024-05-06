@@ -1,7 +1,6 @@
 {{ define "text_field" }}
 <template id="{{ . }}">
     <div
-        @click.stop
         x-data="{
             data: initField('{{ . }}'),
             remove() {
@@ -32,20 +31,11 @@
             class="grid gap-1 w-full items-center"
         >
             <div class="flex gap-1 items-center">
-                <label
-                    x-text="data.label"
-                    :for="data.id"
-                    class="font-medium select-none"
-                ></label>
-                <span
-                    x-show="data.required"
-                    class="leading-4 font-semibold text-rose-500"
-                >
-                    *
-                </span>
+                <label x-text="data.label" :for="data.id" class="font-medium select-none"></label>
+                <span x-show="data.required" class="leading-4 font-semibold text-rose-500"> * </span>
             </div>
             {{ if eq . "text" }} {{ template "text_input" }} {{ else if eq . "number" }} {{ template "number_input" }}
-            {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "date" }} {{ template "date_input"
+            {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "date" }} {{ template "date_field"
             }} {{ end }}
         </div>
     </div>
@@ -74,7 +64,9 @@
     :readonly="data.readonly || data.hidden"
     @change="$el.value = data.defaultValue ? data.defaultValue : ''"
 ></select>
-{{ end }} {{ define "date_input" }}
+{{ end }}
+
+<!-- { define "date_input" }
 <div class="relative">
     <button class="absolute inset-y-0 right-0 flex items-center px-2.5 text-[#999]">
         <svg
@@ -112,4 +104,4 @@
         </div>
     </div>
 </div>
-{{ end }}
+{ end } -->
