@@ -139,10 +139,26 @@ document.addEventListener("alpine:init", function (e) {
             console.log(el.getBoundingClientRect(), document.body.clientHeight);
             return this.showCalendar;
         },
-        parseInput(value) {
-            if (parseInt(value[1])) {
+        handleInput(e) {
+            const reg = /[^\d\/]/g;
+            console.log(e, reg.test(e.data));
+            if (reg.test(e.data)) {
+                e.preventDefault();
+                return false;
             }
-            let [month, day, year, ...rest] = value.split("/");
+
+            return e.data;
+        },
+        parseInput(dateValue) {
+            const reg = /[^\d\/]/g;
+
+            if (reg.test(dateValue)) {
+                return;
+            }
+
+            if (parseInt(dateValue[1])) {
+            }
+            let [month, day, year, ...rest] = dateValue.split("/");
 
             //too many slashes. invalid date.
             if (rest.length > 0) {
