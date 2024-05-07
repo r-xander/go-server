@@ -63,7 +63,7 @@
                         </div>
                         <div
                             class="flex gap-4 px-4 py-2 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
-                            dd-template="date"
+                            dd-template="datetime"
                             draggable="true"
                         >
                             <svg viewBox="-1 -1 24 24" class="w-5 min-w-5 fill-current">
@@ -82,7 +82,7 @@
             </div>
             <div class="grow grid grid-rows-[max-content_1fr]">
                 <div
-                    class="sticky top-[53px] grid grid-cols-[1fr_3fr_1fr] py-3 z-10 items-center border-b border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
+                    class="sticky top-[53px] grid grid-cols-[1fr_3fr_1fr] py-3 z-10 items-center border-b bg-white border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
                 >
                     <div></div>
                     <div class="flex gap-2 justify-self-center">
@@ -215,4 +215,4 @@
     {{ template "text_field_edit" }}
 </main>
 {{ template "text_field" "text" }} {{ template "text_field" "number" }} {{ template "text_field" "select" }} {{ template
-"text_field" "date" }}{{ template "section" }} {{ end }}
+"text_field" "datetime" }}{{ template "section" }} {{ end }}

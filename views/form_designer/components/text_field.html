@@ -16,7 +16,7 @@
             <div class="font-mono flex gap-3">
                 <span class="font-bold italic cursor-default select-none">
                     {{ if eq . "text" }} Text Field {{ else if eq . "number" }} Number Field {{ else if eq . "select" }}
-                    Select Field {{ else if eq . "date" }} Date Field {{ end }}
+                    Select Field {{ else if eq . "datetime" }} Date Field {{ end }}
                 </span>
                 <span
                     x-show="data.hidden || data.readonly"
@@ -35,8 +35,8 @@
                 <span x-show="data.required" class="leading-4 font-semibold text-rose-500"> * </span>
             </div>
             {{ if eq . "text" }} {{ template "text_input" }} {{ else if eq . "number" }} {{ template "number_input" }}
-            {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "date" }} {{ template "date_field"
-            }} {{ end }}
+            {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "datetime" }} {{ template
+            "date_field" }} {{ end }}
         </div>
     </div>
 </template>

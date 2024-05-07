@@ -54,6 +54,16 @@ const defaults = {
         readonly: false,
         hidden: false,
     },
+    datetime: {
+        type: "datetime",
+        label: "Date/Time Input",
+        defaultValue: "",
+        layout: "global",
+        description: "",
+        required: false,
+        readonly: false,
+        hidden: false,
+    },
 };
 
 document.addEventListener("alpine:init", function (e) {
@@ -79,7 +89,7 @@ document.addEventListener("alpine:init", function (e) {
             this.currentFieldIndex++;
             return id;
         },
-        initField(type) {
+        initField(/** @type {String} */ type) {
             const id = this.getId();
             const data = { id, ...defaults[type] };
             this.fieldData[id] = data;
@@ -101,35 +111,43 @@ document.addEventListener("alpine:init", function (e) {
             this.fieldData[data.id] = { ...data };
             this.editModalOpen = false;
         },
-        removeFieldData(id) {
+        removeFieldData(/** @type {String} */ id) {
             delete this.fieldData[id];
         },
     }));
 
     // @ts-ignore
-    Alpine.data("date_field", (value = null) => ({
-        internalDate: value ?? new Date(),
+    Alpine.data("date_field", (/** @type {Date} */ defaultValue) => ({
+        internalDate: defaultValue ? new Date(defaultValue) : new Date(),
         days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         months: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         showCalendar: false,
         showMonthYearPanel: false,
         value: "",
+        dates: null,
+        years: null,
+
         year: null,
         month: null,
         day: null,
-        dates: null,
-        years: null,
+        hour: null,
+        hourString: "",
+        minute: null,
+        minuteString: "",
+        meridian: "AM",
 
         init() {
             this.year = this.internalDate.getFullYear();
             this.month = this.internalDate.getMonth();
             this.day = this.internalDate.getDate();
+            this.hour = this.internalDate.getHours();
+            this.hourString = this.hour.toString().padStart(2, "0");
+            this.minute = this.internalDate.getMinutes();
+            this.minuteString = this.minute.toString().padStart(2, "0");
             this.populateCalendarDays(this.internalDate);
-            this.years = Array.from({ length: 8 }).map((_, i) => this.year - 3 + i);
         },
 
         /**
-         *
          * @param {HTMLElement} el
          * @returns {Boolean}
          */
@@ -139,7 +157,7 @@ document.addEventListener("alpine:init", function (e) {
             console.log(el.getBoundingClientRect(), document.body.clientHeight);
             return this.showCalendar;
         },
-        handleInput(e) {
+        handleInput(/** @type {InputEvent} */ e) {
             const reg = /[^\d\/]/g;
             console.log(e, reg.test(e.data));
             if (reg.test(e.data)) {
@@ -200,40 +218,66 @@ document.addEventListener("alpine:init", function (e) {
                 });
             }
 
+            this.years = Array.from({ length: 8 }).map((_, i) => this.year - 3 + i);
             this.dates = calendarDays;
         },
-        handleDateChange(date) {
-            const newVal = new Date(date.year, date.month, date.day);
-
-            this.internalDate = newVal;
-            this.year = date.year;
-            this.month = date.month;
-            this.day = date.day;
-            this.populateCalendarDays(newVal);
+        handleDateChange(/** @type {Date} */ date) {
+            this.internalDate = date;
+            this.year = date.getFullYear();
+            this.month = date.getMonth();
+            this.day = date.getDate();
+            this.populateCalendarDays(date);
         },
-        onDateChange(date) {
-            console.log(date);
+        onDateChange(/** @type {Date} */ date) {
             this.handleDateChange(date);
             this.showCalendar = false;
 
-            this.value = `${(date.month + 1).toString().padStart(2, "0")}/${date.day.toString().padStart(2, "0")}/${
-                date.year
-            }`;
+            this.value = this.internalDate.toLocaleString("default", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+            });
         },
         getNextMonth() {
-            this.handleDateChange({ year: this.year, month: this.month + 1, day: this.day });
+            this.handleDateChange(new Date(this.year, this.month + 1, this.day));
         },
         getPrevMonth() {
-            this.handleDateChange({ year: this.year, month: this.month - 1, day: this.day });
+            this.handleDateChange(new Date(this.year, this.month - 1, this.day));
+        },
+        updateHour(/** @type {number} */ increment) {
+            const newHour = this.hour + increment;
+            if (newHour > 23) {
+                this.hour = 0;
+            } else if (newHour < 0) {
+                this.hour = 23;
+            } else {
+                this.hour = newHour;
+            }
+
+            this.hourString = this.hour.toString().padStart(2, "0");
+        },
+        handleHourChange(/** @type {InputEvent} */ e) {
+            const number = parseInt(e.data);
+            if (number > 12) {
+            }
+            this.hourString = this.hour.toString().padStart(2, "0");
+        },
+        updateMinute(/** @type {number} */ increment) {
+            const newMinute = this.minute + increment;
+            if (newMinute > 59) {
+                this.minute = 0;
+            } else if (newMinute < 0) {
+                this.minute = 59;
+            } else {
+                this.minute = newMinute;
+            }
+
+            this.minuteString = this.minute.toString().padStart(2, "0");
         },
         setToday() {
             const today = new Date();
             this.populateCalendarDays(today);
-
-            const date = this.dates.find(
-                (d) => d.day === today.getDate() && d.month === today.getMonth() && d.year === today.getFullYear()
-            );
-            this.onDateChange(date);
+            this.onDateChange(today);
         },
         changeMonthOnWheel(e) {
             e.preventDefault();
@@ -244,11 +288,7 @@ document.addEventListener("alpine:init", function (e) {
                 return;
             }
 
-            const date = {
-                year: this.year,
-                month: this.month + (e.deltaY < 0 ? -1 : 1),
-                day: this.day,
-            };
+            const date = new Date(this.year, this.month + (e.deltaY < 0 ? -1 : 1), this.day);
             this.handleDateChange(date);
         },
     }));
@@ -276,7 +316,6 @@ function drop(e) {
     const section = /** @type {HTMLElement} */ (this);
     const templateId = e.dataTransfer.getData("text/plain");
     const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
-    console.log(template);
     const newEl = /** @type {HTMLElement} */ (document.importNode(template.content, true).firstElementChild);
 
     section.appendChild(newEl);
