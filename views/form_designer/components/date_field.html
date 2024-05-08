@@ -109,7 +109,7 @@
                             'font-semibold bg-sky-800/20 text-sky-800 dark:bg-sky-400/20 dark:text-sky-400': date.day === day && date.month === month,
                             'hover:bg-neutral-200 dark:hover:bg-[#5e5e5e] dark:hover:text-white': !(date.day === day && date.month === month)
                         }"
-                        @click="onDateChange(new Date(date.year, date.month, date.day))"
+                        @click="onDateChange(new Date(date.year, date.month, date.day, hour, minute))"
                         x-text="date.day"
                     ></button>
                 </template>
@@ -218,36 +218,36 @@
             x-transition
             class="absolute z-[100] flex inset-0 flex-col rounded bg-white dark:bg-neutral-800"
         >
-            <div class="grid w-full grid-cols-4 justify-items-center gap-3 border-b p-4 dark:border-neutral-700">
+            <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-3 border-b dark:border-neutral-700">
                 <template
                     x-for="m in months"
                     :key="m"
                 >
                     <button
-                        class="aspect-[2/1] w-full rounded text-center uppercase"
+                        class="aspect-[2/1] w-full py-1.5 rounded text-center"
                         :class="{
                             'bg-sky-800/20 font-bold text-sky-800 dark:bg-sky-400/20 dark:text-sky-400': m === month,
                             'hover:bg-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-white': m !== month
                         }"
                         @click="month = m"
-                        @dblclick="showMonthYearPanel = false; handleDateChange(new Date(year, m, day));"
+                        @dblclick="showMonthYearPanel = false; handleDateChange(new Date(year, m, day, hour, minute));"
                         x-text="new Date(year, m, day).toLocaleString('default', { month: 'short' })"
                     ></button>
                 </template>
             </div>
-            <div class="grid w-full grid-cols-4 justify-items-center gap-3 p-4">
+            <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-3">
                 <template
                     x-for="y in years"
                     :key="y"
                 >
                     <button
-                        class="aspect-[2/1] w-full rounded text-center uppercase"
+                        class="aspect-[2/1] w-full py-1.5 rounded text-center"
                         :class="{
                             'bg-sky-800/20 font-bold text-sky-800 dark:bg-sky-400/20 dark:text-sky-400': y === year,
                             'hover:bg-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-white': y !== year
                         }"
                         @click="year = y"
-                        @dblclick="showMonthYearPanel = false; handleDateChange(new Date(y, month, day));"
+                        @dblclick="showMonthYearPanel = false; handleDateChange(new Date(y, month, day, hour, minute));"
                         x-text="y"
                     ></button>
                 </template>
@@ -255,7 +255,7 @@
             <div class="mt-auto flex h-12 w-full divide-x border-t dark:divide-neutral-700 dark:border-neutral-700">
                 <button
                     class="flex-1 font-bold"
-                    @click="showMonthYearPanel = false; handleDateChange(new Date(year, month, day));"
+                    @click="showMonthYearPanel = false; handleDateChange(new Date(year, month, day, hour, minute));"
                 >
                     OK
                 </button>

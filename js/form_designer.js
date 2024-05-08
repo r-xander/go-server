@@ -131,20 +131,116 @@ document.addEventListener("alpine:init", function (e) {
         month: null,
         day: null,
         hour: null,
-        hourString: "",
         minute: null,
+
+        hourString: "",
         minuteString: "",
-        meridian: "AM",
 
         init() {
             this.year = this.internalDate.getFullYear();
             this.month = this.internalDate.getMonth();
             this.day = this.internalDate.getDate();
             this.hour = this.internalDate.getHours();
-            this.hourString = this.hour.toString().padStart(2, "0");
             this.minute = this.internalDate.getMinutes();
+
+            this.hourString = this.hour.toString().padStart(2, "0");
             this.minuteString = this.minute.toString().padStart(2, "0");
+
             this.populateCalendarDays(this.internalDate);
+        },
+        populateCalendarDays(/** @type {Date} */ date) {
+            const calendarDays = [];
+            const firstDay = new Date(this.year, this.month, 1).getDay();
+
+            for (let i = -firstDay; i < 42 - firstDay; i++) {
+                let newDate = new Date(this.year, this.month, i + 1);
+                calendarDays.push({
+                    year: newDate.getFullYear(),
+                    month: newDate.getMonth(),
+                    day: newDate.getDate(),
+                });
+            }
+
+            this.years = Array.from({ length: 8 }).map((_, i) => this.year - 3 + i);
+            this.dates = calendarDays;
+        },
+        handleDateChange(/** @type {Date} */ date) {
+            this.internalDate = date;
+            this.month = date.getMonth();
+            this.year = date.getFullYear();
+            this.day = date.getDate();
+            this.hour = date.getHours();
+            this.minute = date.getMinutes();
+
+            this.hourString = this.hour.toString().padStart(2, "0");
+            this.minuteString = this.minute.toString().padStart(2, "0");
+
+            this.populateCalendarDays(date);
+        },
+        onDateChange(/** @type {Date} */ date) {
+            this.handleDateChange(date);
+            this.showCalendar = false;
+
+            this.value = this.internalDate.toLocaleString("default", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+            });
+        },
+        getNextMonth() {
+            this.handleDateChange(new Date(this.year, this.month + 1, this.day));
+        },
+        getPrevMonth() {
+            this.handleDateChange(new Date(this.year, this.month - 1, this.day));
+        },
+        updateHour(/** @type {number} */ increment) {
+            const newHour = this.hour + increment;
+            if (newHour > 23) {
+                this.hour = 0;
+            } else if (newHour < 0) {
+                this.hour = 23;
+            } else {
+                this.hour = newHour;
+            }
+
+            this.hourString = this.hour.toString().padStart(2, "0");
+        },
+        handleHourChange(/** @type {InputEvent} */ e) {
+            const number = parseInt(e.data);
+            if (number > 12) {
+            }
+            this.hourString = this.hour.toString().padStart(2, "0");
+        },
+        updateMinute(/** @type {number} */ increment) {
+            const newMinute = this.minute + increment;
+            if (newMinute > 59) {
+                this.minute = 0;
+            } else if (newMinute < 0) {
+                this.minute = 59;
+            } else {
+                this.minute = newMinute;
+            }
+
+            this.minuteString = this.minute.toString().padStart(2, "0");
+        },
+        setToday() {
+            const today = new Date();
+            this.onDateChange(today);
+        },
+        changeMonthOnWheel(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            if (e.deltaY === 0) {
+                return;
+            }
+
+            const date = new Date(this.year, this.month + (e.deltaY < 0 ? -1 : 1), this.day, this.hour, this.minute);
+            this.handleDateChange(date);
         },
 
         /**
@@ -201,95 +297,6 @@ document.addEventListener("alpine:init", function (e) {
 
             this.internalDate = new Date(newDate);
             this.populateCalendarDays;
-        },
-        populateCalendarDays(date) {
-            this.month = date.getMonth();
-            this.year = date.getFullYear();
-            this.day = date.getDate();
-            const calendarDays = [];
-            const firstDay = new Date(this.year, this.month, 1).getDay();
-
-            for (let i = -firstDay; i < 42 - firstDay; i++) {
-                let newDate = new Date(this.year, this.month, i + 1);
-                calendarDays.push({
-                    day: newDate.getDate(),
-                    month: newDate.getMonth(),
-                    year: newDate.getFullYear(),
-                });
-            }
-
-            this.years = Array.from({ length: 8 }).map((_, i) => this.year - 3 + i);
-            this.dates = calendarDays;
-        },
-        handleDateChange(/** @type {Date} */ date) {
-            this.internalDate = date;
-            this.year = date.getFullYear();
-            this.month = date.getMonth();
-            this.day = date.getDate();
-            this.populateCalendarDays(date);
-        },
-        onDateChange(/** @type {Date} */ date) {
-            this.handleDateChange(date);
-            this.showCalendar = false;
-
-            this.value = this.internalDate.toLocaleString("default", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-            });
-        },
-        getNextMonth() {
-            this.handleDateChange(new Date(this.year, this.month + 1, this.day));
-        },
-        getPrevMonth() {
-            this.handleDateChange(new Date(this.year, this.month - 1, this.day));
-        },
-        updateHour(/** @type {number} */ increment) {
-            const newHour = this.hour + increment;
-            if (newHour > 23) {
-                this.hour = 0;
-            } else if (newHour < 0) {
-                this.hour = 23;
-            } else {
-                this.hour = newHour;
-            }
-
-            this.hourString = this.hour.toString().padStart(2, "0");
-        },
-        handleHourChange(/** @type {InputEvent} */ e) {
-            const number = parseInt(e.data);
-            if (number > 12) {
-            }
-            this.hourString = this.hour.toString().padStart(2, "0");
-        },
-        updateMinute(/** @type {number} */ increment) {
-            const newMinute = this.minute + increment;
-            if (newMinute > 59) {
-                this.minute = 0;
-            } else if (newMinute < 0) {
-                this.minute = 59;
-            } else {
-                this.minute = newMinute;
-            }
-
-            this.minuteString = this.minute.toString().padStart(2, "0");
-        },
-        setToday() {
-            const today = new Date();
-            this.populateCalendarDays(today);
-            this.onDateChange(today);
-        },
-        changeMonthOnWheel(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-
-            if (e.deltaY === 0) {
-                return;
-            }
-
-            const date = new Date(this.year, this.month + (e.deltaY < 0 ? -1 : 1), this.day);
-            this.handleDateChange(date);
         },
     }));
 });
