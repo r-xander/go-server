@@ -123,6 +123,7 @@ document.addEventListener("alpine:init", function (e) {
         months: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         showCalendar: false,
         showMonthYearPanel: false,
+        wheelMoves: 0,
         value: "",
         dates: null,
         years: null,
@@ -190,6 +191,11 @@ document.addEventListener("alpine:init", function (e) {
                 hour12: false,
             });
         },
+        clearValue() {
+            this.handleDateChange(new Date());
+            this.showCalendar = false;
+            this.value = "";
+        },
         getNextMonth() {
             this.handleDateChange(new Date(this.year, this.month + 1, this.day));
         },
@@ -242,6 +248,7 @@ document.addEventListener("alpine:init", function (e) {
             const date = new Date(this.year, this.month + (e.deltaY < 0 ? -1 : 1), this.day, this.hour, this.minute);
             this.handleDateChange(date);
         },
+        reset() {},
 
         /**
          * @param {HTMLElement} el
