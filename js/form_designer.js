@@ -477,10 +477,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
     const formSortable = new Sortable(formContainer, sortableOptions);
 
     addSectionBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-
         const sectionTemplate = /** @type {HTMLTemplateElement} */ (document.getElementById("section-template"));
         const sectionDocFrag = /** @type {DocumentFragment} */ (sectionTemplate.content.cloneNode(true));
         const section = /** @type {HTMLElement} */ (sectionDocFrag.firstElementChild);
@@ -531,7 +527,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         }
 
         sections.push(newSection);
-        setTimeout(() => newSection.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+        setTimeout(() => newSection.scrollIntoView({ behavior: "smooth", block: "center" }), 200);
     });
 
     /************************************************/

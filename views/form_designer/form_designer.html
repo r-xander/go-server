@@ -82,7 +82,7 @@
             </div>
             <div class="grow grid grid-rows-[max-content_1fr]">
                 <div
-                    class="sticky top-[53px] grid grid-cols-[1fr_3fr_1fr] py-3 z-10 items-center border-b bg-white border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
+                    class="sticky top-[53px] grid grid-cols-[1fr_4fr_1fr] p-3 z-10 items-center border-b bg-white border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
                 >
                     <div></div>
                     <div class="flex gap-2 justify-self-center">
@@ -106,18 +106,18 @@
             <div
                 class="sticky top-[53px] flex flex-col w-[max(24rem,20%)] min-w-48 h-[calc(100vh-53px)] font-semibold overflow-hidden select-none border-l border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
             >
-                <div class="border-b border-neutral-200 dark:border-aux-dark">
-                    <button class="p-2 transition text-neutral-500 hover:text-opacity-70 dark:text-neutral-300">
-                        <svg viewBox="0 0 1024 1024" class="w-6 h-6 fill-current">
+                <div class="relative border-b border-neutral-200 dark:border-aux-dark">
+                    <button
+                        class="p-3 absolute transition text-neutral-500 hover:text-opacity-70 dark:text-neutral-300"
+                    >
+                        <svg viewBox="0 0 1024 1024" class="w-5 h-5 fill-current">
                             <path
                                 d="M533.2 492.3L277.9 166.1c-3-3.9-7.7-6.1-12.6-6.1H188c-6.7 0-10.4 7.7-6.3 12.9L447.1 512 181.7 851.1A7.98 7.98 0 0 0 188 864h77.3c4.9 0 9.6-2.3 12.6-6.1l255.3-326.1c9.1-11.7 9.1-27.9 0-39.5zm304 0L581.9 166.1c-3-3.9-7.7-6.1-12.6-6.1H492c-6.7 0-10.4 7.7-6.3 12.9L751.1 512 485.7 851.1A7.98 7.98 0 0 0 492 864h77.3c4.9 0 9.6-2.3 12.6-6.1l255.3-326.1c9.1-11.7 9.1-27.9 0-39.5z"
                             />
                         </svg>
                     </button>
-                    <div class="pt-2 p-4">Field Settings</div>
-                    <div
-                        class="flex items-center justify-around py-2 text-sm border-t border-neutral-200 dark:border-aux-dark"
-                    >
+                    <div class="p-3 text-center">Field Settings</div>
+                    <div class="grid grid-cols-3 items-center justify-around pb-2 text-sm">
                         <button>Properties</button>
                         <button>States</button>
                         <button>Rules</button>
