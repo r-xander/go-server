@@ -123,8 +123,6 @@ document.addEventListener("alpine:init", function (e) {
         months: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         showCalendar: false,
         showMonthYearPanel: false,
-        wheelMoves: 0,
-        value: "",
         dates: null,
         years: null,
 
@@ -134,6 +132,7 @@ document.addEventListener("alpine:init", function (e) {
         hour: null,
         minute: null,
 
+        value: "",
         hourString: "",
         minuteString: "",
 
@@ -197,12 +196,12 @@ document.addEventListener("alpine:init", function (e) {
             this.value = "";
         },
         getNextMonth() {
-            this.handleDateChange(new Date(this.year, this.month + 1, this.day));
+            this.handleDateChange(new Date(this.year, this.month + 1, this.day, this.hour, this.minute));
         },
         getPrevMonth() {
-            this.handleDateChange(new Date(this.year, this.month - 1, this.day));
+            this.handleDateChange(new Date(this.year, this.month - 1, this.day, this.hour, this.minute));
         },
-        updateHour(/** @type {number} */ increment) {
+        updateHour(/** @type {number} */ increment = 0) {
             const newHour = this.hour + increment;
             if (newHour > 23) {
                 this.hour = 0;
@@ -214,11 +213,24 @@ document.addEventListener("alpine:init", function (e) {
 
             this.hourString = this.hour.toString().padStart(2, "0");
         },
-        handleHourChange(/** @type {InputEvent} */ e) {
-            const number = parseInt(e.data);
-            if (number > 12) {
+        handleHourChange(/** @type {KeyboardEvent} */ e) {
+            const input = parseInt(e.key);
+            const hourLen = this.hourString.length;
+
+            if (isNaN(input)) {
+                return;
             }
-            this.hourString = this.hour.toString().padStart(2, "0");
+
+            if (
+                hourLen === 2 ||
+                (hourLen === 0 && input > 2) ||
+                (hourLen === 1 && this.hourString === "2" && input > 4)
+            ) {
+                e.preventDefault();
+                return;
+            }
+
+            // /** @type {HTMLElement} */ (e.target).blur();
         },
         updateMinute(/** @type {number} */ increment) {
             const newMinute = this.minute + increment;
@@ -231,6 +243,19 @@ document.addEventListener("alpine:init", function (e) {
             }
 
             this.minuteString = this.minute.toString().padStart(2, "0");
+        },
+        handleMinuteChange(/** @type {InputEvent} */ e) {
+            const input = parseInt(e.data);
+            console.log(input);
+
+            if (
+                this.hourString.length === 2 ||
+                (this.hourString.length === 0 && input > 5) ||
+                (this.hourString.length === 1 && input > 9)
+            ) {
+                e.preventDefault();
+                return;
+            }
         },
         setToday() {
             const today = new Date();
