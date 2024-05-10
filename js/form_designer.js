@@ -283,6 +283,7 @@ document.addEventListener("alpine:init", function (e) {
             // @ts-ignore
             el.style.display = "";
             console.log(el.getBoundingClientRect(), document.body.clientHeight);
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
             return this.showCalendar;
         },
         handleInput(/** @type {InputEvent} */ e) {
