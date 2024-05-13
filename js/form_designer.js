@@ -66,6 +66,21 @@ const defaults = {
     },
 };
 
+/**
+ *
+ * @param {HTMLElement} el
+ */
+function getElementTopOnPage(el) {
+    let location = 0;
+    if (el.offsetParent) {
+        do {
+            location += el.offsetTop;
+            el = /** @type {HTMLElement} */ (el.offsetParent);
+        } while (el);
+    }
+    return location >= 0 ? location : 0;
+}
+
 document.addEventListener("alpine:init", function (e) {
     // @ts-ignore
     Alpine.data("formData", () => ({
@@ -280,11 +295,28 @@ document.addEventListener("alpine:init", function (e) {
          * @returns {Boolean}
          */
         displayCalendar(el) {
-            // @ts-ignore
+            if (!this.showCalendar) {
+                setTimeout(() => {
+                    el.style.top = "";
+                    el.style.bottom = "";
+                }, 100);
+                return false;
+            }
+
             el.style.display = "";
-            console.log(el.getBoundingClientRect(), document.body.clientHeight);
-            el.scrollIntoView({ behavior: "smooth", block: "center" });
-            return this.showCalendar;
+            const location = getElementTopOnPage(el);
+            const elementBottom = location + el.offsetHeight;
+            const pageBottom = window.scrollY + window.innerHeight;
+
+            if (elementBottom + 10 > pageBottom) {
+                el.style.bottom = "calc(100% + 0.5rem)";
+            } else {
+                el.style.top = "calc(100% + 0.5rem)";
+            }
+
+            console.log(elementBottom, document.body.scrollHeight, window.scrollY + window.innerHeight);
+
+            return true;
         },
         handleInput(/** @type {InputEvent} */ e) {
             const reg = /[^\d\/]/g;
