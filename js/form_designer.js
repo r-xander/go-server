@@ -216,33 +216,60 @@ document.addEventListener("alpine:init", function (e) {
         getPrevMonth() {
             this.handleDateChange(new Date(this.year, this.month - 1, this.day, this.hour, this.minute));
         },
-        updateHour(/** @type {number} */ increment = 0) {
-            const newHour = this.hour + increment;
-            if (newHour > 23) {
+        /**
+         * @param {Event} e
+         */
+        updateHour(e) {
+            const value = /** @type {HTMLInputElement} */ (e.target).value;
+            const newValue = parseInt(value);
+
+            console.log(e);
+            console.log(typeof value);
+
+            if (newValue > 23) {
                 this.hour = 0;
-            } else if (newHour < 0) {
+            } else if (newValue < 0) {
                 this.hour = 23;
             } else {
-                this.hour = newHour;
+                this.hour = newValue;
             }
 
             this.hourString = this.hour.toString().padStart(2, "0");
         },
         handleHourChange(/** @type {KeyboardEvent} */ e) {
-            const input = parseInt(e.key);
+            console.log(e.key);
             const hourLen = this.hourString.length;
 
-            if (isNaN(input)) {
-                return;
-            }
+            switch (e.key) {
+                case "ArrowUp":
+                    this.hour++;
+                    break;
+                case "ArrowDown":
+                    this.hour--;
+                    break;
+                case "ArrowRigth":
+                    document.getElementById("")?.focus();
+                    break;
+                case "0":
+                case "1":
+                case "2":
 
-            if (
-                hourLen === 2 ||
-                (hourLen === 0 && input > 2) ||
-                (hourLen === 1 && this.hourString === "2" && input > 4)
-            ) {
-                e.preventDefault();
-                return;
+                default: {
+                    const input = parseInt(e.key);
+
+                    if (isNaN(input)) {
+                        return;
+                    }
+
+                    if (
+                        hourLen === 2 ||
+                        (hourLen === 0 && input > 2) ||
+                        (hourLen === 1 && this.hourString === "2" && input > 4)
+                    ) {
+                        e.preventDefault();
+                        return;
+                    }
+                }
             }
 
             // /** @type {HTMLElement} */ (e.target).blur();

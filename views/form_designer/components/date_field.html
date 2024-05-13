@@ -1,7 +1,16 @@
 {{ define "date_field" }}
-<div x-data="date_field(data.defaultValue)" class="relative">
-    <button class="absolute inset-y-0 right-0 flex items-center px-2.5 text-[#999]" @click="showCalendar = true">
-        <svg viewBox="-1 -1 24 24" class="w-5 min-w-5 fill-current">
+<div
+    x-data="date_field(data.defaultValue)"
+    class="relative"
+>
+    <button
+        class="absolute inset-y-0 right-0 flex items-center px-2.5 text-[#999]"
+        @click="showCalendar = true"
+    >
+        <svg
+            viewBox="-1 -1 24 24"
+            class="w-5 min-w-5 fill-current"
+        >
             <path
                 d="m4 4h3l0-1c0-1 1-1 1-1 1 0 1 1 1 1l0 1 4 0 0-1c0-1 1-1 1-1 1 0 1 1 1 1l0 1 3 0c1 0 2 1 2 2l0 12c0 1-1 2-2 2l-14 0c-1 0-2-1-2-2l0-12c0-1 1-2 2-2m1 5 12 0c1 0 1-1 1-1l0-1c0 0 0-1-1-1l-12 0c-1 0-1 1-1 1l0 1c0 0 0 1 1 1m0 9 12 0c1 0 1-1 1-1l0-5c0 0 0-1-1-1l-12 0c-1 0-1 1-1 1l0 5c0 0 0 1 1 1"
             />
@@ -33,7 +42,10 @@
                 @click="showMonthYearPanel = !showMonthYearPanel"
             >
                 <span x-text="internalDate.toLocaleString('default', { year: 'numeric', month: 'long' })"></span>
-                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <svg
+                    class="w-4 h-4 fill-current"
+                    viewBox="0 0 24 24"
+                >
                     <path
                         fill-rule="evenodd"
                         clip-rule="evenodd"
@@ -42,8 +54,14 @@
                 </svg>
             </button>
             <div class="flex gap-1">
-                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" @click="getPrevMonth()">
-                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <button
+                    class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white"
+                    @click="getPrevMonth()"
+                >
+                    <svg
+                        class="w-4 h-4 fill-current"
+                        viewBox="0 0 24 24"
+                    >
                         <path
                             fill-rule="evenodd"
                             clip-rule="evenodd"
@@ -51,8 +69,14 @@
                         />
                     </svg>
                 </button>
-                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" @click="getNextMonth()">
-                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <button
+                    class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white"
+                    @click="getNextMonth()"
+                >
+                    <svg
+                        class="w-4 h-4 fill-current"
+                        viewBox="0 0 24 24"
+                    >
                         <path
                             fill-rule="evenodd"
                             clip-rule="evenodd"
@@ -70,9 +94,15 @@
                 @touchstart="console.log($event)"
             >
                 <template x-for="day in days">
-                    <span class="w-full text-center font-bold" x-text="day"></span>
+                    <span
+                        class="w-full text-center font-bold"
+                        x-text="day"
+                    ></span>
                 </template>
-                <template x-for="date in dates" :key="`${date.day}/${date.month + 1}/${date.year}`">
+                <template
+                    x-for="date in dates"
+                    :key="`${date.day}/${date.month + 1}/${date.year}`"
+                >
                     <button
                         class="w-full aspect-square rounded-md"
                         :class="{
@@ -95,11 +125,14 @@
                             class="w-10 hide-arrows text-center"
                             x-model="hourString"
                             @keydown="handleHourChange($event)"
-                            @change="updateHour()"
+                            @change="updateHour($event)"
                         />
                         <div class="grid gap-y-1 ml-1">
                             <button @pointerdown="updateHour(1)">
-                                <svg class="w-4 h-4 fill-current rotate-180" viewBox="0 0 24 24">
+                                <svg
+                                    class="w-4 h-4 fill-current rotate-180"
+                                    viewBox="0 0 24 24"
+                                >
                                     <path
                                         fill-rule="evenodd"
                                         clip-rule="evenodd"
@@ -108,7 +141,10 @@
                                 </svg>
                             </button>
                             <button @pointerdown="updateHour(-1)">
-                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                <svg
+                                    class="w-4 h-4 fill-current"
+                                    viewBox="0 0 24 24"
+                                >
                                     <path
                                         fill-rule="evenodd"
                                         clip-rule="evenodd"
@@ -131,7 +167,10 @@
                         <!-- @change="handleMinuteChange($event)" -->
                         <div class="grid gap-y-1 ml-1">
                             <button @pointerdown="updateMinute(1)">
-                                <svg class="w-4 h-4 fill-current rotate-180" viewBox="0 0 24 24">
+                                <svg
+                                    class="w-4 h-4 fill-current rotate-180"
+                                    viewBox="0 0 24 24"
+                                >
                                     <path
                                         fill-rule="evenodd"
                                         clip-rule="evenodd"
@@ -140,7 +179,10 @@
                                 </svg>
                             </button>
                             <button @pointerdown="updateMinute(-1)">
-                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                <svg
+                                    class="w-4 h-4 fill-current"
+                                    viewBox="0 0 24 24"
+                                >
                                     <path
                                         fill-rule="evenodd"
                                         clip-rule="evenodd"
@@ -181,7 +223,10 @@
             class="absolute z-[100] flex inset-0 flex-col rounded bg-white dark:bg-neutral-800"
         >
             <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4 border-b dark:border-neutral-700">
-                <template x-for="m in months" :key="m">
+                <template
+                    x-for="m in months"
+                    :key="m"
+                >
                     <button
                         class="aspect-[2/1] w-full py-1.5 rounded text-center"
                         :class="{
@@ -196,8 +241,14 @@
             </div>
             <div>
                 <div class="flex justify-center gap-1 mt-4">
-                    <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" @click="">
-                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <button
+                        class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white"
+                        @click=""
+                    >
+                        <svg
+                            class="w-4 h-4 fill-current"
+                            viewBox="0 0 24 24"
+                        >
                             <path
                                 fill-rule="evenodd"
                                 clip-rule="evenodd"
@@ -205,8 +256,14 @@
                             />
                         </svg>
                     </button>
-                    <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" @click="">
-                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <button
+                        class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white"
+                        @click=""
+                    >
+                        <svg
+                            class="w-4 h-4 fill-current"
+                            viewBox="0 0 24 24"
+                        >
                             <path
                                 fill-rule="evenodd"
                                 clip-rule="evenodd"
@@ -216,7 +273,10 @@
                     </button>
                 </div>
                 <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4">
-                    <template x-for="y in years" :key="y">
+                    <template
+                        x-for="y in years"
+                        :key="y"
+                    >
                         <button
                             class="aspect-[2/1] w-full py-1.5 rounded text-center"
                             :class="{
@@ -237,7 +297,11 @@
                 >
                     OK
                 </button>
-                <button class="flex-1 font-bold" @click="showMonthYearPanel = false">Cancel</button>
+                <button
+                    class="flex-1 font-bold"
+                    @click="showMonthYearPanel = false"
+                    >Cancel</button
+                >
             </div>
         </div>
     </div>
