@@ -133,14 +133,16 @@ document.addEventListener("alpine:init", function (e) {
 
     // @ts-ignore
     Alpine.data("date_field", (/** @type {Date} */ defaultValue) => ({
-        internalDate: defaultValue ? new Date(defaultValue) : new Date(),
         days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         months: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         showCalendar: false,
         showMonthYearPanel: false,
+        showHours: false,
+        showMinutes: false,
         dates: null,
         years: null,
 
+        internalDate: defaultValue ? new Date(defaultValue) : new Date(),
         year: null,
         month: null,
         day: null,
@@ -148,8 +150,8 @@ document.addEventListener("alpine:init", function (e) {
         minute: null,
 
         value: "",
-        hourString: "",
-        minuteString: "",
+        hourTemp: null,
+        minuteTemp: null,
 
         init() {
             this.year = this.internalDate.getFullYear();
@@ -157,9 +159,6 @@ document.addEventListener("alpine:init", function (e) {
             this.day = this.internalDate.getDate();
             this.hour = this.internalDate.getHours();
             this.minute = this.internalDate.getMinutes();
-
-            this.hourString = this.hour.toString().padStart(2, "0");
-            this.minuteString = this.minute.toString().padStart(2, "0");
 
             this.populateCalendarDays(this.internalDate);
         },
@@ -187,14 +186,11 @@ document.addEventListener("alpine:init", function (e) {
             this.hour = date.getHours();
             this.minute = date.getMinutes();
 
-            this.hourString = this.hour.toString().padStart(2, "0");
-            this.minuteString = this.minute.toString().padStart(2, "0");
-
             this.populateCalendarDays(date);
         },
         onDateChange(/** @type {Date} */ date) {
+            date ??= new Date();
             this.handleDateChange(date);
-            this.showCalendar = false;
 
             this.value = this.internalDate.toLocaleString("default", {
                 year: "numeric",
@@ -216,94 +212,79 @@ document.addEventListener("alpine:init", function (e) {
         getPrevMonth() {
             this.handleDateChange(new Date(this.year, this.month - 1, this.day, this.hour, this.minute));
         },
-        /**
-         * @param {Event} e
-         */
-        updateHour(e) {
-            const value = /** @type {HTMLInputElement} */ (e.target).value;
-            const newValue = parseInt(value);
-
-            console.log(e);
-            console.log(typeof value);
-
-            if (newValue > 23) {
-                this.hour = 0;
-            } else if (newValue < 0) {
-                this.hour = 23;
-            } else {
-                this.hour = newValue;
-            }
-
-            this.hourString = this.hour.toString().padStart(2, "0");
-        },
         handleHourChange(/** @type {KeyboardEvent} */ e) {
-            console.log(e.key);
-            const hourLen = this.hourString.length;
+            const key = e.key;
 
-            switch (e.key) {
-                case "ArrowUp":
+            if (key === "ArrowUp") {
+                e.preventDefault();
+                if (this.hour + 1 > 23) {
+                    this.hour = 0;
+                } else {
                     this.hour++;
-                    break;
-                case "ArrowDown":
+                }
+            } else if (key === "ArrowDown") {
+                e.preventDefault();
+                if (this.hour - 1 < 0) {
+                    this.hour = 23;
+                } else {
                     this.hour--;
-                    break;
-                case "ArrowRigth":
-                    document.getElementById("")?.focus();
-                    break;
-                case "0":
-                case "1":
-                case "2":
-
-                default: {
-                    const input = parseInt(e.key);
-
-                    if (isNaN(input)) {
-                        return;
-                    }
-
-                    if (
-                        hourLen === 2 ||
-                        (hourLen === 0 && input > 2) ||
-                        (hourLen === 1 && this.hourString === "2" && input > 4)
-                    ) {
-                        e.preventDefault();
-                        return;
-                    }
                 }
             }
 
-            // /** @type {HTMLElement} */ (e.target).blur();
-        },
-        updateMinute(/** @type {number} */ increment) {
-            const newMinute = this.minute + increment;
-            if (newMinute > 59) {
-                this.minute = 0;
-            } else if (newMinute < 0) {
-                this.minute = 59;
-            } else {
-                this.minute = newMinute;
+            if (!/[0-9]/.test(key)) {
+                return;
             }
 
-            this.minuteString = this.minute.toString().padStart(2, "0");
+            e.preventDefault();
+            if (/[3-9]/.test(key) || this.hourTemp !== null) {
+                if (!(this.hourTemp === "2" && /[4-9]/.test(key))) {
+                    this.hour = +[this.hourTemp, key].join("");
+                }
+                this.hourTemp = null;
+                /** @type {HTMLInputElement} */ (e.target).blur();
+            } else {
+                this.hourTemp = key;
+                this.hour = +key;
+            }
         },
-        handleMinuteChange(/** @type {InputEvent} */ e) {
-            const input = parseInt(e.data);
-            console.log(input);
+        handleMinuteChange(/** @type {KeyboardEvent} */ e) {
+            const key = e.key;
 
-            if (
-                this.hourString.length === 2 ||
-                (this.hourString.length === 0 && input > 5) ||
-                (this.hourString.length === 1 && input > 9)
-            ) {
+            if (key === "ArrowUp") {
                 e.preventDefault();
+                if (this.minute + 1 > 59) {
+                    this.minute = 0;
+                } else {
+                    this.minute++;
+                }
+            } else if (key === "ArrowDown") {
+                e.preventDefault();
+                if (this.minute - 1 < 0) {
+                    this.minute = 59;
+                } else {
+                    this.minute--;
+                }
+            }
+
+            if (!/[0-9]/.test(key)) {
                 return;
+            }
+
+            e.preventDefault();
+            if (/[6-9]/.test(key) || this.minuteTemp !== null) {
+                this.minute = +[this.minuteTemp, key].join("");
+                this.minuteTemp = null;
+                this.showCalendar = false;
+            } else {
+                this.minuteTemp = key;
+                this.minute = +key;
             }
         },
         setToday() {
             const today = new Date();
             this.onDateChange(today);
         },
-        changeMonthOnWheel(e) {
+        changeMonthOnWheel(/** @type {WheelEvent} */ e) {
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
@@ -315,8 +296,6 @@ document.addEventListener("alpine:init", function (e) {
             const date = new Date(this.year, this.month + (e.deltaY < 0 ? -1 : 1), this.day, this.hour, this.minute);
             this.handleDateChange(date);
         },
-        reset() {},
-
         /**
          * @param {HTMLElement} el
          * @returns {Boolean}
@@ -344,16 +323,6 @@ document.addEventListener("alpine:init", function (e) {
             console.log(elementBottom, document.body.scrollHeight, window.scrollY + window.innerHeight);
 
             return true;
-        },
-        handleInput(/** @type {InputEvent} */ e) {
-            const reg = /[^\d\/]/g;
-            console.log(e, reg.test(e.data));
-            if (reg.test(e.data)) {
-                e.preventDefault();
-                return false;
-            }
-
-            return e.data;
         },
         parseInput(dateValue) {
             const reg = /[^\d\/]/g;
@@ -388,7 +357,7 @@ document.addEventListener("alpine:init", function (e) {
             }
 
             this.internalDate = new Date(newDate);
-            this.populateCalendarDays;
+            this.populateCalendarDays(this.internalDate);
         },
     }));
 });
