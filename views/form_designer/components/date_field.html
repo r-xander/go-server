@@ -3,9 +3,22 @@
     x-data="date_field(data.defaultValue)"
     class="relative"
 >
+    <input
+        type="text"
+        class="w-full pr-10"
+        :id="data.id"
+        :value="/*data.defaultValue ? data.defaultValue : ''*/ value"
+        :placeholder="data.placeholder"
+        :readonly="data.readonly || data.hidden"
+        x-ref="dateinput"
+        @change="$el.value === data.defaultValue ? data.defaultValue : '';"
+        @keydown.space.prevent="if (value === '') { setToday() } else { value = '' } ;"
+        @focus="value === '' && onDateChange(new Date()); showCalendar = true;"
+        @blur="showCalendar = false"
+    />
     <button
         class="absolute inset-y-0 right-0 flex items-center px-2.5 text-[#999]"
-        @click="value === '' && onDateChange(new Date()); showCalendar = true;"
+        @click="$refs.dateinput.focus()"
     >
         <svg
             viewBox="-1 -1 24 24"
@@ -16,23 +29,10 @@
             />
         </svg>
     </button>
-    <input
-        :id="data.id"
-        :value="/*data.defaultValue ? data.defaultValue : ''*/ value"
-        :placeholder="data.placeholder"
-        :readonly="data.readonly || data.hidden"
-        @change="$el.value === data.defaultValue ? data.defaultValue : '';"
-        @keydown.space.prevent="if (value === '') { setToday() } else { value = '' } ;"
-        @focus="value === '' && onDateChange(new Date()); showCalendar = true;"
-        type="text"
-        class="w-full pr-10"
-    />
     <div
         x-show="displayCalendar($el)"
         x-transition
         @pointerdown.stop
-        @click.window.outside="showCalendar = false"
-        @blur="showCalendar = false"
         class="absolute right-0 z-50 w-max flex flex-col text-sm items-center rounded shadow-lg border bg-white dark:bg-[#434343]"
     >
         <div
