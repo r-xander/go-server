@@ -3,6 +3,8 @@
     <div
         x-data="{
             data: initField('{{ . }}'),
+            hovering: false,
+            active: false,
             remove() {
                 removeElement($el);
                 removeFieldData(this.data.id);
@@ -10,34 +12,63 @@
         }"
         :id="data.id"
         form-field="{{ . }}"
-        class="p-3 rounded"
+        class="relative rounded"
     >
-        <div class="flex items-center justify-between mb-1 text-xs text-neutral-500 dark:text-white/60">
-            <div class="font-mono flex gap-3">
-                <span class="font-bold italic cursor-default select-none">
-                    {{ if eq . "text" }} Text Field {{ else if eq . "number" }} Number Field {{ else if eq . "select" }}
-                    Select Field {{ else if eq . "datetime" }} Date Field {{ end }}
-                </span>
-                <span
-                    x-show="data.hidden || data.readonly"
-                    x-text="data.hidden ? '[Hidden]' : data.readonly ? '[Readonly]' : ''"
-                    class="text-neutral-400 dark:text-white/40"
-                ></span>
-            </div>
-            {{ template "field_icons" }}
+        <!-- <div
+            x-show="hovering || active"
+            class="absolute left-0 right-0 bottom-[100%] h-5 flex items-center justify-between mb-1 text-xs text-neutral-500 dark:text-white/60"
+        > -->
+        <div
+            x-show="hovering || active"
+            class="absolute left-0 bottom-full font-mono flex gap-3"
+        >
+            <span class="font-bold italic cursor-default select-none bg-sky-500">
+                {{ if eq . "text" }} Text Field {{ else if eq . "number" }} Number Field {{ else if eq . "select" }}
+                Select Field {{ else if eq . "datetime" }} Date Field {{ end }}
+            </span>
+            <span
+                x-show="data.hidden || data.readonly"
+                x-text="data.hidden ? '[Hidden]' : data.readonly ? '[Readonly]' : ''"
+                class="text-neutral-400 dark:text-white/40"
+            ></span>
         </div>
+        <div
+            x-show="hovering || active"
+            class="absolute right-0 bottom-full bg-sky-500"
+            >{{ template "field_icons" }}</div
+        >
+        <!-- </div> -->
         <div
             :class="{ 'opacity-50': data.hidden, 'grid-cols-[3fr_4fr]': data.layout === 'inline'  }"
             class="grid gap-1 w-full items-center"
+            inert
         >
             <div class="flex gap-1 items-center">
-                <label x-text="data.label" :for="data.id" class="font-medium select-none"></label>
-                <span x-show="data.required" class="leading-4 font-semibold text-rose-500"> * </span>
+                <label
+                    x-show="data.includeLabel"
+                    x-text="data.label"
+                    :for="data.id"
+                    class="font-medium select-none"
+                ></label>
+                <span
+                    x-show="data.required"
+                    class="leading-4 font-semibold text-rose-500"
+                >
+                    *
+                </span>
             </div>
             {{ if eq . "text" }} {{ template "text_input" }} {{ else if eq . "number" }} {{ template "number_input" }}
             {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "datetime" }} {{ template
             "date_field" }} {{ end }}
         </div>
+        <div
+            class="absolute inset-0 border"
+            :class="{ 'border-sky-500': hovering || active, 'border-transparent': !hovering && !active, 'bg-sky-500/20': active }"
+            @pointerenter="hovering = true"
+            @pointerleave="hovering = false"
+            @click="active = true"
+            @click.outside="active = false"
+        ></div>
     </div>
 </template>
 {{ end }} {{ define "text_input" }}

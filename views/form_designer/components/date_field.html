@@ -14,8 +14,8 @@
         @change="$el.value === data.defaultValue ? data.defaultValue : '';"
         @keydown.space.prevent="if (value === '') { setToday() } else { value = '' } ;"
         @focus="value === '' && onDateChange(new Date()); showCalendar = true;"
-        @blur="showCalendar = false"
     />
+    <!-- @blur="showCalendar = false" -->
     <button
         class="absolute inset-y-0 right-0 flex items-center px-2.5 text-[#999]"
         @click="$refs.dateinput.focus()"

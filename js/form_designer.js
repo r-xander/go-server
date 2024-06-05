@@ -16,6 +16,7 @@ const defaults = {
         defaultValue: "",
         layout: "global",
         description: "",
+        includeLabel: true,
         required: false,
         readonly: false,
         hidden: false,
@@ -29,6 +30,7 @@ const defaults = {
         defaultValue: "",
         layout: "global",
         description: "",
+        includeLabel: true,
         required: false,
         readonly: false,
         hidden: false,
@@ -40,6 +42,7 @@ const defaults = {
         defaultValue: "",
         layout: "global",
         description: "",
+        includeLabel: true,
         required: false,
         readonly: false,
         hidden: false,
@@ -50,6 +53,7 @@ const defaults = {
         defaultValue: "",
         layout: "global",
         description: "",
+        includeLabel: true,
         required: false,
         readonly: false,
         hidden: false,
@@ -60,6 +64,7 @@ const defaults = {
         defaultValue: "",
         layout: "global",
         description: "",
+        includeLabel: true,
         required: false,
         readonly: false,
         hidden: false,
@@ -192,14 +197,16 @@ document.addEventListener("alpine:init", function (e) {
             date ??= new Date();
             this.handleDateChange(date);
 
-            this.value = this.internalDate.toLocaleString("default", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-            });
+            this.value = this.internalDate
+                .toLocaleString("default", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                })
+                .replace(",", "");
         },
         clearValue() {
             this.handleDateChange(new Date());
