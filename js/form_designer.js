@@ -388,6 +388,7 @@ function drag(e) {
 function drop(e) {
     e.preventDefault();
 
+    console.log(this);
     const section = /** @type {HTMLElement} */ (this);
     const templateId = e.dataTransfer.getData("text/plain");
     const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
@@ -467,6 +468,10 @@ function removeElement(el, duration = 150) {
     });
 }
 
+let sectionDragElement = null;
+let fieldDragElement = null;
+let dragging = false;
+
 document.addEventListener("DOMContentLoaded", function (e) {
     /************************************************/
     /*                                              */
@@ -494,10 +499,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
         scrollSpeed: 25,
         bubbleScroll: true,
 
+        onStart: function (evt) {
+            sectionDragElement = evt.item;
+            dragging = true;
+            console.log("onStart", evt);
+        },
         onMove: function (evt, originalEvt) {
             console.log("onMove:", evt);
         },
         onEnd: function (evt) {
+            dragging = false;
             console.log("onEnd:", evt);
         },
         onSort: function (evt) {
@@ -520,7 +531,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
         transition(section);
 
-        const fieldContainers = newSection.querySelectorAll("[data-section]");
+        const fieldContainers = newSection.querySelectorAll("[data-container]");
         for (let i = 0; i < fieldContainers.length; ++i) {
             const container = fieldContainers[i];
 
@@ -541,10 +552,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 scrollSpeed: 25,
                 bubbleScroll: true,
 
+                onStart: function (evt) {
+                    fieldDragElement = evt.item;
+                    dragging = true;
+                    console.log("onStart", evt);
+                },
                 onMove: function (evt, originalEvt) {
                     console.log("onMove:", evt);
                 },
                 onEnd: function (evt) {
+                    dragging = false;
                     console.log("onEnd:", evt);
                 },
                 onSort: function (evt) {
