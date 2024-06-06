@@ -121,7 +121,7 @@ document.addEventListener("alpine:init", function (e) {
 
             switch (data.type) {
                 case "text":
-                    this.editModalOpen = true;
+                    // this.editModalOpen = true;
                     break;
                 default:
                     console.log("unsupported field type: " + data.type);

@@ -26,7 +26,7 @@ module.exports = {
                 primary: colors.blue,
                 secondary: colors.slate,
                 "base-dark": "#171717",
-                "card-dark": "#2c2c2c",
+                "card-dark": "#262626",
                 "aux-dark": "#434343",
             },
         },
