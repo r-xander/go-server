@@ -429,8 +429,8 @@ select {
     [type="week"],
     select,
     textarea {
-        background-color: #363636;
-        border-color: #363636;
+        background-color: #2e2e2e;
+        border-color: #2e2e2e;
         color: #e3e3e3;
     }
 
@@ -473,10 +473,9 @@ select {
     [type="week"]:disabled,
     select:disabled,
     textarea:disabled {
-        background-color: #363636;
-        border-color: #363636;
-        color: #e3e3e3;
-        opacity: 50%;
+        background-color: #3e3e3e;
+        border-color: #3e3e3e;
+        color: #808080;
     }
 
     input::placeholder,
