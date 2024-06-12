@@ -43,15 +43,16 @@
             </div>
         </div>
         <div
-            class="absolute inset-0 border"
+            class="absolute inset-0 border transition-colors cursor-pointer"
             :class="{ 'border-sky-500': hovering || active, 'border-transparent': !hovering && !active, 'bg-sky-500/20': active }"
-            @pointerenter="hovering = !dragging && true"
+            @pointerenter="hovering = !dragging"
             @pointerleave="hovering = false"
             @click="active = true; editFieldData($data.data)"
             @click.outside="active = false"
         >
             <div
                 x-show="hovering || active"
+                x-transition
                 class="absolute -left-px bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500"
             >
                 <span class="font-bold italic cursor-default select-none">
@@ -67,6 +68,7 @@
             <div
                 x-data="{ consoleThis() { console.log($el) } }"
                 x-show="hovering || active"
+                x-transition
                 @pointerdown.stop
                 class="absolute -right-px bottom-full flex gap-1"
             >
