@@ -9,5 +9,6 @@
     { "name": "Contactor Odorant Sample Run Date", "filename": "query8" },
     { "name": "Asset Hierarchy Data", "filename": "query9" },
     { "name": "Add Work Order CSV Generator", "filename": "query10" },
-    { "name": "Previous 3 Years PM Records", "filename": "query11" }
+    { "name": "Previous 3 Years PM Records", "filename": "query11" },
+    { "name": "Previous 3 Years PM Work Orders (row_number)", "filename": "query12" }
 ]
