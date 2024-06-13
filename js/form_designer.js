@@ -92,14 +92,15 @@ document.addEventListener("alpine:init", function (e) {
         formName: "Test Form",
         formAcronym: "TF",
         currentFieldIndex: 1,
+        showNewFieldDropZone: false,
         fieldData: {},
-        setions: [],
+        sections: {},
 
         editData: {},
         editModalOpen: false,
 
         globalSettings: {
-            fieldLayout: "block",
+            fieldLayout: "inline",
             sectionLayout: "single",
         },
 
@@ -115,6 +116,17 @@ document.addEventListener("alpine:init", function (e) {
             this.fieldData[id] = data;
 
             return this.fieldData[id];
+        },
+        initSection() {
+            const id = this.formAcronym + "_section_" + (this.sections.length + 1);
+            const data = {
+                id,
+                fields: [],
+            };
+
+            this.sections[id] = data;
+
+            return this.sections[id];
         },
         editFieldData(data) {
             this.editData = data;
@@ -378,27 +390,6 @@ const sections = [];
 let fakeGhost = null;
 
 /**
- * @param {DragEvent} e
- */
-function drag(e) {
-    fakeGhost.style.translate = `${e.pageX}px ${e.pageY}px`;
-}
-
-/** @param {DragEvent} e */
-function drop(e) {
-    e.preventDefault();
-
-    console.log(this);
-    const section = /** @type {HTMLElement} */ (this);
-    const templateId = e.dataTransfer.getData("text/plain");
-    const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
-    const newEl = /** @type {HTMLElement} */ (document.importNode(template.content, true).firstElementChild);
-
-    section.appendChild(newEl);
-    transition(newEl);
-}
-
-/**
  * @param {HTMLElement & { animationDuration?: number}} el
  * @param {Number} duration
  */
@@ -470,7 +461,45 @@ function removeElement(el, duration = 150) {
 
 let sectionDragElement = null;
 let fieldDragElement = null;
-let dragging = false;
+let movingField = false;
+let addingField = false;
+
+/** @type {import("../types").Sortable.Options} */
+const containerSortableOptions = {
+    group: {
+        name: "fieldCont",
+        pull: true,
+        put: true,
+    },
+    animation: 150,
+    forceFallback: false,
+    supportPointer: true,
+
+    scroll: true,
+    forceAutoScrollFallback: true,
+    scrollSensitivity: 100,
+    scrollSpeed: 25,
+    bubbleScroll: true,
+
+    onStart: function (evt) {
+        fieldDragElement = evt.item;
+        movingField = true;
+        console.log("onStart", evt);
+    },
+    onMove: function (evt, originalEvt) {
+        console.log("onMove:", evt);
+    },
+    onEnd: function (evt) {
+        movingField = false;
+        console.log("onEnd:", evt);
+    },
+    onSort: function (evt) {
+        console.log("onSort:", evt);
+    },
+    setData: function (dataTransfer, dragEl) {
+        dataTransfer.setDragImage(new Image(), 0, 0);
+    },
+};
 
 document.addEventListener("DOMContentLoaded", function (e) {
     /************************************************/
@@ -482,7 +511,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
     const formContainer = /** @type {HTMLDivElement} */ (document.getElementById("form_container"));
 
     /** @type {import("../types").Sortable.Options} */
-    const sortableOptions = {
+    const sectionSortableOptions = {
         group: {
             name: "form",
             pull: false,
@@ -501,14 +530,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
         onStart: function (evt) {
             sectionDragElement = evt.item;
-            dragging = true;
+            movingField = true;
             console.log("onStart", evt);
         },
         onMove: function (evt, originalEvt) {
             console.log("onMove:", evt);
         },
         onEnd: function (evt) {
-            dragging = false;
+            movingField = false;
             console.log("onEnd:", evt);
         },
         onSort: function (evt) {
@@ -519,9 +548,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
         },
     };
 
-    /** @type {import("../types").Sortable} */
     // @ts-ignore
-    const formSortable = new Sortable(formContainer, sortableOptions);
+    new Sortable(formContainer, sectionSortableOptions);
 
     addSectionBtn.addEventListener("click", (e) => {
         const sectionTemplate = /** @type {HTMLTemplateElement} */ (document.getElementById("section-template"));
@@ -531,53 +559,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
         transition(section);
 
-        const fieldContainers = newSection.querySelectorAll("[data-container]");
-        for (let i = 0; i < fieldContainers.length; ++i) {
-            const container = fieldContainers[i];
+        const container = newSection.querySelector("[data-section]");
+        // for (let i = 0; i < fieldContainers.length; ++i) {
+        // const container = fieldContainers[i];
 
-            /** @type {import("../types").Sortable.Options} */
-            const sortableOptions = {
-                group: {
-                    name: "fieldCont",
-                    pull: true,
-                    put: true,
-                },
-                animation: 150,
-                forceFallback: false,
-                supportPointer: true,
-
-                scroll: true,
-                forceAutoScrollFallback: true,
-                scrollSensitivity: 100,
-                scrollSpeed: 25,
-                bubbleScroll: true,
-
-                onStart: function (evt) {
-                    fieldDragElement = evt.item;
-                    dragging = true;
-                    console.log("onStart", evt);
-                },
-                onMove: function (evt, originalEvt) {
-                    console.log("onMove:", evt);
-                },
-                onEnd: function (evt) {
-                    dragging = false;
-                    console.log("onEnd:", evt);
-                },
-                onSort: function (evt) {
-                    console.log("onSort:", evt);
-                },
-                setData: function (dataTransfer, dragEl) {
-                    dataTransfer.setDragImage(new Image(), 0, 0);
-                },
-            };
-
-            /** @type {import("../types").Sortable} */
-            // @ts-ignore
-            let sortable = new Sortable(container, sortableOptions);
-            fieldContSortables.push(sortable);
-            fieldConts.push(container);
-        }
+        /** @type {import("../types").Sortable} */
+        // @ts-ignore
+        let sortable = new Sortable(container, containerSortableOptions);
+        fieldContSortables.push(sortable);
+        fieldConts.push(container);
+        // }
 
         sections.push(newSection);
         setTimeout(() => newSection.scrollIntoView({ behavior: "smooth", block: "center" }), 200);
@@ -589,117 +580,43 @@ document.addEventListener("DOMContentLoaded", function (e) {
     /*                                              */
     /************************************************/
 
-    /** @type {HTMLElement} */
-    let dragElement = null;
-
-    /** @type {HTMLElement} */
-    let tempEl = null;
-
-    /** @type {HTMLElement} */
-    let tempPreviousSibling = null;
-
-    /** @type {Element} */
-    let currSection = null;
-    let animating = false;
-    const animationDuration = 250;
-
     /** @param {DragEvent} e */
     function dragOver(e) {
         e.preventDefault();
     }
 
-    // /** @param {DragEvent} e */
-    // function dragOver(e) {
-    //     e.preventDefault();
+    /** @param {DragEvent} e */
+    function drop(e) {
+        e.preventDefault();
 
-    //     const dropEl = /** @type {HTMLElement} */ (this);
-    //     const lastChild = dropEl.lastElementChild;
+        const section = /** @type {HTMLElement} */ (this);
+        const templateId = e.dataTransfer.getData("text/plain");
+        const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
+        const newEl = /** @type {HTMLElement} */ (document.importNode(template.content, true).firstElementChild);
 
-    //     const target = /** @type {HTMLElement} */ (e.target);
-    //     const section = target.closest("[data-section]");
-    //     const formField = target.closest("[form-field]");
-    //     const childCount = section.childElementCount;
-    //     const children = Array.from(section.children);
-
-    //     if ((childCount > 0 && !formField) || animating) {
-    //         return;
-    //     }
-
-    //     const nearest = children.filter((el) => el === formField)[0];
-    //     const near = document.elementFromPoint(e.clientX, e.clientY);
-    //     // console.log(near);
-
-    //     animating = true;
-    //     setTimeout(() => {
-    //         if (childCount === 0) {
-    //             section.append(tempEl);
-    //         } else if (nearest.previousElementSibling === tempEl) {
-    //             formField.insertAdjacentElement("afterend", tempEl);
-    //         } else {
-    //             formField.insertAdjacentElement("beforebegin", tempEl);
-    //         }
-
-    //         transition(tempEl, "vertical");
-
-    //         animating = false;
-    //         // formField.classList.toggle("[&_*]:pointer-events-none");
-    //         console.log("dragging over end");
-    //     }, animationDuration);
-    // }
-
-    // /** @param {DragEvent} e */
-    // function dragEnter(e) {
-    //     currSection = /** @type {HTMLElement} */ (this);
-    //     const childArray = Array.from(currSection.children);
-    //     childArray.forEach((x) => x.classList.toggle("[&_*]:pointer-events-none"));
-    // }
-
-    // /** @param {DragEvent} e */
-    // function dragLeave(e) {
-    //     const childArray = Array.from(currSection.children);
-    //     childArray.forEach((x) => x.classList.toggle("[&_*]:pointer-events-none"));
-    //     currSection = null;
-    // }
+        section.appendChild(newEl);
+        transition(newEl);
+    }
 
     const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[dd-template]"));
 
     for (const field of newFields) {
         field.addEventListener("dragstart", (ev) => {
-            dragging = true;
+            addingField = true;
             for (const container of fieldConts) {
                 container.addEventListener("dragover", dragOver);
-                // container.addEventListener("dragenter", dragEnter);
-                // container.addEventListener("dragleave", dragLeave);
                 container.addEventListener("drop", drop);
             }
 
             /** @type {string} */
             // @ts-ignore
             const templateId = ev.target.getAttribute("dd-template");
-
-            tempEl = document.createElement("div");
-            tempEl.classList.add(
-                "flex",
-                "items-center",
-                "justify-center",
-                "h-20",
-                "gap-4",
-                "rounded",
-                "border",
-                "border-dashed",
-                "border-neutral-600"
-            );
-            tempEl.innerHTML = field.innerHTML;
-
             ev.dataTransfer.setData("text/plain", templateId);
-            dragElement = field;
         });
         field.addEventListener("dragend", (ev) => {
-            dragging = false;
+            addingField = false;
             for (const container of fieldConts) {
                 container.removeEventListener("dragover", dragOver);
-                // container.removeEventListener("dragenter", dragEnter);
-                // container.removeEventListener("dragleave", dragLeave);
                 container.removeEventListener("drop", drop);
             }
         });

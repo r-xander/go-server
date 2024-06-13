@@ -2,14 +2,14 @@
 <template id="{{ . }}">
     <div
         x-data="{
-            data: initField('{{ . }}'),
+            data: addField('{{ . }}'),
             hovering: false,
             active: false,
             dropTop: false,
             dropBottom: false,
             remove() {
                 removeElement($el);
-                removeFieldData(this.data.id);
+                removeField(this.data.id);
             },
         }"
         :id="data.id"
@@ -37,7 +37,7 @@
         <div
             class="absolute inset-0 border transition-colors cursor-pointer"
             :class="{ 'border-sky-500': hovering || active, 'border-transparent': !hovering && !active, 'bg-sky-500/20': active }"
-            @pointerenter="hovering = !dragging"
+            @pointerenter="hovering = !movingField"
             @pointerleave="hovering = false"
             @click="active = true; editFieldData($data.data)"
             @click.outside="active = false"
@@ -111,37 +111,31 @@
             </div>
         </div>
         <div
-            x-show="dragging"
-            @pointerenter="dropTop = true"
-            @pointerleave="dropTop = false"
-            class="absolute -top-2 left-0 right-0 bottom-1/2"
+            x-show="showNewFieldDropZone"
+            @mouseenter="dropTop = true"
+            @mouseleave="dropTop = false"
+            @drop="dropTop = false"
+            class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white"
         >
             <div
                 x-show="dropTop"
-                class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 bg-sky-500"
+                class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500"
             >
-                <div
-                    class="absolute top-1/2 -translate-y-1/2 px-2 pt-0.5 pb-1 text-xs rounded-full text-white bg-sky-500"
-                >
-                    Drop Item Here
-                </div>
+                <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
             </div>
         </div>
         <div
-            x-show="dragging"
-            @pointerenter="dropBottom = true"
-            @pointerleave="dropBottom = false"
-            class="absolute top-1/2 left-0 right-0 -bottom-2"
+            x-show="showNewFieldDropZone"
+            @mouseenter="dropBottom = true"
+            @mouseleave="dropBottom = false"
+            @drop="dropBottom = false"
+            class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white"
         >
             <div
                 x-show="dropBottom"
                 class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500"
             >
-                <div
-                    class="absolute top-1/2 -translate-y-1/2 px-2 pt-0.5 pb-1 text-xs rounded-full text-white bg-sky-500"
-                >
-                    Drop Item Here
-                </div>
+                <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
             </div>
         </div>
     </div>
