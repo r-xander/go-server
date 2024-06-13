@@ -5,6 +5,8 @@
             data: initField('{{ . }}'),
             hovering: false,
             active: false,
+            dropTop: false,
+            dropBottom: false,
             remove() {
                 removeElement($el);
                 removeFieldData(this.data.id);
@@ -124,6 +126,40 @@
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div
+            x-show="dragging"
+            @pointerenter="dropTop = true"
+            @pointerleave="dropTop = false"
+            class="absolute -top-2 left-0 right-0 bottom-1/2"
+        >
+            <div
+                x-show="dropTop"
+                class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 bg-sky-500"
+            >
+                <div
+                    class="absolute top-1/2 -translate-y-1/2 px-2 pt-0.5 pb-1 text-xs rounded-full text-white bg-sky-500"
+                >
+                    Drop Item Here
+                </div>
+            </div>
+        </div>
+        <div
+            x-show="dragging"
+            @pointerenter="dropBottom = true"
+            @pointerleave="dropBottom = false"
+            class="absolute top-1/2 left-0 right-0 -bottom-2"
+        >
+            <div
+                x-show="dropBottom"
+                class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500"
+            >
+                <div
+                    class="absolute top-1/2 -translate-y-1/2 px-2 pt-0.5 pb-1 text-xs rounded-full text-white bg-sky-500"
+                >
+                    Drop Item Here
                 </div>
             </div>
         </div>
