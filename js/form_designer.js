@@ -665,6 +665,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
     for (const field of newFields) {
         field.addEventListener("dragstart", (ev) => {
+            dragging = true;
             for (const container of fieldConts) {
                 container.addEventListener("dragover", dragOver);
                 // container.addEventListener("dragenter", dragEnter);
@@ -694,6 +695,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             dragElement = field;
         });
         field.addEventListener("dragend", (ev) => {
+            dragging = false;
             for (const container of fieldConts) {
                 container.removeEventListener("dragover", dragOver);
                 // container.removeEventListener("dragenter", dragEnter);
