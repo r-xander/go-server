@@ -383,6 +383,7 @@ document.addEventListener("alpine:init", function (e) {
 
 const fieldContSortables = [];
 const sectionSortables = [];
+/** @type { Element[] } */
 const fieldConts = [];
 const sections = [];
 
@@ -398,6 +399,7 @@ function transition(el, duration = 150) {
     const animationDuration = el.animationDuration ?? duration;
     el.animationDuration ??= duration;
 
+    console.log(rect);
     el.style.overflow = "hidden";
     el.animate(
         [
@@ -427,12 +429,12 @@ function transition(el, duration = 150) {
  * @param {HTMLElement & { animationDuration?: number}} el
  * @param {Number} duration
  */
-function removeElement(el, duration = 150) {
+async function removeElement(el, duration = 150) {
     const rect = el.getBoundingClientRect();
     const animationDuration = el.animationDuration ?? duration;
 
     el.style.overflow = "hidden";
-    el.animate(
+    const animation = el.animate(
         [
             {
                 height: `${rect.height}px`,
@@ -453,9 +455,14 @@ function removeElement(el, duration = 150) {
             duration: animationDuration,
             easing: "cubic-bezier(0.4, 0, 1, 1)",
         }
-    ).addEventListener("finish", () => {
-        el.style.overflow = "";
-        el.remove();
+    );
+
+    return new Promise((res, _) => {
+        animation.addEventListener("finish", () => {
+            el.style.overflow = "";
+            el.remove();
+            res();
+        });
     });
 }
 
@@ -471,6 +478,7 @@ const containerSortableOptions = {
         pull: true,
         put: true,
     },
+    filter: "[no-drag]",
     animation: 150,
     forceFallback: false,
     supportPointer: true,
@@ -501,6 +509,36 @@ const containerSortableOptions = {
     },
 };
 
+/************************************************/
+/*                                              */
+/*             Drag & Drop Handlers             */
+/*                                              */
+/************************************************/
+
+/** @param {DragEvent} e */
+function dragOver(e) {
+    e.preventDefault();
+}
+
+/** @param {DragEvent} e */
+function drop(e) {
+    e.preventDefault();
+    const target = /** @type {HTMLElement} */ (e.target);
+    const section = /** @type {HTMLElement} */ (this);
+
+    const templateId = e.dataTransfer.getData("text/plain");
+    const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
+    const newEl = /** @type {HTMLElement} */ (document.importNode(template.content, true).firstElementChild);
+
+    if (target === section) {
+        section.previousElementSibling.appendChild(newEl);
+    } else {
+        const insertLocation = /** @type {InsertPosition} */ (target.dataset.insertLocation);
+        target.parentElement.insertAdjacentElement(insertLocation, newEl);
+    }
+    transition(newEl);
+}
+
 document.addEventListener("DOMContentLoaded", function (e) {
     /************************************************/
     /*                                              */
@@ -517,6 +555,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             pull: false,
             put: false,
         },
+        filter: ".no-drag",
         animation: 150,
         forceFallback: false,
         supportPointer: true,
@@ -574,38 +613,17 @@ document.addEventListener("DOMContentLoaded", function (e) {
         setTimeout(() => newSection.scrollIntoView({ behavior: "smooth", block: "center" }), 200);
     });
 
-    /************************************************/
-    /*                                              */
-    /*             Drag & Drop Handlers             */
-    /*                                              */
-    /************************************************/
-
-    /** @param {DragEvent} e */
-    function dragOver(e) {
-        e.preventDefault();
-    }
-
-    /** @param {DragEvent} e */
-    function drop(e) {
-        e.preventDefault();
-
-        const section = /** @type {HTMLElement} */ (this);
-        const templateId = e.dataTransfer.getData("text/plain");
-        const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
-        const newEl = /** @type {HTMLElement} */ (document.importNode(template.content, true).firstElementChild);
-
-        section.appendChild(newEl);
-        transition(newEl);
-    }
-
     const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[dd-template]"));
 
     for (const field of newFields) {
         field.addEventListener("dragstart", (ev) => {
             addingField = true;
             for (const container of fieldConts) {
+                const emptyDropZone = container.nextElementSibling;
                 container.addEventListener("dragover", dragOver);
+                emptyDropZone.addEventListener("dragover", dragOver);
                 container.addEventListener("drop", drop);
+                emptyDropZone.addEventListener("drop", drop);
             }
 
             /** @type {string} */
@@ -616,8 +634,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
         field.addEventListener("dragend", (ev) => {
             addingField = false;
             for (const container of fieldConts) {
+                const emptyDropZone = container.nextElementSibling;
                 container.removeEventListener("dragover", dragOver);
+                emptyDropZone.removeEventListener("dragover", dragOver);
                 container.removeEventListener("drop", drop);
+                emptyDropZone.removeEventListener("drop", drop);
             }
         });
     }
