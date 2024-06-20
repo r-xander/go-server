@@ -1,13 +1,13 @@
 {{ define "text_field_edit" }}
 <div
     x-data="editData"
-    x-show="editModalOpen"
+    x-show="false"
     x-cloak
     x-transition.opacity
     class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-500/40 dark:bg-base-dark/40"
 >
     <div
-        x-show="editModalOpen"
+        x-show="false"
         x-transition
         class="flex flex-col w-3/4 min-w-96 max-w-2xl h-3/4 items-start text-sm overflow-hidden rounded-sm shadow-xl bg-white dark:bg-card-dark"
     >
@@ -17,10 +17,7 @@
                 class="absolute right-3 w-6 h-6 p-1 cursor-pointer transition rounded text-neutral-500 hover:text-opacity-70 dark:text-neutral-300"
                 @click="editModalOpen = false"
             >
-                <svg
-                    viewBox="0 0 1024 1024"
-                    class="fill-current [fill-rule:evenodd]"
-                >
+                <svg viewBox="0 0 1024 1024" class="fill-current [fill-rule:evenodd]">
                     <path
                         d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
                     />
@@ -40,10 +37,7 @@
                 <div
                     class="grid justify-center w-28 p-5 mx-auto rounded text-[#92949d] border bg-white border-neutral-200 dark:bg-[#3c3c3c] dark:border-aux-dark"
                 >
-                    <svg
-                        viewBox="0 3 16 10"
-                        class="w-12 fill-current"
-                    >
+                    <svg viewBox="0 3 16 10" class="w-12 fill-current">
                         <path
                             d="M1.226 10.88H0l2.056-6.26h1.42l2.047 6.26h-1.29l-.48-1.61H1.707l-.48 1.61ZM2.76 5.818h-.054l-.75 2.532H3.51zm3.217 5.062V4.62h2.56c1.09 0 1.808.582 1.808 1.54 0 .762-.444 1.22-1.05 1.372v.055c.736.074 1.365.587 1.365 1.528 0 1.119-.89 1.766-2.133 1.766zM7.18 5.55v1.675h.8c.812 0 1.171-.308 1.171-.853 0-.51-.328-.822-.898-.822zm0 2.537V9.95h.903c.951 0 1.342-.312 1.342-.909 0-.591-.382-.954-1.095-.954zm5.089-.711v.775c0 1.156.49 1.803 1.347 1.803.705 0 1.163-.454 1.212-1.096H16v.12C15.942 10.173 14.95 11 13.607 11c-1.648 0-2.573-1.073-2.573-2.849v-.78c0-1.775.934-2.871 2.573-2.871 1.347 0 2.34.849 2.393 2.087v.115h-1.172c-.05-.665-.516-1.156-1.212-1.156-.849 0-1.347.67-1.347 1.83"
                         />
@@ -51,72 +45,28 @@
                     <span class="font-semibold text-center">Text</span>
                 </div>
                 <div class="grid gap-3">
-                    <label
-                        for="required"
-                        class="flex items-center gap-3"
-                    >
-                        <input
-                            x-model="editData.required"
-                            type="checkbox"
-                            name="required"
-                            id="required"
-                        />Required
+                    <label for="required" class="flex items-center gap-3">
+                        <input x-model="editData.required" type="checkbox" name="required" id="required" />Required
                     </label>
-                    <label
-                        for="readonly"
-                        class="flex items-center gap-3"
-                    >
-                        <input
-                            x-model="editData.readonly"
-                            type="checkbox"
-                            name="readonly"
-                            id="readonly"
-                        />Read Only
+                    <label for="readonly" class="flex items-center gap-3">
+                        <input x-model="editData.readonly" type="checkbox" name="readonly" id="readonly" />Read Only
                     </label>
-                    <label
-                        for="hidden"
-                        class="flex items-center gap-3"
-                    >
-                        <input
-                            x-model="editData.hidden"
-                            type="checkbox"
-                            name="hidden"
-                            id="hidden"
-                        />Hidden
+                    <label for="hidden" class="flex items-center gap-3">
+                        <input x-model="editData.hidden" type="checkbox" name="hidden" id="hidden" />Hidden
                     </label>
-                    <label
-                        for="readonly"
-                        class="flex items-center gap-3"
-                    >
-                        <input
-                            x-model="editData.readonly"
-                            type="checkbox"
-                            name="readonly"
-                            id="readonly"
-                        />Include Label
+                    <label for="readonly" class="flex items-center gap-3">
+                        <input x-model="editData.readonly" type="checkbox" name="readonly" id="readonly" />Include Label
                     </label>
                 </div>
             </div>
             <div class="grow flex flex-col p-4 gap-4 overflow-y-auto [scrollbar-gutter:stable]">
                 <div class="grid gap-1">
                     <label for="label">ID</label>
-                    <input
-                        :value="editData.id"
-                        type="text"
-                        name="id"
-                        id="id"
-                        disabled
-                    />
+                    <input :value="editData.id" type="text" name="id" id="id" disabled />
                 </div>
                 <div class="grid gap-1">
                     <label for="label">Label</label>
-                    <input
-                        x-model="editData.label"
-                        type="text"
-                        name="label"
-                        id="label"
-                        placeholder="Label..."
-                    />
+                    <input x-model="editData.label" type="text" name="label" id="label" placeholder="Label..." />
                 </div>
                 <div class="grid gap-1">
                     <label for="placeholder">Placeholder</label>
@@ -162,12 +112,7 @@
                 </div>
                 <div class="grid gap-1">
                     <label for="layout">Layout</label>
-                    <select
-                        x-model="editData.layout"
-                        type="text"
-                        name="layout"
-                        id="layout"
-                    >
+                    <select x-model="editData.layout" type="text" name="layout" id="layout">
                         <option value="global">Form Setting</option>
                         <option value="inline">Inline</option>
                         <option value="block">Block</option>

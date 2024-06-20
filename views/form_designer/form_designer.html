@@ -113,8 +113,9 @@
                 </div>
             </div>
             <div
+                x-show="editModalOpen"
                 class="sticky top-[53px] flex flex-col w-[max(24rem,20%)] min-w-48 h-[calc(100vh-53px)] font-semibold overflow-hidden select-none border-l border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
-                @click.stop
+                @pointerdown.stop
             >
                 <div class="relative border-b border-neutral-200 dark:border-aux-dark">
                     <button
@@ -211,7 +212,6 @@
                         <div class="grid gap-1">
                             <label for="layout">Layout</label>
                             <select x-model="editData.layout" type="text" name="layout" id="layout">
-                                <option value="global">Form Setting</option>
                                 <option value="inline">Inline</option>
                                 <option value="block">Block</option>
                             </select>

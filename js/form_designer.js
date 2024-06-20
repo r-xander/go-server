@@ -14,7 +14,7 @@ const defaults = {
         minLenth: 0,
         maxLength: 2000,
         defaultValue: "",
-        layout: "global",
+        layout: "inline",
         description: "",
         includeLabel: true,
         required: false,
@@ -28,7 +28,7 @@ const defaults = {
         min: 0,
         max: 1000,
         defaultValue: "",
-        layout: "global",
+        layout: "inline",
         description: "",
         includeLabel: true,
         required: false,
@@ -40,7 +40,7 @@ const defaults = {
         label: "Select Input",
         options: [],
         defaultValue: "",
-        layout: "global",
+        layout: "inline",
         description: "",
         includeLabel: true,
         required: false,
@@ -51,7 +51,7 @@ const defaults = {
         type: "date",
         label: "Date Input",
         defaultValue: "",
-        layout: "global",
+        layout: "inline",
         description: "",
         includeLabel: true,
         required: false,
@@ -62,7 +62,7 @@ const defaults = {
         type: "datetime",
         label: "Date/Time Input",
         defaultValue: "",
-        layout: "global",
+        layout: "inline",
         description: "",
         includeLabel: true,
         required: false,
@@ -93,16 +93,12 @@ document.addEventListener("alpine:init", function (e) {
         formAcronym: "TF",
         currentFieldIndex: 1,
         showNewFieldDropZone: false,
+        activeElement: null,
         fieldData: {},
         sections: {},
 
         editData: {},
         editModalOpen: false,
-
-        globalSettings: {
-            fieldLayout: "block",
-            sectionLayout: "single",
-        },
 
         getId() {
             // @ts-ignore
@@ -131,9 +127,9 @@ document.addEventListener("alpine:init", function (e) {
         editFieldData(data) {
             this.editData = data;
 
+            this.editModalOpen = true;
             switch (data.type) {
                 case "text":
-                    // this.editModalOpen = true;
                     break;
                 default:
                     console.log("unsupported field type: " + data.type);
