@@ -100,7 +100,7 @@ document.addEventListener("alpine:init", function (e) {
         editModalOpen: false,
 
         globalSettings: {
-            fieldLayout: "inline",
+            fieldLayout: "block",
             sectionLayout: "single",
         },
 
@@ -404,7 +404,7 @@ function transition(el, duration = 150) {
     el.animate(
         [
             {
-                height: "0px",
+                maxHeight: "0px",
                 opacity: 0,
                 paddingBlock: "0px",
                 marginBlock: "0px",
@@ -414,7 +414,7 @@ function transition(el, duration = 150) {
                 offset: 0.7,
             },
             {
-                height: `${rect.height}px`,
+                maxHeight: `${rect.height}px`,
                 opacity: 1,
             },
         ],
