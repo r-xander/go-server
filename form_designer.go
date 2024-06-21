@@ -10,7 +10,7 @@ func formDesignerIndex(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.New("index.html")
 	var err error
 
-	tmpl, err = tmpl.ParseFiles("views/index.html", "views/form_designer/form_designer.html")
+	tmpl, err = tmpl.ParseFiles("views/index.html", "views/nav.html", "views/form_designer/form_designer.html")
 	if err != nil {
 		fmt.Printf("[ERROR]: Form designer template parsing error: %v\n", err)
 	}

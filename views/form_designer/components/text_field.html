@@ -18,7 +18,7 @@
         class="relative rounded"
     >
         <div
-            :class="{ 'opacity-50': data.hidden, 'grid-cols-[3fr_4fr]': data.layout === 'inline' }"
+            :class="{ 'opacity-50': data.hidden, 'grid-cols-[3fr_4fr]': data.layout === 'inline' && data.includeLabel }"
             class="grid gap-1 w-full items-center"
         >
             <div x-show="data.includeLabel" class="flex gap-1 items-center">
