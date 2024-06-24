@@ -1,5 +1,224 @@
 // @ts-check
 
+const fieldContSortables = [];
+const sectionSortables = [];
+/** @type { Element[] } */
+const fieldConts = [];
+
+/** @type {HTMLElement} */
+let fakeGhost = null;
+
+/**
+ * @param {HTMLElement & { animationDuration?: number}} el
+ * @param {Number} duration
+ */
+function transition(el, duration = 150) {
+    const rect = el.getBoundingClientRect();
+    const animationDuration = el.animationDuration ?? duration;
+    el.animationDuration ??= duration;
+
+    console.log(rect);
+    el.style.overflow = "hidden";
+    el.animate(
+        [
+            {
+                maxHeight: "0px",
+                opacity: 0,
+                paddingBlock: "0px",
+                marginBlock: "0px",
+            },
+            {
+                opacity: 0,
+                offset: 0.7,
+            },
+            {
+                maxHeight: `${rect.height}px`,
+                opacity: 1,
+            },
+        ],
+        {
+            duration: animationDuration,
+            easing: "cubic-bezier(0, 0, 0.2, 1)",
+        }
+    ).addEventListener("finish", () => (el.style.overflow = ""));
+}
+
+/**
+ * @param {HTMLElement & { animationDuration?: number}} el
+ * @param {Number} duration
+ */
+async function removeElement(el, duration = 150) {
+    const rect = el.getBoundingClientRect();
+    const animationDuration = el.animationDuration ?? duration;
+
+    el.style.overflow = "hidden";
+    const animation = el.animate(
+        [
+            {
+                height: `${rect.height}px`,
+                opacity: 1,
+            },
+            {
+                opacity: 0,
+                offset: 0.3,
+            },
+            {
+                height: "0px",
+                opacity: 0,
+                paddingBlock: "0px",
+                marginBlock: "0px",
+            },
+        ],
+        {
+            duration: animationDuration,
+            easing: "cubic-bezier(0.4, 0, 1, 1)",
+        }
+    );
+
+    return new Promise((res, _) => {
+        animation.addEventListener("finish", () => {
+            el.style.overflow = "";
+            el.remove();
+            res();
+        });
+    });
+}
+
+let sectionDragElement = null;
+let fieldDragElement = null;
+let movingField = false;
+let addingField = false;
+
+/************************************************/
+/*                                              */
+/*             Drag & Drop Handlers             */
+/*                                              */
+/************************************************/
+
+/** @param {DragEvent} e */
+function dragOver(e) {
+    e.preventDefault();
+}
+
+/**
+ *
+ * @param {DragEvent} e
+ * @param {HTMLElement} el
+ */
+function drop(e, el) {
+    e.preventDefault();
+    const target = /** @type {HTMLElement} */ (e.target);
+
+    const templateId = e.dataTransfer.getData("text/plain");
+    const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
+    const newEl = /** @type {HTMLElement} */ (document.importNode(template.content, true).firstElementChild);
+
+    if (target === el) {
+        el.previousElementSibling.appendChild(newEl);
+    } else {
+        const insertLocation = /** @type {InsertPosition} */ (target.dataset.insertLocation);
+        target.parentElement.insertAdjacentElement(insertLocation, newEl);
+    }
+    transition(newEl);
+}
+
+/** @param {DragEvent} e */
+function dragStart(e) {
+    /** @type {string} */
+    // @ts-ignore
+    const templateId = e.target.getAttribute("dd-template");
+    e.dataTransfer.setData("text/plain", templateId);
+}
+
+document.addEventListener("DOMContentLoaded", function (e) {
+    /************************************************/
+    /*                                              */
+    /*               Sortabler Config               */
+    /*                                              */
+    /************************************************/
+    const formContainer = /** @type {HTMLDivElement} */ (document.getElementById("form_container"));
+
+    /** @type {import("../types").Sortable.Options} */
+    const formContainerSortableOptions = {
+        group: { name: "form", pull: false, put: false },
+        animation: 150,
+        forceFallback: false,
+        supportPointer: true,
+        swapThreshold: 0.25,
+
+        scroll: true,
+        forceAutoScrollFallback: true,
+        scrollSensitivity: 100,
+        scrollSpeed: 25,
+        bubbleScroll: true,
+
+        onStart: function (evt) {
+            sectionDragElement = evt.item;
+            movingField = true;
+        },
+        onEnd: function (evt) {
+            movingField = false;
+        },
+        setData: function (dataTransfer, dragEl) {
+            dataTransfer.setDragImage(new Image(), 0, 0);
+        },
+    };
+
+    // @ts-ignore
+    new Sortable(formContainer, formContainerSortableOptions);
+
+    // const addSectionBtn = document.getElementById("add-section-button");
+    // addSectionBtn.addEventListener("click", (e) => {
+    //     const sectionTemplate = /** @type {HTMLTemplateElement} */ (document.getElementById("section-template"));
+    //     const sectionDocFrag = /** @type {DocumentFragment} */ (sectionTemplate.content.cloneNode(true));
+    //     const section = /** @type {HTMLElement} */ (sectionDocFrag.firstElementChild);
+    //     const newSection = formContainer.insertAdjacentElement("beforeend", section);
+
+    //     transition(section);
+
+    //     const container = newSection.querySelector("[data-section]");
+
+    //     /** @type {import("../types").Sortable} */
+    //     // @ts-ignore
+    //     let sortable = new Sortable(container, containerSortableOptions);
+    //     fieldContSortables.push(sortable);
+    //     fieldConts.push(container);
+
+    //     sections.push(newSection);
+    //     setTimeout(() => newSection.scrollIntoView({ behavior: "smooth", block: "center" }), 200);
+    // });
+
+    // const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[dd-template]"));
+
+    // for (const field of newFields) {
+    //     field.addEventListener("dragstart", (ev) => {
+    //         addingField = true;
+    //         for (const container of fieldConts) {
+    //             const emptyDropZone = container.nextElementSibling;
+    //             container.addEventListener("dragover", dragOver);
+    //             emptyDropZone.addEventListener("dragover", dragOver);
+    //             container.addEventListener("drop", drop);
+    //             emptyDropZone.addEventListener("drop", drop);
+    //         }
+
+    //         /** @type {string} */
+    //         // @ts-ignore
+    //         const templateId = ev.target.getAttribute("dd-template");
+    //         ev.dataTransfer.setData("text/plain", templateId);
+    //     });
+    //     field.addEventListener("dragend", (ev) => {
+    //         addingField = false;
+    //         for (const container of fieldConts) {
+    //             const emptyDropZone = container.nextElementSibling;
+    //             container.removeEventListener("dragover", dragOver);
+    //             emptyDropZone.removeEventListener("dragover", dragOver);
+    //             container.removeEventListener("drop", drop);
+    //             emptyDropZone.removeEventListener("drop", drop);
+    //         }
+    //     });
+    // }
+});
+
 /************************************************/
 /*                                              */
 /*            Alpine Data & Handlers            */
@@ -71,6 +290,34 @@ const defaults = {
     },
 };
 
+/** @type {import("../types").Sortable.Options} */
+const containerSortableOptions = {
+    group: { name: "fieldCont", pull: true, put: true },
+    animation: 150,
+    forceFallback: false,
+    supportPointer: true,
+
+    scroll: true,
+    forceAutoScrollFallback: true,
+    scrollSensitivity: 100,
+    scrollSpeed: 25,
+    bubbleScroll: true,
+
+    onStart: function (evt) {
+        fieldDragElement = evt.item;
+        movingField = true;
+    },
+    onMove: function (evt, originalEvt) {
+        // console.log(this);
+    },
+    onEnd: function (evt) {
+        movingField = false;
+    },
+    setData: function (dataTransfer, dragEl) {
+        dataTransfer.setDragImage(new Image(), 0, 0);
+    },
+};
+
 /**
  *
  * @param {HTMLElement} el
@@ -92,8 +339,12 @@ document.addEventListener("alpine:init", function (e) {
         formName: "Test Form",
         formAcronym: "TF",
         currentFieldIndex: 1,
+        currentSectionIndex: 1,
         showNewFieldDropZone: false,
         activeElement: null,
+        addingField: false,
+        movingField: false,
+        lastMoveSectionId: null,
         fieldData: {},
         sections: {},
 
@@ -113,8 +364,10 @@ document.addEventListener("alpine:init", function (e) {
 
             return this.fieldData[id];
         },
-        initSection() {
-            const id = this.formAcronym + "_section_" + (this.sections.length + 1);
+        initSection(/** @type {HTMLElement} */ el) {
+            // @ts-ignore
+            const id = this.formAcronym + "_section_" + this.currentSectionIndex.toString().padStart(5, "0");
+            this.currentSectionIndex++;
             const data = {
                 id,
                 fields: [],
@@ -123,6 +376,48 @@ document.addEventListener("alpine:init", function (e) {
             this.sections[id] = data;
 
             return this.sections[id];
+        },
+        /**
+         * @param {string} fromId
+         * @param {string} toId
+         * @param {string} movedId
+         * @param {number} fromIndex
+         * @param {number} toIndex
+         */
+        moveField(movedId, fromId, toId, fromIndex, toIndex) {
+            if (this.lastMoveSectionId && this.lastMoveSectionId !== toId) {
+                console.log("removing from last move section", this.lastMoveSectionId);
+                const lastMoveSection = this.sections[this.lastMoveSectionId];
+                lastMoveSection.fields = lastMoveSection.fields.filter((elemId) => elemId != movedId);
+                this.lastMoveSectionId = null;
+            }
+
+            if (fromId === toId) {
+                console.log("moving element within", fromId, movedId, ":", fromIndex, "->", toIndex);
+
+                const fromSection = this.sections[fromId];
+                fromSection.fields.splice(fromIndex, 1);
+                fromSection.fields.splice(toIndex, 0, movedId);
+                return;
+            }
+
+            console.log("moving element from", fromId, "->", toId, movedId, ":", fromIndex, "->", toIndex);
+            this.lastMoveSectionId = toId;
+
+            const fromSection = this.sections[fromId];
+            const toSection = this.sections[toId];
+
+            fromSection.fields.splice(fromIndex, 1);
+            toSection.fields.splice(toIndex, 0, movedId);
+        },
+        processFieldMove(e) {
+            const moveId = e.item.id;
+            const fromId = e.from.closest("[section-container]").id;
+            const fromIdx = e.oldDraggableIndex;
+            const toId = e.to.closest("[section-container]").id;
+            const toIdx = e.newDraggableIndex;
+
+            this.moveField(moveId, fromId, toId, fromIdx, toIdx);
         },
         editFieldData(data) {
             this.editData = data;
@@ -375,267 +670,4 @@ document.addEventListener("alpine:init", function (e) {
             this.populateCalendarDays(this.internalDate);
         },
     }));
-});
-
-const fieldContSortables = [];
-const sectionSortables = [];
-/** @type { Element[] } */
-const fieldConts = [];
-const sections = [];
-
-/** @type {HTMLElement} */
-let fakeGhost = null;
-
-/**
- * @param {HTMLElement & { animationDuration?: number}} el
- * @param {Number} duration
- */
-function transition(el, duration = 150) {
-    const rect = el.getBoundingClientRect();
-    const animationDuration = el.animationDuration ?? duration;
-    el.animationDuration ??= duration;
-
-    console.log(rect);
-    el.style.overflow = "hidden";
-    el.animate(
-        [
-            {
-                maxHeight: "0px",
-                opacity: 0,
-                paddingBlock: "0px",
-                marginBlock: "0px",
-            },
-            {
-                opacity: 0,
-                offset: 0.7,
-            },
-            {
-                maxHeight: `${rect.height}px`,
-                opacity: 1,
-            },
-        ],
-        {
-            duration: animationDuration,
-            easing: "cubic-bezier(0, 0, 0.2, 1)",
-        }
-    ).addEventListener("finish", () => (el.style.overflow = ""));
-}
-
-/**
- * @param {HTMLElement & { animationDuration?: number}} el
- * @param {Number} duration
- */
-async function removeElement(el, duration = 150) {
-    const rect = el.getBoundingClientRect();
-    const animationDuration = el.animationDuration ?? duration;
-
-    el.style.overflow = "hidden";
-    const animation = el.animate(
-        [
-            {
-                height: `${rect.height}px`,
-                opacity: 1,
-            },
-            {
-                opacity: 0,
-                offset: 0.3,
-            },
-            {
-                height: "0px",
-                opacity: 0,
-                paddingBlock: "0px",
-                marginBlock: "0px",
-            },
-        ],
-        {
-            duration: animationDuration,
-            easing: "cubic-bezier(0.4, 0, 1, 1)",
-        }
-    );
-
-    return new Promise((res, _) => {
-        animation.addEventListener("finish", () => {
-            el.style.overflow = "";
-            el.remove();
-            res();
-        });
-    });
-}
-
-let sectionDragElement = null;
-let fieldDragElement = null;
-let movingField = false;
-let addingField = false;
-
-/** @type {import("../types").Sortable.Options} */
-const containerSortableOptions = {
-    group: {
-        name: "fieldCont",
-        pull: true,
-        put: true,
-    },
-    filter: "[no-drag]",
-    animation: 150,
-    forceFallback: false,
-    supportPointer: true,
-
-    scroll: true,
-    forceAutoScrollFallback: true,
-    scrollSensitivity: 100,
-    scrollSpeed: 25,
-    bubbleScroll: true,
-
-    onStart: function (evt) {
-        fieldDragElement = evt.item;
-        movingField = true;
-        console.log("onStart", evt);
-    },
-    onMove: function (evt, originalEvt) {
-        console.log("onMove:", evt);
-    },
-    onEnd: function (evt) {
-        movingField = false;
-        console.log("onEnd:", evt);
-    },
-    onSort: function (evt) {
-        console.log("onSort:", evt);
-    },
-    setData: function (dataTransfer, dragEl) {
-        dataTransfer.setDragImage(new Image(), 0, 0);
-    },
-};
-
-/************************************************/
-/*                                              */
-/*             Drag & Drop Handlers             */
-/*                                              */
-/************************************************/
-
-/** @param {DragEvent} e */
-function dragOver(e) {
-    e.preventDefault();
-}
-
-/** @param {DragEvent} e */
-function drop(e) {
-    e.preventDefault();
-    const target = /** @type {HTMLElement} */ (e.target);
-    const section = /** @type {HTMLElement} */ (this);
-
-    const templateId = e.dataTransfer.getData("text/plain");
-    const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
-    const newEl = /** @type {HTMLElement} */ (document.importNode(template.content, true).firstElementChild);
-
-    if (target === section) {
-        section.previousElementSibling.appendChild(newEl);
-    } else {
-        const insertLocation = /** @type {InsertPosition} */ (target.dataset.insertLocation);
-        target.parentElement.insertAdjacentElement(insertLocation, newEl);
-    }
-    transition(newEl);
-}
-
-document.addEventListener("DOMContentLoaded", function (e) {
-    /************************************************/
-    /*                                              */
-    /*               Sortabler Config               */
-    /*                                              */
-    /************************************************/
-    const addSectionBtn = document.getElementById("add-section-button");
-    const formContainer = /** @type {HTMLDivElement} */ (document.getElementById("form_container"));
-
-    /** @type {import("../types").Sortable.Options} */
-    const sectionSortableOptions = {
-        group: {
-            name: "form",
-            pull: false,
-            put: false,
-        },
-        filter: ".no-drag",
-        animation: 150,
-        forceFallback: false,
-        supportPointer: true,
-        swapThreshold: 0.25,
-
-        scroll: true,
-        forceAutoScrollFallback: true,
-        scrollSensitivity: 100,
-        scrollSpeed: 25,
-        bubbleScroll: true,
-
-        onStart: function (evt) {
-            sectionDragElement = evt.item;
-            movingField = true;
-            console.log("onStart", evt);
-        },
-        onMove: function (evt, originalEvt) {
-            console.log("onMove:", evt);
-        },
-        onEnd: function (evt) {
-            movingField = false;
-            console.log("onEnd:", evt);
-        },
-        onSort: function (evt) {
-            console.log("onSort:", evt);
-        },
-        setData: function (dataTransfer, dragEl) {
-            dataTransfer.setDragImage(new Image(), 0, 0);
-        },
-    };
-
-    // @ts-ignore
-    new Sortable(formContainer, sectionSortableOptions);
-
-    addSectionBtn.addEventListener("click", (e) => {
-        const sectionTemplate = /** @type {HTMLTemplateElement} */ (document.getElementById("section-template"));
-        const sectionDocFrag = /** @type {DocumentFragment} */ (sectionTemplate.content.cloneNode(true));
-        const section = /** @type {HTMLElement} */ (sectionDocFrag.firstElementChild);
-        const newSection = formContainer.insertAdjacentElement("beforeend", section);
-
-        transition(section);
-
-        const container = newSection.querySelector("[data-section]");
-        // for (let i = 0; i < fieldContainers.length; ++i) {
-        // const container = fieldContainers[i];
-
-        /** @type {import("../types").Sortable} */
-        // @ts-ignore
-        let sortable = new Sortable(container, containerSortableOptions);
-        fieldContSortables.push(sortable);
-        fieldConts.push(container);
-        // }
-
-        sections.push(newSection);
-        setTimeout(() => newSection.scrollIntoView({ behavior: "smooth", block: "center" }), 200);
-    });
-
-    const newFields = /** @type {NodeListOf<HTMLDivElement>} */ (document.querySelectorAll("[dd-template]"));
-
-    for (const field of newFields) {
-        field.addEventListener("dragstart", (ev) => {
-            addingField = true;
-            for (const container of fieldConts) {
-                const emptyDropZone = container.nextElementSibling;
-                container.addEventListener("dragover", dragOver);
-                emptyDropZone.addEventListener("dragover", dragOver);
-                container.addEventListener("drop", drop);
-                emptyDropZone.addEventListener("drop", drop);
-            }
-
-            /** @type {string} */
-            // @ts-ignore
-            const templateId = ev.target.getAttribute("dd-template");
-            ev.dataTransfer.setData("text/plain", templateId);
-        });
-        field.addEventListener("dragend", (ev) => {
-            addingField = false;
-            for (const container of fieldConts) {
-                const emptyDropZone = container.nextElementSibling;
-                container.removeEventListener("dragover", dragOver);
-                emptyDropZone.removeEventListener("dragover", dragOver);
-                container.removeEventListener("drop", drop);
-                emptyDropZone.removeEventListener("drop", drop);
-            }
-        });
-    }
 });

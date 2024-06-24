@@ -17,6 +17,9 @@
     @dragstart="showNewFieldDropZone = addingField && true"
     @dragend="showNewFieldDropZone = false"
     class="relative flex h-full w-full overflow-y-hidden dark:bg-[#0e0e0e]"
+    @change="processFieldMove($event)"
+    @start="movingField = true; toSection = $event.to;"
+    @end="movingField = false; toSection = null;"
 >
     <div
         class="relative z-10 w-80 shrink-0 grow-0 font-semibold select-none transition-all border-r border-neutral-300 dark:bg-card-dark dark:border-aux-dark"
@@ -29,6 +32,8 @@
                         class="flex gap-4 px-4 py-2 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         dd-template="text"
                         draggable="true"
+                        @dragstart="addingField = true; dragStart($event)"
+                        @dragend="addingField = false"
                     >
                         <svg viewBox="0 0 16 15" class="w-5 min-w-5 fill-current">
                             <path
@@ -41,6 +46,8 @@
                         class="flex gap-4 px-4 py-2 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         dd-template="number"
                         draggable="true"
+                        @dragstart="addingField = true; dragStart($event)"
+                        @dragend="addingField = false"
                     >
                         <svg viewBox="0 0 16 15" class="w-5 min-w-5 fill-current">
                             <path
@@ -53,6 +60,8 @@
                         class="flex gap-4 px-4 py-2 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         dd-template="select"
                         draggable="true"
+                        @dragstart="addingField = true; dragStart($event)"
+                        @dragend="addingField = false"
                     >
                         <svg viewBox="0 0 16 15" class="w-5 min-w-5 fill-current">
                             <path
@@ -66,6 +75,8 @@
                         class="flex gap-4 px-4 py-2 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
                         dd-template="datetime"
                         draggable="true"
+                        @dragstart="addingField = true; dragStart($event)"
+                        @dragend="addingField = false"
                     >
                         <svg viewBox="-1 -1 24 24" class="w-5 min-w-5 fill-current">
                             <path
@@ -84,7 +95,25 @@
                 <h3 class="mb-4 text-[#828282] dark:text-[#c3c3c3]">Components</h3>
                 <div></div>
             </section>
-            <div class="absolute -right-12 top-4 rounded-md overflow-hidden bg-white dark:bg-card-dark">
+            <div
+                x-data="{
+                    addSectionElement(e) {
+                        const formContainer = document.getElementById('form_container');
+                        const sectionTemplate = document.getElementById('section-template');
+                        const sectionDocFrag = sectionTemplate.content.cloneNode(true);
+                        const section = sectionDocFrag.firstElementChild;
+                        const newSection = formContainer.insertAdjacentElement('beforeend', section);
+
+                        transition(section);
+
+                        const container = newSection.querySelector('[data-section]');
+                        let sortable = new Sortable(container, containerSortableOptions);
+
+                        setTimeout(() => newSection.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+                    }
+                }"
+                class="absolute -right-12 top-4 rounded-md overflow-hidden bg-white dark:bg-card-dark"
+            >
                 <button class="flex items-center justify-center h-8 w-8 hover:bg-neutral-200 dark:hover:bg-aux-dark">
                     <svg class="inline-block h-3 overflow-visible fill-current" viewBox="0 0 576 512">
                         <path
@@ -100,7 +129,7 @@
                     </svg>
                 </button>
                 <button
-                    id="add-section-button"
+                    @click="addSectionElement"
                     class="flex items-center justify-center h-8 w-8 hover:bg-neutral-200 dark:hover:bg-aux-dark"
                 >
                     <svg class="inline-block h-3 overflow-visible fill-current" viewBox="0 0 448 512">

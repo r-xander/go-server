@@ -18,8 +18,9 @@
             removeField(id) {
                 this.data.fields = this.data.fields.filter((field) => field !== id)
                 removeFieldData(id)
-            }
+            },
         }"
+        :id="data.id"
         section-container
         class="grid gap-3 p-4 mb-8 rounded-md ring-1 ring-gray-900/5 shadow-md bg-white dark:bg-card-dark"
     >
@@ -75,9 +76,15 @@
             </div>
         </div>
         <div>
-            <div class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4" data-section></div>
             <div
-                no-drag
+                @dragover="dragOver"
+                @drop="addingField && drop($event, $el)"
+                class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4"
+                data-section
+            ></div>
+            <div
+                @dragover="dragOver"
+                @drop="addingField && drop($event, $el)"
                 x-show="data.fields.length === 0"
                 class="p-6 text-base rounded bg-slate-400/10 dark:bg-white/10"
             >
