@@ -341,7 +341,7 @@ document.addEventListener("alpine:init", function (e) {
         currentFieldIndex: 1,
         currentSectionIndex: 1,
         showNewFieldDropZone: false,
-        activeElement: null,
+        activeField: null,
         addingField: false,
         movingField: false,
         lastMoveSectionId: null,
@@ -350,6 +350,9 @@ document.addEventListener("alpine:init", function (e) {
 
         editData: {},
         editModalOpen: false,
+
+        previewFull: true,
+        previewWidth: 450,
 
         getId() {
             // @ts-ignore
