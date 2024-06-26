@@ -424,6 +424,7 @@ document.addEventListener("alpine:init", function (e) {
         },
         editFieldData(data) {
             this.editData = data;
+            this.activeField = data.id;
 
             this.editModalOpen = true;
             switch (data.type) {
