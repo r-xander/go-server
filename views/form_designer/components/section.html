@@ -3,6 +3,8 @@
     <div
         x-data="{
             data: initSection(),
+            hovering: false,
+            active: false,
             addField(fieldType) {
                 const field = initField(fieldType);
                 this.data.fields.push(field.id);
@@ -22,9 +24,18 @@
         }"
         :id="data.id"
         section-container
-        class="grid gap-3 p-4 mb-8 rounded-md shadow-md bg-white dark:bg-card-dark"
+        class="relative grid gap-3 p-4 mb-8 rounded-md shadow-md bg-white dark:bg-card-dark"
+        @pointerover.stop="hovering = $event.target.id = data.id; console.log('pointerover', $event.target.id, $event)"
+        @pointerout.stop="hovering = false; console.log('pointerout', $event.target.id, $event)"
+        @pointerdown="active = true"
+        @pointerdown.outside="active = false"
     >
-        <div class="flex items-center justify-between mb-1">
+        <div
+            x-show="hovering"
+            class="absolute inset-0 border border-sky-500"
+            :class="{ 'bg-sky-500/20': active }"
+        ></div>
+        <div class="flex items-center justify-between mb-1" @pointerdown.stop>
             <h2 data-section-title class="font-semibold text-2xl">Section 1</h2>
             <div x-data="{ }" @pointerdown.stop class="flex gap-1 relative">
                 <div>

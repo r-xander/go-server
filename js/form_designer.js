@@ -414,6 +414,7 @@ document.addEventListener("alpine:init", function (e) {
             toSection.fields.splice(toIndex, 0, movedId);
         },
         processFieldMove(e) {
+            console.log(e);
             const moveId = e.item.id;
             const fromId = e.from.closest("[section-container]").id;
             const fromIdx = e.oldDraggableIndex;
