@@ -341,12 +341,14 @@ document.addEventListener("alpine:init", function (e) {
         currentFieldIndex: 1,
         currentSectionIndex: 1,
         showNewFieldDropZone: false,
-        activeField: null,
         addingField: false,
         movingField: false,
         lastMoveSectionId: null,
         fieldData: {},
         sections: {},
+
+        activeElementId: null,
+        settingElementId: false,
 
         editData: {},
         editModalOpen: false,
@@ -425,15 +427,26 @@ document.addEventListener("alpine:init", function (e) {
         },
         editFieldData(data) {
             this.editData = data;
-            this.activeField = data.id;
+            this.setActiveElement(data.id);
 
-            this.editModalOpen = true;
             switch (data.type) {
                 case "text":
                     break;
                 default:
                     console.log("unsupported field type: " + data.type);
             }
+        },
+        setActiveElement(id) {
+            if (this.settingElementId) {
+                return;
+            }
+
+            this.activeElementId = id;
+            this.settingElementId = true;
+            this.editModalOpen = id !== null;
+            console.log(this.settingElementId, id, this.editModalOpen);
+
+            setTimeout(() => (this.settingElementId = false), 50);
         },
         setFieldData(data) {
             this.fieldData[data.id] = { ...data };
