@@ -9,6 +9,7 @@ module.exports = {
         extend: {
             gridTemplateColumns: {
                 "fill-20": "repeat(auto-fill, minmax(5rem, 1fr))",
+                input: "minmax(0, 5fr) minmax(0, 7fr)",
             },
             keyframes: {
                 insert: {

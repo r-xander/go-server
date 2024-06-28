@@ -228,6 +228,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 const defaults = {
     text: {
         type: "text",
+        name: "text",
         label: "Text Input",
         placeholder: "",
         minLenth: 0,
@@ -238,10 +239,12 @@ const defaults = {
         includeLabel: true,
         required: false,
         readonly: false,
+        disabled: false,
         hidden: false,
     },
     number: {
         type: "number",
+        name: "number",
         label: "Number Input",
         placeholder: "",
         min: 0,
@@ -252,10 +255,12 @@ const defaults = {
         includeLabel: true,
         required: false,
         readonly: false,
+        disabled: false,
         hidden: false,
     },
     select: {
         type: "select",
+        name: "select",
         label: "Select Input",
         options: [],
         defaultValue: "",
@@ -264,10 +269,12 @@ const defaults = {
         includeLabel: true,
         required: false,
         readonly: false,
+        disabled: false,
         hidden: false,
     },
     date: {
         type: "date",
+        name: "date",
         label: "Date Input",
         defaultValue: "",
         layout: "inline",
@@ -275,10 +282,12 @@ const defaults = {
         includeLabel: true,
         required: false,
         readonly: false,
+        disabled: false,
         hidden: false,
     },
     datetime: {
         type: "datetime",
+        name: "datetime",
         label: "Date/Time Input",
         defaultValue: "",
         layout: "inline",
@@ -286,6 +295,7 @@ const defaults = {
         includeLabel: true,
         required: false,
         readonly: false,
+        disabled: false,
         hidden: false,
     },
 };
