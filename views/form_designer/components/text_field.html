@@ -54,9 +54,7 @@
                 class="w-full h-full transition border border-sky-500"
                 :class="{ 'bg-sky-500/20': activeElementId === data.id }"
             >
-                <div
-                    class="absolute -left-px bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500"
-                >
+                <div class="absolute left-0 bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500">
                     <span class="font-bold italic cursor-default select-none">
                         {{ if eq . "text" }} Text Field {{ else if eq . "number" }} Number Field {{ else if eq .
                         "select" }} Select Field {{ else if eq . "datetime" }} Date Field {{ end }}
@@ -70,7 +68,7 @@
                 <div
                     x-data="{ }"
                     @pointerdown.stop
-                    class="absolute -right-px bottom-full flex gap-1"
+                    class="absolute right-0 bottom-full flex gap-1"
                 >
                     <div class="bg-sky-500">
                         <button class="w-5 h-5 p-1 cursor-pointer transition text-white hover:bg-sky-600">

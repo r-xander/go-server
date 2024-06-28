@@ -25,7 +25,7 @@
         :id="data.id"
         section-container
         class="relative grid gap-3 p-4 mb-8 rounded-md shadow-md bg-white dark:bg-card-dark"
-        @pointerover.stop="hovering = true"
+        @pointerover.stop="hovering = !movingField"
         @pointerout.stop="hovering = false;"
         @pointerdown="setActiveElement(data.id);"
     >
@@ -33,26 +33,14 @@
             x-show="hovering || activeElementId === data.id"
             class="absolute inset-0 cursor-pointer border border-sky-500"
             :class="{ 'bg-sky-500/20': activeElementId === data.id }"
-        ></div>
-        <div
-            class="flex items-center justify-between mb-1"
-            @pointerdown.stop
         >
-            <h2
-                data-section-title
-                class="font-semibold text-2xl"
-            >
-                Section 1
-            </h2>
             <div
                 x-data="{ }"
                 @pointerdown.stop
-                class="flex gap-1 relative"
+                class="absolute -right-px bottom-full flex gap-1"
             >
                 <div>
-                    <button
-                        class="w-6 h-6 p-1 cursor-pointer transition rounded hover:text-indigo-800 hover:bg-indigo-800/20 dark:hover:text-indigo-400 dark:hover:bg-indigo-400/20"
-                    >
+                    <button class="w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
                         <svg
                             viewBox="0 0 15 15"
                             class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]"
@@ -65,7 +53,7 @@
                 </div>
                 <div x-data="{ deleteDialogOpen: false }">
                     <button
-                        class="w-6 h-6 p-1 cursor-pointer transition relative rounded hover:text-rose-800 hover:bg-rose-800/20 dark:hover:text-rose-400 dark:hover:bg-rose-400/20"
+                        class="relative w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600"
                         @click="deleteDialogOpen = true"
                     >
                         <svg
@@ -103,13 +91,25 @@
                 </div>
             </div>
         </div>
+        <div
+            class="flex items-center justify-between mb-1"
+            @pointerdown.stop
+        >
+            <h2
+                data-section-title
+                class="font-semibold text-2xl"
+            >
+                Section 1
+            </h2>
+        </div>
         <div>
             <div
                 @dragover="dragOver"
                 @drop="addingField && drop($event, $el)"
                 class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4"
                 data-section
-            ></div>
+            >
+            </div>
             <div
                 @dragover="dragOver"
                 @drop="addingField && drop($event, $el)"

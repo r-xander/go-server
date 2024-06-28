@@ -37,7 +37,7 @@
 >
     <div
         @pointerdown.stop
-        class="relative z-10 w-80 shrink-0 grow-0 font-semibold select-none transition-all dark:bg-card-dark"
+        class="relative z-10 w-[22rem] shrink-0 grow-0 font-semibold select-none transition-all dark:bg-card-dark"
     >
         <div class="absolute inset-0">
             <section class="p-4 text-sm">
@@ -45,6 +45,7 @@
                 <div
                     id="action-element-container"
                     class="grid grid-cols-2 gap-3 text-indigo-900/70 dark:text-white/70"
+                    @pointerdown="setActiveElement(null)"
                 >
                     <div
                         class="flex gap-4 px-4 py-2 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
@@ -187,12 +188,12 @@
             <div
                 id="form_container"
                 class="@container/form relative grid max-w-5xl min-w-96 mx-auto text-sm"
-                :style="`width:${previewFull ? 10000 : previewWidth }px`"
+                :style="`width:${previewFull ? '100%' : previewWidth + 'px'}`"
             ></div>
         </div>
     </div>
     <div
-        class="relative z-10 w-80 font-semibold select-none overflow-hidden dark:bg-card-dark"
+        class="relative z-10 w-[22rem] font-semibold select-none overflow-hidden dark:bg-card-dark"
         @pointerdown.stop
     >
         <div
@@ -290,11 +291,6 @@
                     @click="editModalOpen = false; activeElementId = null"
                     class="p-3 absolute transition text-neutral-500 hover:text-opacity-70 dark:text-neutral-300"
                 >
-                    <!-- <svg viewBox="0 0 1024 1024" class="w-5 h-5 fill-current">
-                        <path
-                            d="M533.2 492.3L277.9 166.1c-3-3.9-7.7-6.1-12.6-6.1H188c-6.7 0-10.4 7.7-6.3 12.9L447.1 512 181.7 851.1A7.98 7.98 0 0 0 188 864h77.3c4.9 0 9.6-2.3 12.6-6.1l255.3-326.1c9.1-11.7 9.1-27.9 0-39.5zm304 0L581.9 166.1c-3-3.9-7.7-6.1-12.6-6.1H492c-6.7 0-10.4 7.7-6.3 12.9L751.1 512 485.7 851.1A7.98 7.98 0 0 0 492 864h77.3c4.9 0 9.6-2.3 12.6-6.1l255.3-326.1c9.1-11.7 9.1-27.9 0-39.5z"
-                        />
-                    </svg> -->
                     <svg
                         viewBox="0 0 1024 1024"
                         class="w-4 h-4 fill-current [fill-rule:evenodd]"
@@ -316,7 +312,7 @@
                 class="absolute top-20 bottom-0 overflow-y-auto"
             >
                 <div class="flex flex-col p-4 gap-4 text-sm">
-                    <div class="grid gap-1">
+                    <div class="grid grid-cols-[5fr_7fr] gap-1">
                         <label for="label">ID</label>
                         <input
                             :value="editData.id"
@@ -359,7 +355,7 @@
                             id="includeLabel"
                         />Include Label
                     </label>
-                    <div class="grid gap-1">
+                    <div class="grid grid-cols-[5fr_7fr] gap-1">
                         <label for="label">Label</label>
                         <input
                             x-model="editData.label"
@@ -370,7 +366,7 @@
                             :disabled="!editData.includeLabel"
                         />
                     </div>
-                    <div class="grid gap-1">
+                    <div class="grid grid-cols-[5fr_7fr] gap-1">
                         <label for="placeholder">Placeholder</label>
                         <input
                             x-model="editData.placeholder"
@@ -380,7 +376,7 @@
                             placeholder="Placeholder..."
                         />
                     </div>
-                    <div class="grid gap-1">
+                    <div class="grid grid-cols-[5fr_7fr] gap-1">
                         <label for="default">Default</label>
                         <input
                             x-model="editData.defaultValue"
@@ -390,31 +386,31 @@
                             placeholder="Default..."
                         />
                     </div>
-                    <div class="flex gap-4">
-                        <div class="grid gap-1">
-                            <label for="minlength">Minimum Length</label>
-                            <input
-                                x-model="editData.minLenth"
-                                class="min-w-0"
-                                type="number"
-                                name="minlength"
-                                id="minlength"
-                                placeholder="Min length..."
-                            />
-                        </div>
-                        <div class="grid gap-1">
-                            <label for="maxlength">Minimum Length</label>
-                            <input
-                                x-model="editData.maxLength"
-                                class="min-w-0"
-                                type="number"
-                                name="maxlength"
-                                id="maxlength"
-                                placeholder="Max length..."
-                            />
-                        </div>
+                    <!-- <div class="flex gap-4"> -->
+                    <div class="grid grid-cols-[5fr_7fr] gap-1">
+                        <label for="minlength">Minimum Length</label>
+                        <input
+                            x-model="editData.minLenth"
+                            class="min-w-0"
+                            type="number"
+                            name="minlength"
+                            id="minlength"
+                            placeholder="Min length..."
+                        />
                     </div>
-                    <div class="grid gap-1">
+                    <div class="grid grid-cols-[5fr_7fr] gap-1">
+                        <label for="maxlength">Minimum Length</label>
+                        <input
+                            x-model="editData.maxLength"
+                            class="min-w-0"
+                            type="number"
+                            name="maxlength"
+                            id="maxlength"
+                            placeholder="Max length..."
+                        />
+                    </div>
+                    <!-- </div> -->
+                    <div class="grid grid-cols-[5fr_7fr] gap-1">
                         <label for="layout">Layout</label>
                         <select
                             x-model="editData.layout"
