@@ -168,7 +168,6 @@ label {
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
-    font-weight: 500;
 }
 
 [multiple],
@@ -429,8 +428,8 @@ select {
     [type="week"],
     select,
     textarea {
-        background-color: #363636;
-        border-color: #363636;
+        background-color: #2e2e2e;
+        border-color: #2e2e2e;
         color: #e3e3e3;
     }
 
@@ -475,7 +474,7 @@ select {
     textarea:disabled {
         background-color: #3e3e3e;
         border-color: #3e3e3e;
-        color: #808080;
+        color: #a3a3a3;
     }
 
     input::placeholder,

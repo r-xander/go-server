@@ -1,123 +1,25 @@
-<!--
-    https://www.behance.net/gallery/150989275/Form-Builder?tracking_source=search_projects|form+builder&l=142
-    https://www.behance.net/gallery/67313351/CallVU-Form-Builder?tracking_source=search_projects|form+builder&l=67
-    https://docs.servicenow.com/bundle/washingtondc-platform-administration/page/administer/form-administration/concept/c_FormDesign.html
-    https://dribbble.com/shots/14746133-Liferay-DXP-Dark-Mode
-    https://dribbble.com/shots/22947219-Form-builder-UI
--->
-
 {{ define "title" }} Form Designer {{ end }} {{ define "scripts" }}
-<script
-    src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"
-    defer
-></script>
-<script
-    src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js"
-    defer
-></script>
-<script
-    src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-    defer
-></script>
-<script
-    src="/js/form_designer.js"
-    type="text/javascript"
-    charset="utf-8"
-></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script src="/js/form_designer.js" type="text/javascript" charset="utf-8"></script>
 {{ end }} {{ define "body" }}
 <main
     x-data="formData"
     class="relative flex h-full w-full overflow-y-hidden dark:bg-[#0e0e0e]"
     @dragstart="showNewFieldDropZone = addingField && true"
     @dragend="showNewFieldDropZone = false"
+    @pointerdown="setActiveElement(null)"
     @change="$event instanceof CustomEvent && processFieldMove($event)"
     @start="movingField = true; toSection = $event.to;"
     @end="movingField = false; toSection = null;"
-    @pointerdown="setActiveElement(null)"
 >
     <div
         @pointerdown.stop
         class="relative z-10 w-[22rem] shrink-0 grow-0 font-semibold select-none transition-all dark:bg-card-dark"
     >
         <div class="absolute inset-0">
-            <section class="p-4 text-sm">
-                <h3 class="mb-4 text-[#828282] dark:text-[#c3c3c3]">Fields</h3>
-                <div
-                    id="action-element-container"
-                    class="grid grid-cols-2 gap-3 text-indigo-900/70 dark:text-white/70"
-                    @pointerdown="setActiveElement(null)"
-                >
-                    <div
-                        class="flex gap-4 px-4 py-2 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
-                        dd-template="text"
-                        draggable="true"
-                        @dragstart="addingField = true; dragStart($event)"
-                        @dragend="addingField = false"
-                    >
-                        <svg
-                            viewBox="0 0 16 15"
-                            class="w-5 min-w-5 fill-current"
-                        >
-                            <path
-                                d="M1.226 10.88H0l2.056-6.26h1.42l2.047 6.26h-1.29l-.48-1.61H1.707l-.48 1.61ZM2.76 5.818h-.054l-.75 2.532H3.51zm3.217 5.062V4.62h2.56c1.09 0 1.808.582 1.808 1.54 0 .762-.444 1.22-1.05 1.372v.055c.736.074 1.365.587 1.365 1.528 0 1.119-.89 1.766-2.133 1.766zM7.18 5.55v1.675h.8c.812 0 1.171-.308 1.171-.853 0-.51-.328-.822-.898-.822zm0 2.537V9.95h.903c.951 0 1.342-.312 1.342-.909 0-.591-.382-.954-1.095-.954zm5.089-.711v.775c0 1.156.49 1.803 1.347 1.803.705 0 1.163-.454 1.212-1.096H16v.12C15.942 10.173 14.95 11 13.607 11c-1.648 0-2.573-1.073-2.573-2.849v-.78c0-1.775.934-2.871 2.573-2.871 1.347 0 2.34.849 2.393 2.087v.115h-1.172c-.05-.665-.516-1.156-1.212-1.156-.849 0-1.347.67-1.347 1.83"
-                            />
-                        </svg>
-                        <span>Text</span>
-                    </div>
-                    <div
-                        class="flex gap-4 px-4 py-2 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
-                        dd-template="number"
-                        draggable="true"
-                        @dragstart="addingField = true; dragStart($event)"
-                        @dragend="addingField = false"
-                    >
-                        <svg
-                            viewBox="0 0 16 15"
-                            class="w-5 min-w-5 fill-current"
-                        >
-                            <path
-                                d="M2.873 11.297V4.142H1.699L0 5.379v1.137l1.64-1.18h.06v5.961zm3.213-5.09v-.063c0-.618.44-1.169 1.196-1.169.676 0 1.174.44 1.174 1.106 0 .624-.42 1.101-.807 1.526L4.99 10.553v.744h4.78v-.99H6.643v-.069L8.41 8.252c.65-.724 1.237-1.332 1.237-2.27C9.646 4.849 8.723 4 7.308 4c-1.573 0-2.36 1.064-2.36 2.15v.057zm6.559 1.883h.786c.823 0 1.374.481 1.379 1.179.01.707-.55 1.216-1.421 1.21-.77-.005-1.326-.419-1.379-.953h-1.095c.042 1.053.938 1.918 2.464 1.918 1.478 0 2.642-.839 2.62-2.144-.02-1.143-.922-1.651-1.551-1.714v-.063c.535-.09 1.347-.66 1.326-1.678-.026-1.053-.933-1.855-2.359-1.845-1.5.005-2.317.88-2.348 1.898h1.116c.032-.498.498-.944 1.206-.944.703 0 1.206.435 1.206 1.07.005.64-.504 1.106-1.2 1.106h-.75z"
-                            />
-                        </svg>
-                        <span>Number</span>
-                    </div>
-                    <div
-                        class="flex gap-4 px-4 py-2 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
-                        dd-template="select"
-                        draggable="true"
-                        @dragstart="addingField = true; dragStart($event)"
-                        @dragend="addingField = false"
-                    >
-                        <svg
-                            viewBox="0 0 16 15"
-                            class="w-5 min-w-5 fill-current"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"
-                            />
-                        </svg>
-                        <span>Select</span>
-                    </div>
-                    <div
-                        class="flex gap-4 px-4 py-2 items-center rounded origin-center transition-all duration-100 bg-white border border-neutral-200/65 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white"
-                        dd-template="datetime"
-                        draggable="true"
-                        @dragstart="addingField = true; dragStart($event)"
-                        @dragend="addingField = false"
-                    >
-                        <svg
-                            viewBox="-1 -1 24 24"
-                            class="w-5 min-w-5 fill-current"
-                        >
-                            <path
-                                d="m4 4h3l0-1c0-1 1-1 1-1 1 0 1 1 1 1l0 1 4 0 0-1c0-1 1-1 1-1 1 0 1 1 1 1l0 1 3 0c1 0 2 1 2 2l0 12c0 1-1 2-2 2l-14 0c-1 0-2-1-2-2l0-12c0-1 1-2 2-2m1 5 12 0c1 0 1-1 1-1l0-1c0 0 0-1-1-1l-12 0c-1 0-1 1-1 1l0 1c0 0 0 1 1 1m0 9 12 0c1 0 1-1 1-1l0-5c0 0 0-1-1-1l-12 0c-1 0-1 1-1 1l0 5c0 0 0 1 1 1"
-                            />
-                        </svg>
-                        <span>Date</span>
-                    </div>
-                </div>
-            </section>
+            {{ template "new_fields_panel" }}
             <section class="p-4 text-sm">
                 <h3 class="mb-4 text-[#828282] dark:text-[#c3c3c3]">Layout</h3>
                 <div></div>
@@ -146,20 +48,14 @@
                 class="absolute -right-12 top-4 shadow-md rounded-md overflow-hidden bg-white dark:bg-card-dark"
             >
                 <button class="flex items-center justify-center h-8 w-8 hover:bg-neutral-200 dark:hover:bg-aux-dark">
-                    <svg
-                        class="inline-block h-3 overflow-visible fill-current"
-                        viewBox="0 0 576 512"
-                    >
+                    <svg class="inline-block h-3 overflow-visible fill-current" viewBox="0 0 576 512">
                         <path
                             d="M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1.8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z"
                         ></path>
                     </svg>
                 </button>
                 <button class="flex items-center justify-center h-8 w-8 hover:bg-neutral-200 dark:hover:bg-aux-dark">
-                    <svg
-                        class="inline-block h-3 overflow-visible fill-current"
-                        viewBox="0 0 576 512"
-                    >
+                    <svg class="inline-block h-3 overflow-visible fill-current" viewBox="0 0 576 512">
                         <path
                             d="M288 144a110.94 110.94 0 0 0-31.24 5 55.4 55.4 0 0 1 7.24 27 56 56 0 0 1-56 56 55.4 55.4 0 0 1-27-7.24A111.71 111.71 0 1 0 288 144zm284.52 97.4C518.29 135.59 410.93 64 288 64S57.68 135.64 3.48 241.41a32.35 32.35 0 0 0 0 29.19C57.71 376.41 165.07 448 288 448s230.32-71.64 284.52-177.41a32.35 32.35 0 0 0 0-29.19zM288 400c-98.65 0-189.09-55-237.93-144C98.91 167 189.34 112 288 112s189.09 55 237.93 144C477.1 345 386.66 400 288 400z"
                         ></path>
@@ -169,10 +65,7 @@
                     @click="addSectionElement"
                     class="flex items-center justify-center h-8 w-8 hover:bg-neutral-200 dark:hover:bg-aux-dark"
                 >
-                    <svg
-                        class="inline-block h-3 overflow-visible fill-current"
-                        viewBox="0 0 448 512"
-                    >
+                    <svg class="inline-block h-3 overflow-visible fill-current" viewBox="0 0 448 512">
                         <path
                             d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
                         ></path>
@@ -192,16 +85,10 @@
             ></div>
         </div>
     </div>
-    <div
-        class="relative z-10 w-[22rem] font-semibold select-none overflow-hidden dark:bg-card-dark"
-        @pointerdown.stop
-    >
-        <div
-            x-data="{ tab: 1 }"
-            class="absolute inset-0"
-        >
+    <div class="relative z-10 w-[22rem] select-none overflow-hidden dark:bg-card-dark" @pointerdown.stop>
+        <div x-data="{ tab: 1 }" class="absolute inset-0">
             <div
-                class="flex items-center h-10 text-sm text-[#929292] bg-[#f1f5f9] divide-x dark:bg-aux-dark dark:text-[#b5b5b5]"
+                class="flex items-center h-10 text-sm font-semibold text-[#929292] bg-[#f1f5f9] divide-x dark:bg-aux-dark dark:text-[#b5b5b5]"
             >
                 <button
                     @click="tab = 1"
@@ -226,27 +113,15 @@
                 </button>
             </div>
             <div class="absolute top-10 bottom-0 left-0 right-0">
-                <div
-                    x-show="tab === 1"
-                    class="flex flex-col p-4 pt-8 gap-4 text-sm"
-                >
+                <div x-show="tab === 1" class="flex flex-col p-4 pt-8 gap-4 text-sm">
                     <div class="grid grid-cols-[5fr_7fr] gap-1 items-center">
                         <label for="form-name">Form</label>
-                        <input
-                            x-model="formName"
-                            type="text"
-                            name="form-name"
-                            id="form-name"
-                            class="w-full"
-                        />
+                        <input x-model="formName" type="text" name="form-name" id="form-name" class="w-full" />
                     </div>
                     <div class="grid grid-cols-[5fr_7fr] gap-2 items-center">
                         <label for="preview-width">Preview Width</label>
                         <div class="flex w-full gap-4">
-                            <label
-                                for="preview-full"
-                                class="flex items-center gap-2 h-9"
-                            >
+                            <label for="preview-full" class="flex items-center gap-2 h-9">
                                 <input
                                     x-model="previewFull"
                                     type="checkbox"
@@ -271,15 +146,17 @@
                             </div>
                         </div>
                     </div>
+                    <hr />
+                    <div class="grid grid-cols-input items-center gap-1">
+                        <label for="name">Layout</label>
+                        <select x-model="formLayout" type="text" name="name" id="name" placeholder="Layout...">
+                            <option value="single">Single Page</option>
+                            <option value="tab">Tabs</option>
+                        </select>
+                    </div>
                 </div>
-                <div
-                    x-show="tab === 2"
-                    class="flex flex-col p-4 gap-4 text-sm"
-                ></div>
-                <div
-                    x-show="tab === 3"
-                    class="flex flex-col p-4 gap-4 text-sm"
-                ></div>
+                <div x-show="tab === 2" class="flex flex-col p-4 gap-4 text-sm"></div>
+                <div x-show="tab === 3" class="flex flex-col p-4 gap-4 text-sm"></div>
             </div>
         </div>
         <div
@@ -289,79 +166,54 @@
             :class="{ 'translate-x-full': !editModalOpen }"
             :inert="!editModalOpen"
         >
-            <div class="relative grid h-20">
+            <div class="relative grid h-20 font-semibold">
                 <button
                     @click="editModalOpen = false; activeElementId = null"
-                    class="p-3 absolute transition text-neutral-500 hover:text-opacity-70 dark:text-neutral-300"
+                    class="absolute top-2 left-4 p-1 rounded transition text-neutral-500 hover:text-neutral-700 hover:bg-[#f1f5f9] dark:text-neutral-300 dark:hover:text-white dark:hover:bg-aux-dark"
                 >
-                    <svg
-                        viewBox="0 0 1024 1024"
-                        class="w-4 h-4 fill-current [fill-rule:evenodd]"
-                    >
+                    <svg viewBox="0 0 1024 1024" class="w-4 h-4 fill-current [fill-rule:evenodd]">
                         <path
                             d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
                         ></path>
                     </svg>
                 </button>
-                <div class="absolute top-4 right-4">
-                    <button class="w-6 h-6 p-1 cursor-pointer transition">
-                        <svg
-                            viewBox="0 0 15 15"
-                            class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]"
-                        >
+                <div class="absolute top-2 right-4">
+                    <button
+                        class="w-6 h-6 p-1 rounded transition text-neutral-500 hover:text-neutral-700 hover:bg-[#f1f5f9] dark:text-neutral-300 dark:hover:text-white dark:hover:bg-aux-dark"
+                    >
+                        <svg viewBox="0 0 15 15" class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]">
                             <path
                                 d="M1 9.50006C1 10.3285 1.67157 11.0001 2.5 11.0001H4L4 10.0001H2.5C2.22386 10.0001 2 9.7762 2 9.50006L2 2.50006C2 2.22392 2.22386 2.00006 2.5 2.00006L9.5 2.00006C9.77614 2.00006 10 2.22392 10 2.50006V4.00002H5.5C4.67158 4.00002 4 4.67159 4 5.50002V12.5C4 13.3284 4.67158 14 5.5 14H12.5C13.3284 14 14 13.3284 14 12.5V5.50002C14 4.67159 13.3284 4.00002 12.5 4.00002H11V2.50006C11 1.67163 10.3284 1.00006 9.5 1.00006H2.5C1.67157 1.00006 1 1.67163 1 2.50006V9.50006ZM5 5.50002C5 5.22388 5.22386 5.00002 5.5 5.00002H12.5C12.7761 5.00002 13 5.22388 13 5.50002V12.5C13 12.7762 12.7761 13 12.5 13H5.5C5.22386 13 5 12.7762 5 12.5V5.50002Z"
                             />
                         </svg>
                     </button>
-                    <button>
-                        <svg
-                            viewBox="0 0 448 512"
-                            class="w-6 h-6 fill-current"
-                        >
+                    <button
+                        class="w-6 h-6 p-1 rounded transition text-neutral-500 hover:text-neutral-700 hover:bg-[#f1f5f9] dark:text-neutral-300 dark:hover:text-white dark:hover:bg-aux-dark"
+                    >
+                        <svg viewBox="0 0 448 512" class="aspect-square fill-current">
                             <path
                                 d="M268 416h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12zM432 80h-82.41l-34-56.7A48 48 0 0 0 274.41 0H173.59a48 48 0 0 0-41.16 23.3L98.41 80H16A16 16 0 0 0 0 96v16a16 16 0 0 0 16 16h16v336a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128h16a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16zM171.84 50.91A6 6 0 0 1 177 48h94a6 6 0 0 1 5.15 2.91L293.61 80H154.39zM368 464H80V128h288zm-212-48h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12z"
                             ></path>
                         </svg>
                     </button>
                 </div>
-                <div
-                    x-text="editData.id"
-                    class="p-2 text-center"
-                ></div>
+                <div x-text="editData.id" class="p-2 text-center"></div>
                 <div
                     class="grid grid-cols-2 items-center justify-around mx-4 text-sm rounded border border-neutral-200 dark:border-aux-dark divide-x divide-neutral-200 dark:divide-aux-dark"
                 >
-                    <button
-                        class="h-full"
-                        :class="{'bg-[#f1f5f9] dark:bg-aux-dark': tab === 1}"
-                        @click="tab = 1"
-                    >
+                    <button class="h-full" :class="{'bg-[#f1f5f9] dark:bg-aux-dark': tab === 1}" @click="tab = 1">
                         Properties
                     </button>
-                    <button
-                        class="h-full"
-                        :class="{'bg-[#f1f5f9] dark:bg-aux-dark': tab === 2}"
-                        @click="tab = 2"
-                    >
+                    <button class="h-full" :class="{'bg-[#f1f5f9] dark:bg-aux-dark': tab === 2}" @click="tab = 2">
                         Rules
                     </button>
                 </div>
             </div>
-            <div
-                x-show="tab === 1"
-                id="field-details"
-                class="absolute top-20 bottom-0 overflow-y-auto"
-            >
+            <div x-show="tab === 1" id="field-details" class="absolute top-20 bottom-0 overflow-y-auto">
                 <div class="flex flex-col p-4 gap-4 text-sm">
                     <div class="grid grid-cols-input items-center gap-1">
                         <label for="name">Name</label>
-                        <input
-                            :value="editData.name"
-                            type="text"
-                            name="name"
-                            id="name"
-                        />
+                        <input x-model="editData.name" type="text" name="name" id="name" placeholder="Name..." />
                     </div>
                     <div class="grid grid-cols-input items-center gap-1">
                         <label for="label">Label</label>
@@ -374,10 +226,7 @@
                             :disabled="!editData.includeLabel"
                         />
                     </div>
-                    <label
-                        for="includeLabel"
-                        class="flex items-center justify-between h-8 cursor-pointer select-none"
-                    >
+                    <label for="includeLabel" class="flex items-center justify-between cursor-pointer select-none">
                         Include Label
                         <div class="relative">
                             <input
@@ -388,10 +237,10 @@
                                 class="peer sr-only"
                             />
                             <div
-                                class="block w-14 h-6 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7]"
+                                class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
                             ></div>
                             <div
-                                class="absolute w-5 h-5 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[160%]"
+                                class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
                             ></div>
                         </div>
                     </label>
@@ -419,18 +268,24 @@
                     <div class="grid grid-cols-input gap-1">
                         <label for="description">Description</label>
                         <textarea
+                            x-data="{
+                                resize() {
+                                    console.log($el.scrollHeight)
+                                    $el.style.height = $el.scrollHeight + 2 + 'px'
+                                    console.log($el.style.height)
+                                }
+                            }"
+                            class="resize-none"
                             x-model="editData.description"
-                            rows="3"
+                            rows="1"
                             name="description"
                             id="description"
                             placeholder="Description..."
+                            @input="resize"
                         ></textarea>
                     </div>
                     <hr />
-                    <label
-                        for="required"
-                        class="flex items-center justify-between h-8 cursor-pointer select-none"
-                    >
+                    <label for="required" class="flex items-center justify-between cursor-pointer select-none">
                         Required
                         <div class="relative">
                             <input
@@ -441,17 +296,14 @@
                                 class="peer sr-only"
                             />
                             <div
-                                class="block w-14 h-6 rounded-full box bg-gray-200 dark:bg-aux-dark peer-checked:bg-[#0284c7]"
+                                class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
                             ></div>
                             <div
-                                class="absolute w-5 h-5 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[160%]"
+                                class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
                             ></div>
                         </div>
                     </label>
-                    <label
-                        for="readonly"
-                        class="flex items-center justify-between h-8 cursor-pointer select-none"
-                    >
+                    <label for="readonly" class="flex items-center justify-between cursor-pointer select-none">
                         Read Only
                         <div class="relative">
                             <input
@@ -462,17 +314,14 @@
                                 class="peer sr-only"
                             />
                             <div
-                                class="block w-14 h-6 rounded-full box bg-gray-200 dark:bg-aux-dark peer-checked:bg-[#0284c7]"
+                                class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
                             ></div>
                             <div
-                                class="absolute w-5 h-5 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[160%]"
+                                class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
                             ></div>
                         </div>
                     </label>
-                    <label
-                        for="disabled"
-                        class="flex items-center justify-between h-8 cursor-pointer select-none"
-                    >
+                    <label for="disabled" class="flex items-center justify-between cursor-pointer select-none">
                         Disabled
                         <div class="relative">
                             <input
@@ -483,15 +332,14 @@
                                 class="peer sr-only"
                             />
                             <div
-                                class="block w-14 h-6 rounded-full box bg-gray-200 dark:bg-aux-dark peer-checked:bg-[#0284c7]"
+                                class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
                             ></div>
                             <div
-                                class="absolute w-5 h-5 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[160%]"
+                                class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
                             ></div>
                         </div>
                     </label>
                     <hr />
-                    <!-- <div class="flex gap-4"> -->
                     <div class="grid grid-cols-input items-center gap-1">
                         <label for="minlength">Minimum Length</label>
                         <input
@@ -512,26 +360,16 @@
                             placeholder="Max length..."
                         />
                     </div>
-                    <!-- </div> -->
                     <div class="grid grid-cols-input items-center gap-1">
                         <label for="layout">Layout</label>
-                        <select
-                            x-model="editData.layout"
-                            type="text"
-                            name="layout"
-                            id="layout"
-                        >
+                        <select x-model="editData.layout" type="text" name="layout" id="layout">
                             <option value="inline">Inline</option>
                             <option value="block">Block</option>
                         </select>
                     </div>
                 </div>
             </div>
-            <div
-                x-show="tab === 2"
-                id="field-rules"
-                class="absolute top-20 bottom-0 overflow-y-auto"
-            ></div>
+            <div x-show="tab === 2" id="field-rules" class="absolute top-20 bottom-0 overflow-y-auto"></div>
         </div>
     </div>
     {{ template "text_field_edit" }}

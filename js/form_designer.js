@@ -95,9 +95,42 @@ let addingField = false;
 /*                                              */
 /************************************************/
 
-/** @param {DragEvent} e */
-function dragOver(e) {
+/**
+ *
+ * @param {DragEvent} e
+ * @param {HTMLElement} el
+ */
+function dragOver(e, el) {
     e.preventDefault();
+
+    if (el) {
+        if (el.parentElement.childElementCount > 1) {
+            console.log(el.parentElement.childElementCount, el.parentElement.childNodes);
+            el.style.position = "absolute";
+            el.style.inset = "0";
+            el.style.visibility = "hidden";
+            el.inert = true;
+        }
+    }
+}
+
+/**
+ *
+ * @param {DragEvent} e
+ * @param {HTMLElement} el
+ */
+function dragLeave(e, el) {
+    e.preventDefault();
+
+    if (el) {
+        if (el.parentElement.childElementCount > 1) {
+            console.log(el.parentElement.childElementCount, el.parentElement.childNodes);
+            el.style.position = "";
+            el.style.top = "";
+            el.style.visibility = "";
+            el.removeAttribute("inert");
+        }
+    }
 }
 
 /**
@@ -107,14 +140,16 @@ function dragOver(e) {
  */
 function drop(e, el) {
     e.preventDefault();
+    e.stopPropagation();
     const target = /** @type {HTMLElement} */ (e.target);
 
     const templateId = e.dataTransfer.getData("text/plain");
     const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
     const newEl = /** @type {HTMLElement} */ (document.importNode(template.content, true).firstElementChild);
 
+    console.log(el);
     if (target === el) {
-        el.previousElementSibling.appendChild(newEl);
+        el.parentElement.appendChild(newEl);
     } else {
         const insertLocation = /** @type {InsertPosition} */ (target.dataset.insertLocation);
         target.parentElement.insertAdjacentElement(insertLocation, newEl);
@@ -365,6 +400,7 @@ document.addEventListener("alpine:init", function (e) {
 
         previewFull: true,
         previewWidth: 450,
+        formLayout: "single",
 
         getId() {
             // @ts-ignore
@@ -462,7 +498,9 @@ document.addEventListener("alpine:init", function (e) {
             this.fieldData[data.id] = { ...data };
             this.editModalOpen = false;
         },
-        removeFieldData(/** @type {String} */ id) {
+        async removeFieldData(/** @type {String} */ id) {
+            const el = document.getElementById(id);
+            await removeElement(el);
             delete this.fieldData[id];
         },
     }));
