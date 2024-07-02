@@ -5,13 +5,14 @@
             data: addField('{{ . }}'),
             hovering: false,
             dropTop: false,
-            dropBottom: false
+            dropBottom: false,
+            remove(id) { removeField(id) }
         }"
-        x-init="editFieldData($data.data)"
+        x-init="editFieldData(data.id)"
         :id="data.id"
         form-field="{{ . }}"
         class="relative rounded"
-        @pointerdown="editFieldData(data);"
+        @pointerdown="editFieldData(data.id);"
         @pointerover.stop="hovering = !movingField"
         @pointerout.stop="hovering = false"
     >
@@ -27,7 +28,7 @@
             {{ if eq . "text" }} {{ template "text_input" }} {{ else if eq . "number" }} {{ template "number_input" }}
             {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "datetime" }} {{ template
             "date_field" }} {{ end }}
-            <div x-show="data.description != ''">
+            <div x-show="data.description != ''" class="col-span-full break-words">
                 <span x-text="data.description"></span>
             </div>
         </div>
@@ -78,7 +79,7 @@
                         <h1>Are you sure you want to delete this field?</h1>
                         <div class="flex gap-2 justify-self-end">
                             <button
-                                @click.self="removeField(data.id); deleteDialogOpen = false;"
+                                @click.self="remove(data.id); deleteDialogOpen = false;"
                                 class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70"
                             >
                                 Delete
@@ -155,6 +156,7 @@
     :disabled="data.disabled"
     @change="$el.value = data.defaultValue ? data.defaultValue : ''"
 >
+    <option value="" x-text="data.prompt"></option>
     <template x-for="option in data.options">
         <option value="option.value" x-text="option.label"></option>
     </template>

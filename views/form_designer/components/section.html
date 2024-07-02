@@ -18,6 +18,7 @@
                 removeElement($el);
             },
             removeField(id) {
+                console.log(this.data)
                 this.data.fields = this.data.fields.filter((field) => field !== id)
                 removeFieldData(id)
             },
@@ -88,7 +89,7 @@
             <div
                 @dragover="dragOver"
                 @drop="addingField && drop($event, $el)"
-                class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4"
+                class="grid grid-cols-1 @[35rem]/form:grid-cols-1 px-2 pb-2 gap-3"
                 data-section
                 @pointerover.stop
                 @pointerout.stop

@@ -261,13 +261,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
 /************************************************/
 
 const defaults = {
-    text: {
+    text: () => ({
         type: "text",
         name: "text",
         label: "Text Input",
         placeholder: "",
-        minLenth: 0,
-        maxLength: 2000,
+        min: 0,
+        max: 2000,
         defaultValue: "",
         layout: "inline",
         description: "",
@@ -276,14 +276,16 @@ const defaults = {
         readonly: false,
         disabled: false,
         hidden: false,
-    },
-    number: {
+    }),
+    number: () => ({
         type: "number",
         name: "number",
         label: "Number Input",
         placeholder: "",
         min: 0,
         max: 1000,
+        increment: 1,
+        decimals: 0,
         defaultValue: "",
         layout: "inline",
         description: "",
@@ -292,11 +294,12 @@ const defaults = {
         readonly: false,
         disabled: false,
         hidden: false,
-    },
-    select: {
+    }),
+    select: () => ({
         type: "select",
         name: "select",
         label: "Select Input",
+        prompt: "",
         options: [],
         defaultValue: "",
         layout: "inline",
@@ -306,8 +309,8 @@ const defaults = {
         readonly: false,
         disabled: false,
         hidden: false,
-    },
-    date: {
+    }),
+    date: () => ({
         type: "date",
         name: "date",
         label: "Date Input",
@@ -319,8 +322,8 @@ const defaults = {
         readonly: false,
         disabled: false,
         hidden: false,
-    },
-    datetime: {
+    }),
+    datetime: () => ({
         type: "datetime",
         name: "datetime",
         label: "Date/Time Input",
@@ -332,7 +335,7 @@ const defaults = {
         readonly: false,
         disabled: false,
         hidden: false,
-    },
+    }),
 };
 
 /** @type {import("../types").Sortable.Options} */
@@ -410,7 +413,7 @@ document.addEventListener("alpine:init", function (e) {
         },
         initField(/** @type {String} */ type) {
             const id = this.getId();
-            const data = { id, ...defaults[type] };
+            const data = { id, ...defaults[type]() };
             this.fieldData[id] = data;
 
             return this.fieldData[id];
@@ -471,16 +474,9 @@ document.addEventListener("alpine:init", function (e) {
 
             this.moveField(moveId, fromId, toId, fromIdx, toIdx);
         },
-        editFieldData(data) {
-            this.editData = data;
-            this.setActiveElement(data.id);
-
-            switch (data.type) {
-                case "text":
-                    break;
-                default:
-                    console.log("unsupported field type: " + data.type);
-            }
+        editFieldData(id) {
+            this.editData = this.fieldData[id];
+            this.setActiveElement(id);
         },
         setActiveElement(id) {
             if (this.settingElementId) {
@@ -502,6 +498,21 @@ document.addEventListener("alpine:init", function (e) {
             const el = document.getElementById(id);
             await removeElement(el);
             delete this.fieldData[id];
+        },
+        isInput() {
+            if (!this.editData) {
+                return false;
+            }
+
+            switch (this.editData.type) {
+                case "text":
+                case "number":
+                case "date":
+                case "datetime":
+                    return true;
+                default:
+                    return false;
+            }
         },
     }));
 
