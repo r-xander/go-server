@@ -17,18 +17,18 @@
         @pointerout.stop="hovering = false"
     >
         <div
-            class="grid gap-1 w-full items-center"
-            :class="{ 'opacity-50': data.hidden, 'grid-cols-[3fr_4fr]': data.layout === 'inline' && data.includeLabel }"
+            class="grid gap-1 w-full items-start"
+            :class="{ 'opacity-50': data.hidden, 'grid-cols-[3fr_4fr]': data.layout === 'inline' && data.label !== '' }"
             inert
         >
-            <div x-show="data.includeLabel" class="flex gap-1 items-center">
-                <label x-text="data.label" :for="data.id" class="font-medium select-none"></label>
+            <div x-show="data.label !== ''" class="flex gap-1 h-full items-center">
+                <label x-text="data.label" :for="data.id" class="font-medium select-none break-all"></label>
                 <span x-show="data.required" class="leading-4 font-semibold text-rose-500"> * </span>
             </div>
             {{ if eq . "text" }} {{ template "text_input" }} {{ else if eq . "number" }} {{ template "number_input" }}
             {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "datetime" }} {{ template
             "date_field" }} {{ end }}
-            <div x-show="data.description != ''" class="col-span-full break-words">
+            <div x-show="data.description != ''" class="col-span-full break-all">
                 <span x-text="data.description"></span>
             </div>
         </div>
