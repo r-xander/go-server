@@ -1,45 +1,143 @@
 {{ define "text_field_edit" }}
-<div x-data="{ data: editData }" class="flex flex-col p-4 gap-3 text-sm">
-    <div class="grid grid-cols-input items-center gap-1">
-        <label for="name">Name</label>
-        <input x-model="editData.name" type="text" name="name" id="name" placeholder="Name..." />
-    </div>
-    <div class="grid grid-cols-input items-center gap-1">
-        <label for="label">Label</label>
-        <input
-            x-model="editData.label"
-            type="text"
-            name="label"
-            id="label"
-            placeholder="Label..."
-            :disabled="!editData.includeLabel"
-        />
-    </div>
-    <label for="includeLabel" class="flex items-center justify-between cursor-pointer select-none">
-        Include Label
-        <div class="relative">
+<div
+    x-data="{ data: editData }"
+    class="text-sm divide-y divide-neutral-200 dark:divide-aux-dark"
+>
+    <div class="grid gap-3 p-4">
+        <div class="grid grid-cols-input items-center gap-1">
+            <label for="name">Name</label>
             <input
-                x-model="editData.includeLabel"
-                type="checkbox"
-                id="includeLabel"
-                name="includeLabel"
-                class="peer sr-only"
+                x-model="editData.name"
+                type="text"
+                name="name"
+                id="name"
+                placeholder="Name..."
             />
-            <div
-                class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
-            ></div>
-            <div
-                class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
-            ></div>
         </div>
-    </label>
+        <div class="grid grid-cols-input items-center gap-1">
+            <label for="label">Label</label>
+            <input
+                x-model="editData.label"
+                type="text"
+                name="label"
+                id="label"
+                placeholder="Label..."
+                :disabled="!editData.includeLabel"
+            />
+        </div>
+        <label
+            for="includeLabel"
+            class="flex items-center justify-between cursor-pointer select-none"
+        >
+            Include Label
+            <div class="relative">
+                <input
+                    x-model="editData.includeLabel"
+                    type="checkbox"
+                    id="includeLabel"
+                    name="includeLabel"
+                    class="peer sr-only"
+                />
+                <div
+                    class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
+                ></div>
+                <div
+                    class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
+                ></div>
+            </div>
+        </label>
+    </div>
+    <div x-data="{ open: true }">
+        <div
+            class="flex items-center justify-between px-3 py-1 border-b bg-[#f1f5f9] border-neutral-200 dark:bg-aux-dark dark:border-aux-dark"
+        >
+            <h3 class="text-base font-semibold">Attributes</h3>
+            <span class="text-2xl font-semibold">+</span>
+        </div>
+        <div class="grid gap-3 p-4">
+            <label
+                for="required"
+                class="flex items-center justify-between cursor-pointer select-none"
+            >
+                Required
+                <div class="relative">
+                    <input
+                        x-model="editData.required"
+                        type="checkbox"
+                        id="required"
+                        name="required"
+                        class="peer sr-only"
+                    />
+                    <div
+                        class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
+                    ></div>
+                    <div
+                        class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
+                    ></div>
+                </div>
+            </label>
+            <label
+                for="readonly"
+                class="flex items-center justify-between cursor-pointer select-none"
+            >
+                Read Only
+                <div class="relative">
+                    <input
+                        x-model="editData.readonly"
+                        type="checkbox"
+                        id="readonly"
+                        name="readonly"
+                        class="peer sr-only"
+                    />
+                    <div
+                        class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
+                    ></div>
+                    <div
+                        class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
+                    ></div>
+                </div>
+            </label>
+            <label
+                for="disabled"
+                class="flex items-center justify-between cursor-pointer select-none"
+            >
+                Disabled
+                <div class="relative">
+                    <input
+                        x-model="editData.disabled"
+                        type="checkbox"
+                        id="disabled"
+                        name="disabled"
+                        class="peer sr-only"
+                    />
+                    <div
+                        class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
+                    ></div>
+                    <div
+                        class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
+                    ></div>
+                </div>
+            </label>
+        </div>
+    </div>
     <template x-if="editData.type === 'select'">
-        <div>
-            <hr />
-            <div class="relative grid gap-3 mt-3 px-2 items-center">
-                <span x-show="editData.options.length === 0" class="absolute left-3">No options have been added</span>
-                <span x-show="editData.options.length > 0" class="font-semibold">Options</span>
-                <div x-show="editData.options.length > 0" class="grid gap-2">
+        <div x-data="{ open: true }">
+            <div
+                class="flex items-center justify-between px-3 py-1 border-b bg-[#f1f5f9] border-neutral-200 dark:bg-aux-dark dark:border-aux-dark"
+            >
+                <h3 class="text-base font-semibold">Options</h3>
+                <span class="text-2xl font-semibold">+</span>
+            </div>
+            <div class="relative grid gap-3 p-4 items-center">
+                <span
+                    x-show="editData.options.length === 0"
+                    class="absolute left-3"
+                    >No options have been added</span
+                >
+                <div
+                    x-show="editData.options.length > 0"
+                    class="grid gap-2"
+                >
                     <template x-for="(option, index) in editData.options">
                         <div class="relative grid gap-2 items-center">
                             <input
@@ -57,7 +155,10 @@
                                 @click="editData.options.splice(index, 1)"
                                 tabindex="-1"
                             >
-                                <svg viewBox="0 0 1024 1024" class="w-3.5 h-3.5 fill-current [fill-rule:evenodd]">
+                                <svg
+                                    viewBox="0 0 1024 1024"
+                                    class="w-3.5 h-3.5 fill-current [fill-rule:evenodd]"
+                                >
                                     <path
                                         d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
                                     ></path>
@@ -75,139 +176,146 @@
             </div>
         </div>
     </template>
-    <hr />
-    <template x-if="isInput()">
+    <div>
+        <h4></h4>
+        <div class="grid gap-3 p-4">
+            <template x-if="isInput()">
+                <div class="grid grid-cols-input items-center gap-1">
+                    <label for="placeholder">Placeholder</label>
+                    <input
+                        x-model="editData.placeholder"
+                        type="text"
+                        name="placeholder"
+                        id="placeholder"
+                        placeholder="Placeholder..."
+                    />
+                </div>
+            </template>
+            <template x-if="editData.type === 'select'">
+                <div class="grid grid-cols-input items-center gap-1">
+                    <label for="prompt">Prompt</label>
+                    <input
+                        x-model="editData.prompt"
+                        type="text"
+                        name="prompt"
+                        id="prompt"
+                        placeholder="Prompt..."
+                    />
+                </div>
+            </template>
+            <div class="grid grid-cols-input items-center gap-1">
+                <label for="default">Default</label>
+                <template x-if="editData.type === 'text'">
+                    <input
+                        x-model="editData.defaultValue"
+                        type="text"
+                        name="default"
+                        id="default"
+                        placeholder="Default..."
+                    />
+                </template>
+                <template x-if="editData.type === 'number'">
+                    <input
+                        x-model="editData.defaultValue"
+                        type="number"
+                        name="default"
+                        id="default"
+                        placeholder="Default..."
+                    />
+                </template>
+                <template x-if="editData.type === 'datetime' || editData.type === 'date'">
+                    {{ template "date_field" }}
+                </template>
+                <template x-if="editData.type === 'select'">
+                    <select
+                        x-model="editData.defaultValue"
+                        name="defaultValue"
+                        id="defaultValue"
+                        :class="{ 'text-neutral-400': editData.defaultValue === '' }"
+                    >
+                        <option value="">Select default value</option>
+                        <template x-for="option in editData.options">
+                            <option
+                                :value="option.value"
+                                x-text="option.label"
+                            ></option>
+                        </template>
+                    </select>
+                </template>
+            </div>
+            <div class="grid grid-cols-input items-center gap-1">
+                <label for="description">Description</label>
+                <textarea
+                    x-data="{
+                        resize() {
+                            $el.style.height = ''
+                            $el.style.height = $el.scrollHeight + 2 + 'px'
+                        }
+                    }"
+                    class="resize-none overflow-hidden"
+                    x-model="editData.description"
+                    rows="1"
+                    name="description"
+                    id="description"
+                    placeholder="Description..."
+                    @input="resize"
+                ></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="grid gap-3 p-4">
         <div class="grid grid-cols-input items-center gap-1">
-            <label for="placeholder">Placeholder</label>
+            <label
+                for="min"
+                x-text="'Minimum' + (editData.type === 'text' ? ' Length' : '')"
+            ></label>
             <input
-                x-model="editData.placeholder"
-                type="text"
-                name="placeholder"
-                id="placeholder"
-                placeholder="Placeholder..."
+                x-model="editData.min"
+                type="number"
+                name="min"
+                id="min"
+                placeholder="Min..."
             />
         </div>
-    </template>
-    <template x-if="editData.type === 'select'">
         <div class="grid grid-cols-input items-center gap-1">
-            <label for="prompt">Prompt</label>
-            <input x-model="editData.prompt" type="text" name="prompt" id="prompt" placeholder="Prompt..." />
+            <label
+                for="max"
+                x-text="'Maximum' + (editData.type === 'text' ? ' Length' : '')"
+            ></label>
+            <input
+                x-model="editData.max"
+                type="number"
+                name="max"
+                id="max"
+                placeholder="Max..."
+            />
         </div>
-    </template>
-    <div class="grid grid-cols-input items-center gap-1">
-        <label for="default">Default</label>
-        <template x-if="editData.type === 'text'">
-            <input x-model="editData.defaultValue" type="text" name="default" id="default" placeholder="Default..." />
-        </template>
-        <template x-if="editData.type === 'number'">
-            <input x-model="editData.defaultValue" type="number" name="default" id="default" placeholder="Default..." />
-        </template>
-        <template x-if="editData.type === 'datetime' || editData.type === 'date'">
-            {{ template "date_field" }}
-        </template>
-        <template x-if="editData.type === 'select'">
-            <select
-                x-model="editData.defaultValue"
-                name="defaultValue"
-                id="defaultValue"
-                :class="{ 'text-neutral-400': editData.defaultValue === '' }"
+        <div class="grid grid-cols-input items-center gap-1">
+            <label for="layout">Layout</label>
+            <div
+                x-data="{ active: 1 }"
+                class="w-full grid grid-cols-2 h-8 rounded overflow-hidden bg-gray-100 dark:bg-[#2e2e2e]"
             >
-                <option value="">Select default value</option>
-                <template x-for="option in editData.options">
-                    <option :value="option.value" x-text="option.label"></option>
-                </template>
-            </select>
-        </template>
-    </div>
-    <div class="grid grid-cols-input items-center gap-1">
-        <label for="description">Description</label>
-        <textarea
-            x-data="{
-                resize() {
-                    $el.style.height = ''
-                    $el.style.height = $el.scrollHeight + 2 + 'px'
-                }
-            }"
-            class="resize-none overflow-hidden"
-            x-model="editData.description"
-            rows="1"
-            name="description"
-            id="description"
-            placeholder="Description..."
-            @input="resize"
-        ></textarea>
-    </div>
-    <hr />
-    <label for="required" class="flex items-center justify-between cursor-pointer select-none">
-        Required
-        <div class="relative">
-            <input x-model="editData.required" type="checkbox" id="required" name="required" class="peer sr-only" />
-            <div
-                class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
-            ></div>
-            <div
-                class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
-            ></div>
+                <button
+                    class="w-full h-full"
+                    :class="{ 'font-semibold bg-[#0284c7] text-white': active === 1 }"
+                    @click="active = 1; editData.layout = 'inline'"
+                >
+                    Inline
+                </button>
+                <button
+                    class="w-full h-full"
+                    :class="{ 'font-semibold bg-[#0284c7] text-white': active === 2 }"
+                    @click="active = 2; editData.layout = 'block'"
+                >
+                    Block
+                </button>
+            </div>
+            <!-- <select x-model="editData.layout" type="text" name="layout" id="layout">
+                <option value="inline">Inline</option>
+                <option value="block">Block</option>
+            </select> -->
         </div>
-    </label>
-    <label for="readonly" class="flex items-center justify-between cursor-pointer select-none">
-        Read Only
-        <div class="relative">
-            <input x-model="editData.readonly" type="checkbox" id="readonly" name="readonly" class="peer sr-only" />
-            <div
-                class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
-            ></div>
-            <div
-                class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
-            ></div>
-        </div>
-    </label>
-    <label for="disabled" class="flex items-center justify-between cursor-pointer select-none">
-        Disabled
-        <div class="relative">
-            <input x-model="editData.disabled" type="checkbox" id="disabled" name="disabled" class="peer sr-only" />
-            <div
-                class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[#0284c7] peer-focus:ring-2 peer-focus:ring-[#0284c7] peer-focus:dark:ring-offset-card-dark"
-            ></div>
-            <div
-                class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"
-            ></div>
-        </div>
-    </label>
-    <hr />
-    <div class="grid grid-cols-input items-center gap-1">
-        <label for="min" x-text="'Minimum' + (editData.type === 'text' ? ' Length' : '')"></label>
-        <input x-model="editData.min" type="number" name="min" id="min" placeholder="Min..." />
-    </div>
-    <div class="grid grid-cols-input items-center gap-1">
-        <label for="max" x-text="'Maximum' + (editData.type === 'text' ? ' Length' : '')"></label>
-        <input x-model="editData.max" type="number" name="max" id="max" placeholder="Max..." />
-    </div>
-    <div class="grid grid-cols-input items-center gap-1">
-        <label for="layout">Layout</label>
-        <div
-            x-data="{ active: 1 }"
-            class="w-full grid grid-cols-2 h-8 rounded overflow-hidden bg-gray-100 dark:bg-[#2e2e2e]"
-        >
-            <button
-                class="w-full h-full"
-                :class="{ 'font-semibold bg-[#0284c7] text-white': active === 1 }"
-                @click="active = 1; editData.layout = 'inline'"
-            >
-                Inline
-            </button>
-            <button
-                class="w-full h-full"
-                :class="{ 'font-semibold bg-[#0284c7] text-white': active === 2 }"
-                @click="active = 2; editData.layout = 'block'"
-            >
-                Block
-            </button>
-        </div>
-        <!-- <select x-model="editData.layout" type="text" name="layout" id="layout">
-            <option value="inline">Inline</option>
-            <option value="block">Block</option>
-        </select> -->
     </div>
 </div>
 {{ end }}
