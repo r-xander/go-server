@@ -1,5 +1,8 @@
 {{ define "text_field_edit" }}
-<div x-data="{ data: editData }" class="text-sm">
+<div
+    x-data="{ data: editData }"
+    class="text-sm"
+>
     <div x-data="{ open: true }">
         <div
             class="flex items-center justify-between px-5 py-2 -my-px border-y border-collapse border-gray-100 bg-[#fafbfc] dark:bg-aux-dark dark:border-accent-dark"
@@ -7,33 +10,50 @@
         >
             <h3 class="text-[13px] font-semibold">Properties</h3>
             <span class="flex items-center">
-                <svg x-show="open" viewBox="0 0 384 512" class="fill-current h-3">
+                <svg
+                    x-show="open"
+                    viewBox="0 0 384 512"
+                    class="fill-current h-3"
+                >
                     <path
                         d="M368 224H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h352c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                     ></path>
                 </svg>
-                <svg x-show="!open" viewBox="0 0 384 512" class="fill-current h-3">
+                <svg
+                    x-show="!open"
+                    viewBox="0 0 384 512"
+                    class="fill-current h-3"
+                >
                     <path
                         d="M368 224H224V80c0-8.84-7.16-16-16-16h-32c-8.84 0-16 7.16-16 16v144H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h144v144c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16V288h144c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                     ></path>
                 </svg>
             </span>
         </div>
-        <div x-show="open" class="divide-y divide-gray-100 dark:divide-accent-dark">
+        <div
+            x-show="open"
+            class="divide-y divide-gray-100 dark:divide-accent-dark"
+        >
             <div class="grid gap-3 px-5 py-4">
                 <div class="grid grid-cols-input items-center gap-1">
                     <label for="name">Name</label>
-                    <input x-model="editData.name" type="text" name="name" id="name" placeholder="Name..." />
+                    <input
+                        x-model="editData.name"
+                        type="text"
+                        name="name"
+                        id="name"
+                        placeholder="Name..."
+                    />
                 </div>
                 <div class="grid grid-cols-input items-baseline gap-1">
                     <label for="label">Label</label>
                     <textarea
                         x-data="{
-                        resize() {
-                            $el.style.height = ''
-                            $el.style.height = $el.scrollHeight + 2 + 'px'
-                        }
-                    }"
+                            resize() {
+                                $el.style.height = ''
+                                $el.style.height = $el.scrollHeight + 2 + 'px'
+                            }
+                        }"
                         class="resize-none overflow-hidden"
                         x-model="editData.label"
                         rows="1"
@@ -60,11 +80,11 @@
                     <label for="description">Description</label>
                     <textarea
                         x-data="{
-                        resize() {
-                            $el.style.height = ''
-                            $el.style.height = $el.scrollHeight + 2 + 'px'
-                        }
-                    }"
+                            resize() {
+                                $el.style.height = ''
+                                $el.style.height = $el.scrollHeight + 2 + 'px'
+                            }
+                        }"
                         class="resize-none overflow-hidden"
                         x-model="editData.description"
                         rows="1"
@@ -78,49 +98,104 @@
         </div>
     </div>
     <template x-if="editData.type === 'select'">
-        <div x-data="{ open: true }">
+        <div
+            x-data="{ 
+                open: true,
+                showNewOption: false,
+                newOption: '',
+                addNewOption() {
+                    if (this.newOption === '' || editData.options.some((o) => o.label === this.newOption)) {
+                        this.newOption = ''
+                        return false;
+                    }
+                    
+                    editData.options.push({ value: this.newOption, label: this.newOption });
+                    this.newOption = ''
+                    return true;
+                },
+                handleSort(e) {
+                    console.log('initial', editData.options);
+                    
+                    const options = [ ...editData.options ];
+                    editData.options = []
+                    options.splice(e.newDraggableIndex, 0, options.splice(e.oldDraggableIndex, 1)[0]);
+                    editData.options = options;
+
+                    console.log('after swap', editData.options);
+                }
+            }"
+            @end.stop="handleSort"
+        >
             <div
                 class="flex items-center justify-between px-5 py-2 -my-px border-y border-collapse border-gray-100 bg-[#fafbfc] dark:bg-aux-dark dark:border-accent-dark"
                 @click="open = !open"
             >
                 <h3 class="text-[13px] font-semibold">Options</h3>
                 <span class="flex items-center">
-                    <svg x-show="open" viewBox="0 0 384 512" class="fill-current h-3">
+                    <svg
+                        x-show="open"
+                        viewBox="0 0 384 512"
+                        class="fill-current h-3"
+                    >
                         <path
                             d="M368 224H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h352c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                         ></path>
                     </svg>
-                    <svg x-show="!open" viewBox="0 0 384 512" class="fill-current h-3">
+                    <svg
+                        x-show="!open"
+                        viewBox="0 0 384 512"
+                        class="fill-current h-3"
+                    >
                         <path
                             d="M368 224H224V80c0-8.84-7.16-16-16-16h-32c-8.84 0-16 7.16-16 16v144H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h144v144c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16V288h144c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                         ></path>
                     </svg>
                 </span>
             </div>
-            <div x-show="open" class="divide-y divide-gray-100 dark:divide-accent-dark">
-                <div class="relative grid gap-3 px-5 py-4 items-center">
-                    <span x-show="editData.options.length === 0" class="absolute left-12">
+            <div
+                x-show="open"
+                class="divide-y divide-gray-100 dark:divide-accent-dark"
+            >
+                <div class="relative grid gap-2 px-5 py-4 items-center">
+                    <span
+                        x-show="editData.options.length === 0 && !showNewOption"
+                        class="absolute left-12"
+                    >
                         No options have been added
                     </span>
-                    <div x-show="editData.options.length > 0" class="grid gap-2">
-                        <template x-for="(option, index) in editData.options">
-                            <div class="relative grid gap-2 items-center">
-                                <input
-                                    x-init="$nextTick(() => $el.focus())"
-                                    x-model="option.label"
-                                    type="text"
-                                    :id="'opt-value-' + index"
-                                    placeholder="Value"
-                                    @input="option.value = option.label"
-                                    @keyup.enter="option.label !== '' && editData.options.push({ value: '', label: ''});"
-                                    @blur="option.label === '' && editData.options.splice(index, 1)"
-                                />
+                    <div
+                        x-show="editData.options.length > 0"
+                        x-init="new Sortable($el, newOptionSortableOptions)"
+                        class="grid gap-2"
+                    >
+                        <template
+                            x-for="(option, index) in editData.options"
+                            :key="index"
+                        >
+                            <div
+                                class="relative flex items-center rounded border border-[#ccc] dark:bg-aux-dark dark:border-aux-dark"
+                            >
+                                <svg
+                                    id="option-handle"
+                                    viewBox="0 0 15 15"
+                                    class="fill-current w-8 h-8 p-1.5 cursor-move"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        clip-rule="evenodd"
+                                        d="M5.5 4.625C6.12132 4.625 6.625 4.12132 6.625 3.5C6.625 2.87868 6.12132 2.375 5.5 2.375C4.87868 2.375 4.375 2.87868 4.375 3.5C4.375 4.12132 4.87868 4.625 5.5 4.625ZM9.5 4.625C10.1213 4.625 10.625 4.12132 10.625 3.5C10.625 2.87868 10.1213 2.375 9.5 2.375C8.87868 2.375 8.375 2.87868 8.375 3.5C8.375 4.12132 8.87868 4.625 9.5 4.625ZM10.625 7.5C10.625 8.12132 10.1213 8.625 9.5 8.625C8.87868 8.625 8.375 8.12132 8.375 7.5C8.375 6.87868 8.87868 6.375 9.5 6.375C10.1213 6.375 10.625 6.87868 10.625 7.5ZM5.5 8.625C6.12132 8.625 6.625 8.12132 6.625 7.5C6.625 6.87868 6.12132 6.375 5.5 6.375C4.87868 6.375 4.375 6.87868 4.375 7.5C4.375 8.12132 4.87868 8.625 5.5 8.625ZM10.625 11.5C10.625 12.1213 10.1213 12.625 9.5 12.625C8.87868 12.625 8.375 12.1213 8.375 11.5C8.375 10.8787 8.87868 10.375 9.5 10.375C10.1213 10.375 10.625 10.8787 10.625 11.5ZM5.5 12.625C6.12132 12.625 6.625 12.1213 6.625 11.5C6.625 10.8787 6.12132 10.375 5.5 10.375C4.87868 10.375 4.375 10.8787 4.375 11.5C4.375 12.1213 4.87868 12.625 5.5 12.625Z"
+                                    />
+                                </svg>
+                                <span x-text="option.label"></span>
                                 <button
                                     class="absolute right-3 text-neutral-400"
                                     @click="editData.options.splice(index, 1)"
                                     tabindex="-1"
                                 >
-                                    <svg viewBox="0 0 1024 1024" class="w-3.5 h-3.5 fill-current [fill-rule:evenodd]">
+                                    <svg
+                                        viewBox="0 0 1024 1024"
+                                        class="w-3.5 h-3.5 fill-current [fill-rule:evenodd]"
+                                    >
                                         <path
                                             d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
                                         ></path>
@@ -129,9 +204,18 @@
                             </div>
                         </template>
                     </div>
+                    <input
+                        x-ref="newOptionInput"
+                        x-show="showNewOption"
+                        type="text"
+                        placeholder="Value"
+                        x-model="newOption"
+                        @keyup.enter="addNewOption()"
+                        @blur="addNewOption() || (showNewOption = false);"
+                    />
                     <button
                         class="px-2.5 py-1 justify-self-end rounded text-[13px] font-semibold text-white bg-[#0284c7] hover:bg-sky-600"
-                        @click="editData.options.push({ value: '', label: ''});"
+                        @click="showNewOption = true; $nextTick(() => $refs.newOptionInput.focus())"
                     >
                         + Add
                     </button>
@@ -158,7 +242,10 @@
                             >
                                 <option value="">Select default value</option>
                                 <template x-for="option in editData.options">
-                                    <option :value="option.value" x-text="option.label"></option>
+                                    <option
+                                        :value="option.value"
+                                        x-text="option.label"
+                                    ></option>
                                 </template>
                             </select>
                         </template>
@@ -174,21 +261,35 @@
         >
             <h3 class="text-[13px] font-semibold">Attributes</h3>
             <span class="flex items-center">
-                <svg x-show="open" viewBox="0 0 384 512" class="fill-current h-3">
+                <svg
+                    x-show="open"
+                    viewBox="0 0 384 512"
+                    class="fill-current h-3"
+                >
                     <path
                         d="M368 224H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h352c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                     ></path>
                 </svg>
-                <svg x-show="!open" viewBox="0 0 384 512" class="fill-current h-3">
+                <svg
+                    x-show="!open"
+                    viewBox="0 0 384 512"
+                    class="fill-current h-3"
+                >
                     <path
                         d="M368 224H224V80c0-8.84-7.16-16-16-16h-32c-8.84 0-16 7.16-16 16v144H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h144v144c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16V288h144c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                     ></path>
                 </svg>
             </span>
         </div>
-        <div x-show="open" class="divide-y divide-gray-100 dark:divide-accent-dark">
+        <div
+            x-show="open"
+            class="divide-y divide-gray-100 dark:divide-accent-dark"
+        >
             <div class="grid gap-3 px-5 py-4">
-                <label for="required" class="flex items-center justify-between cursor-pointer select-none">
+                <label
+                    for="required"
+                    class="flex items-center justify-between cursor-pointer select-none"
+                >
                     Required
                     <div class="relative">
                         <input
@@ -206,7 +307,10 @@
                         ></div>
                     </div>
                 </label>
-                <label for="readonly" class="flex items-center justify-between cursor-pointer select-none">
+                <label
+                    for="readonly"
+                    class="flex items-center justify-between cursor-pointer select-none"
+                >
                     Read Only
                     <div class="relative">
                         <input
@@ -224,7 +328,10 @@
                         ></div>
                     </div>
                 </label>
-                <label for="disabled" class="flex items-center justify-between cursor-pointer select-none">
+                <label
+                    for="disabled"
+                    class="flex items-center justify-between cursor-pointer select-none"
+                >
                     Disabled
                     <div class="relative">
                         <input
@@ -270,18 +377,36 @@
                         </template>
                     </div>
                     <div class="grid grid-cols-input items-center gap-1">
-                        <label for="min" x-text="'Minimum' + (editData.type === 'text' ? ' Length' : '')"></label>
+                        <label
+                            for="min"
+                            x-text="'Minimum' + (editData.type === 'text' ? ' Length' : '')"
+                        ></label>
                         <template x-if="editData.type === 'text' || editData.type === 'number'">
-                            <input x-model="editData.min" type="number" name="min" id="min" placeholder="Min..." />
+                            <input
+                                x-model="editData.min"
+                                type="number"
+                                name="min"
+                                id="min"
+                                placeholder="Min..."
+                            />
                         </template>
                         <template x-if="editData.type === 'datetime' || editData.type === 'date'">
                             {{ template "date_field" }}
                         </template>
                     </div>
                     <div class="grid grid-cols-input items-center gap-1">
-                        <label for="max" x-text="'Maximum' + (editData.type === 'text' ? ' Length' : '')"></label>
+                        <label
+                            for="max"
+                            x-text="'Maximum' + (editData.type === 'text' ? ' Length' : '')"
+                        ></label>
                         <template x-if="editData.type === 'text' || editData.type === 'number'">
-                            <input x-model="editData.max" type="number" name="max" id="max" placeholder="Max..." />
+                            <input
+                                x-model="editData.max"
+                                type="number"
+                                name="max"
+                                id="max"
+                                placeholder="Max..."
+                            />
                         </template>
                         <template x-if="editData.type === 'datetime' || editData.type === 'date'">
                             {{ template "date_field" }}
@@ -293,7 +418,7 @@
                 <div class="grid grid-cols-input items-center gap-1">
                     <label for="layout">Layout</label>
                     <div
-                        class="w-full grid grid-cols-2 h-8 rounded text-[13px] border border-gray-100 bg-[#fafbfc] dark:bg-aux-dark dark:border-aux-dark"
+                        class="w-full grid grid-cols-2 h-8 rounded border border-gray-100 bg-[#fafbfc] dark:bg-aux-dark dark:border-aux-dark"
                     >
                         <button
                             class="m-[2px] rounded"

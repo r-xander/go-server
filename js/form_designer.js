@@ -342,7 +342,6 @@ const defaults = {
 const containerSortableOptions = {
     group: { name: "fieldCont", pull: true, put: true },
     animation: 150,
-    forceFallback: false,
     supportPointer: true,
 
     scroll: true,
@@ -361,6 +360,18 @@ const containerSortableOptions = {
     onEnd: function (evt) {
         movingField = false;
     },
+    setData: function (dataTransfer, dragEl) {
+        dataTransfer.setDragImage(new Image(), 0, 0);
+    },
+};
+
+/** @type {import("../types").Sortable.Options} */
+const newOptionSortableOptions = {
+    group: { name: "newOption", pull: false, put: false },
+    animation: 150,
+    supportPointer: true,
+    chosenClass: "!bg-sky-500/20",
+    handle: "#option-handle",
     setData: function (dataTransfer, dragEl) {
         dataTransfer.setDragImage(new Image(), 0, 0);
     },
