@@ -301,6 +301,8 @@ const defaults = {
         label: "Select Input",
         prompt: "",
         options: [],
+        multiselect: false,
+        dropdown: true,
         defaultValue: "",
         layout: "inline",
         description: "",
@@ -407,6 +409,7 @@ document.addEventListener("alpine:init", function (e) {
         sections: {},
 
         activeElementId: null,
+        activeSection: null,
         settingElementId: false,
 
         editData: {},
@@ -432,11 +435,12 @@ document.addEventListener("alpine:init", function (e) {
         initSection(/** @type {HTMLElement} */ el) {
             // @ts-ignore
             const id = this.formAcronym + "_section_" + this.currentSectionIndex.toString().padStart(5, "0");
-            this.currentSectionIndex++;
             const data = {
                 id,
+                label: "Section " + this.currentSectionIndex,
                 fields: [],
             };
+            this.currentSectionIndex++;
 
             this.sections[id] = data;
 
