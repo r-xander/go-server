@@ -17,7 +17,6 @@ function transition(el, duration = 150) {
     const animationDuration = el.animationDuration ?? duration;
     el.animationDuration ??= duration;
 
-    console.log(rect);
     el.style.overflow = "hidden";
     el.animate(
         [
@@ -105,7 +104,6 @@ function dragOver(e, el) {
 
     if (el) {
         if (el.parentElement.childElementCount > 1) {
-            console.log(el.parentElement.childElementCount, el.parentElement.childNodes);
             el.style.position = "absolute";
             el.style.inset = "0";
             el.style.visibility = "hidden";
@@ -124,7 +122,6 @@ function dragLeave(e, el) {
 
     if (el) {
         if (el.parentElement.childElementCount > 1) {
-            console.log(el.parentElement.childElementCount, el.parentElement.childNodes);
             el.style.position = "";
             el.style.top = "";
             el.style.visibility = "";
@@ -147,7 +144,6 @@ function drop(e, el) {
     const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
     const newEl = /** @type {HTMLElement} */ (document.importNode(template.content, true).firstElementChild);
 
-    console.log(el);
     if (target === el) {
         el.parentElement.appendChild(newEl);
     } else {
@@ -338,6 +334,9 @@ const defaults = {
         disabled: false,
         hidden: false,
     }),
+    section: () => ({
+        name: "",
+    }),
 };
 
 /** @type {import("../types").Sortable.Options} */
@@ -419,31 +418,29 @@ document.addEventListener("alpine:init", function (e) {
         previewWidth: 450,
         formLayout: "single",
 
-        getId() {
+        initField(/** @type {String} */ type) {
             // @ts-ignore
             let id = this.formAcronym + "-" + this.currentFieldIndex.toString().padStart(5, "0");
-            this.currentFieldIndex++;
-            return id;
-        },
-        initField(/** @type {String} */ type) {
-            const id = this.getId();
             const data = { id, ...defaults[type]() };
-            this.fieldData[id] = data;
+            this.currentFieldIndex++;
 
+            this.fieldData[id] = data;
             return this.fieldData[id];
         },
         initSection(/** @type {HTMLElement} */ el) {
             // @ts-ignore
-            const id = this.formAcronym + "_section_" + this.currentSectionIndex.toString().padStart(5, "0");
+            const id = this.formAcronym + "-section-" + this.currentSectionIndex.toString().padStart(5, "0");
             const data = {
                 id,
+                type: "section",
                 label: "Section " + this.currentSectionIndex,
+                name: "section_" + this.currentSectionIndex,
+                description: "",
                 fields: [],
             };
             this.currentSectionIndex++;
 
             this.sections[id] = data;
-
             return this.sections[id];
         },
         /**
@@ -480,7 +477,6 @@ document.addEventListener("alpine:init", function (e) {
             toSection.fields.splice(toIndex, 0, movedId);
         },
         processFieldMove(e) {
-            console.log(e);
             const moveId = e.item.id;
             const fromId = e.from.closest("[section-container]").id;
             const fromIdx = e.oldDraggableIndex;
@@ -490,7 +486,7 @@ document.addEventListener("alpine:init", function (e) {
             this.moveField(moveId, fromId, toId, fromIdx, toIdx);
         },
         editFieldData(id) {
-            this.editData = this.fieldData[id];
+            this.editData = this.fieldData[id] ?? this.sections[id];
             this.setActiveElement(id);
         },
         setActiveElement(id) {
@@ -501,8 +497,6 @@ document.addEventListener("alpine:init", function (e) {
             this.activeElementId = id;
             this.settingElementId = true;
             this.editModalOpen = id !== null;
-            console.log(this.settingElementId, id, this.editModalOpen);
-
             setTimeout(() => (this.settingElementId = false), 50);
         },
         setFieldData(data) {
