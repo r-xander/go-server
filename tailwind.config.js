@@ -24,8 +24,7 @@ module.exports = {
             },
             // Set theme colors (Required config!)
             colors: {
-                primary: colors.blue,
-                secondary: colors.slate,
+                primary: "#0ea5e9",
                 "base-dark": "#0e0e0e",
                 "card-dark": "#202020",
                 "aux-dark": "#2e2e2e",

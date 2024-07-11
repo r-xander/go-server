@@ -407,6 +407,7 @@ document.addEventListener("alpine:init", function (e) {
         fieldData: {},
         sections: {},
 
+        hoverElementId: null,
         activeElementId: null,
         activeSection: null,
         settingElementId: false,
