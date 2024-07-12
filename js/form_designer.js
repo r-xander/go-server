@@ -298,6 +298,7 @@ const defaults = {
         prompt: "",
         options: [],
         multiselect: false,
+        columns: 1,
         dropdown: true,
         defaultValue: "",
         layout: "inline",

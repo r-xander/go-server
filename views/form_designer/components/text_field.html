@@ -20,14 +20,29 @@
             :class="{ 'opacity-50': data.hidden, 'grid-cols-[3fr_4fr]': data.layout === 'inline' && data.label !== '' }"
             inert
         >
-            <div x-show="data.label !== ''" class="flex gap-1 p-1.5 m-px">
-                <label x-text="data.label" :for="data.id" class="font-medium select-none break-all"></label>
-                <span x-show="data.required" class="leading-4 font-semibold text-rose-500"> * </span>
+            <div
+                x-show="data.label !== ''"
+                class="flex gap-1 p-1.5 m-px"
+            >
+                <label
+                    x-text="data.label"
+                    :for="data.id"
+                    class="font-medium select-none break-all"
+                ></label>
+                <span
+                    x-show="data.required"
+                    class="leading-4 font-semibold text-rose-500"
+                >
+                    *
+                </span>
             </div>
             {{ if eq . "text" }} {{ template "text_input" }} {{ else if eq . "number" }} {{ template "number_input" }}
             {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "datetime" }} {{ template
             "date_field" }} {{ end }}
-            <div x-show="data.description != ''" class="col-span-full break-all">
+            <div
+                x-show="data.description != ''"
+                class="col-span-full break-all"
+            >
                 <span x-text="data.description"></span>
             </div>
         </div>
@@ -47,10 +62,16 @@
                     class="opacity-80"
                 ></span>
             </div>
-            <div x-data="{ }" class="absolute -right-px bottom-full flex gap-1">
+            <div
+                x-data="{ }"
+                class="absolute -right-px bottom-full flex gap-1"
+            >
                 <div>
                     <button class="w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
-                        <svg viewBox="0 0 15 15" class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]">
+                        <svg
+                            viewBox="0 0 15 15"
+                            class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]"
+                        >
                             <path
                                 d="M1 9.50006C1 10.3285 1.67157 11.0001 2.5 11.0001H4L4 10.0001H2.5C2.22386 10.0001 2 9.7762 2 9.50006L2 2.50006C2 2.22392 2.22386 2.00006 2.5 2.00006L9.5 2.00006C9.77614 2.00006 10 2.22392 10 2.50006V4.00002H5.5C4.67158 4.00002 4 4.67159 4 5.50002V12.5C4 13.3284 4.67158 14 5.5 14H12.5C13.3284 14 14 13.3284 14 12.5V5.50002C14 4.67159 13.3284 4.00002 12.5 4.00002H11V2.50006C11 1.67163 10.3284 1.00006 9.5 1.00006H2.5C1.67157 1.00006 1 1.67163 1 2.50006V9.50006ZM5 5.50002C5 5.22388 5.22386 5.00002 5.5 5.00002H12.5C12.7761 5.00002 13 5.22388 13 5.50002V12.5C13 12.7762 12.7761 13 12.5 13H5.5C5.22386 13 5 12.7762 5 12.5V5.50002Z"
                             />
@@ -62,7 +83,10 @@
                         class="w-5 h-5 p-1 cursor-pointer transition relative bg-sky-500 text-white hover:bg-sky-600"
                         @click="deleteDialogOpen = true"
                     >
-                        <svg viewBox="0 0 448 512" class="aspect-square fill-current">
+                        <svg
+                            viewBox="0 0 448 512"
+                            class="aspect-square fill-current"
+                        >
                             <path
                                 d="M268 416h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12zM432 80h-82.41l-34-56.7A48 48 0 0 0 274.41 0H173.59a48 48 0 0 0-41.16 23.3L98.41 80H16A16 16 0 0 0 0 96v16a16 16 0 0 0 16 16h16v336a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128h16a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16zM171.84 50.91A6 6 0 0 1 177 48h94a6 6 0 0 1 5.15 2.91L293.61 80H154.39zM368 464H80V128h288zm-212-48h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12z"
                             ></path>
@@ -158,21 +182,34 @@
         @change="$el.value = data.defaultValue ? data.defaultValue : ''"
         class="w-full"
     >
-        <option value="" x-text="data.prompt"></option>
+        <option
+            value=""
+            x-text="data.prompt"
+        ></option>
         <template x-for="option in data.options">
-            <option value="option.value" x-text="option.label"></option>
+            <option
+                value="option.value"
+                x-text="option.label"
+            ></option>
         </template>
     </select>
-    <div x-show="!data.dropdown" class="grid gap-2">
+    <div
+        x-show="!data.dropdown"
+        class="grid gap-2"
+        :style="{ gridTemplateColumns: `repeat(${data.columns}, minmax(0, 1fr))`}"
+    >
         <span
             x-show="data.options.length === 0"
-            class="flex items-center px-3 p-1.5 rounded border border-[#ccc] dark:bg-aux-dark dark:border-aux-dark"
+            class="col-span-full flex items-center px-3 p-1.5 rounded border border-[#ccc] dark:bg-aux-dark dark:border-aux-dark"
         >
             No options have been added
         </span>
-        <template x-for="option of data.options" :key="option.label">
+        <template
+            x-for="option of data.options"
+            :key="option.label"
+        >
             <label
-                class="grid grid-cols-[max-content_1fr] items-center gap-3 px-3 py-2 rounded border border-[#ccc] dark:bg-aux-dark dark:border-aux-dark"
+                class="grid grid-cols-[max-content_1fr] items-center gap-4 px-3 py-2 rounded border border-[#ccc] dark:bg-aux-dark dark:border-aux-dark"
             >
                 <input
                     x-model="option.value"
