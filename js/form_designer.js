@@ -335,8 +335,24 @@ const defaults = {
         disabled: false,
         hidden: false,
     }),
-    section: () => ({
-        name: "",
+    location: () => ({
+        type: "location",
+        name: "location",
+        label: "Location",
+        address: "",
+        city: "",
+        state: "",
+        zip: "",
+        lat: "",
+        long: "",
+        defaultValue: "",
+        layout: "inline",
+        description: "",
+        includeLabel: true,
+        required: false,
+        readonly: false,
+        disabled: false,
+        hidden: false,
     }),
 };
 
