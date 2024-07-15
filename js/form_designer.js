@@ -432,6 +432,8 @@ document.addEventListener("alpine:init", function (e) {
         editData: {},
         editModalOpen: false,
 
+        mapPopupOpen: false,
+
         previewFull: true,
         previewWidth: 450,
         formLayout: "single",
@@ -525,6 +527,9 @@ document.addEventListener("alpine:init", function (e) {
             const el = document.getElementById(id);
             await removeElement(el);
             delete this.fieldData[id];
+        },
+        showMapPopup() {
+            this.mapPopupOpen = true;
         },
         isInput() {
             if (!this.editData) {
@@ -775,3 +780,57 @@ document.addEventListener("alpine:init", function (e) {
         },
     }));
 });
+
+/************************************************/
+/*                                              */
+/*              Leaflet Extensions              */
+/*                                              */
+/************************************************/
+
+//@ts-ignore
+L.Control.CurrentLocation = L.Control.extend({
+    options: {
+        position: "topleft",
+        id: "",
+        title: "",
+        classes: "",
+        content: "",
+        style: {},
+        datas: {},
+        events: {},
+    },
+    container: null,
+    map: null,
+    onAdd: function (map) {
+        //@ts-ignore
+        this.container = L.DomUtil.create("button");
+        this.container.title = "Current Location";
+        this.map = map;
+
+        this.container.innerHTML =
+            '<svg viewBox="0 0 512 512" class="w-[1.375rem] h-[1.375rem] fill-none stroke-current stroke-[3rem] [stroke-linecap:round] [stroke-linejoin:round]"><line x1="256" y1="96" x2="256" y2="56" /><line x1="256" y1="456" x2="256" y2="416" /><path d="M256,112A144,144,0,1,0,400,256,144,144,0,0,0,256,112Z" /><line x1="416" y1="256" x2="456" y2="256" /><line x1="56" y1="256" x2="96" y2="256" /></svg>';
+        this.container.classList.add("p-1", "rounded", "bg-white", "text-black", "border-2", "border-black/30");
+
+        //@ts-ignore
+        L.DomEvent.disableScrollPropagation(this.container);
+        //@ts-ignore
+        L.DomEvent.disableClickPropagation(this.container);
+        //@ts-ignore
+        L.DomEvent.on(this.container, "contextmenu", L.DomEvent.stopPropagation);
+        //@ts-ignore
+        L.DomEvent.on(this.container, "click", this.getCurrentLocation, this);
+
+        return this.container;
+    },
+    onRemove: function (map) {
+        //@ts-ignore
+        L.DomEvent.off(this.container, "click", this.getCurrentLocation, this);
+    },
+    getCurrentLocation: function (e) {
+        this.map.locate({ setView: true, maxZoom: 16 });
+    },
+});
+
+L.control.currentLocation = function (options) {
+    return new L.Control.CurrentLocation(options);
+};
