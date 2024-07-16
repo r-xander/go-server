@@ -1,36 +1,36 @@
 {{ define "map_popup" }}
-<div
+<dialog
     x-data="{
         map: null,
         marker: null,
         init() {
-            this.map = L.map(data.id + '-location')
+            this.map = L.map('map-popup')
                 .on('locationerror', (e) => alert('error finding location'))
-                .on('locationfound', this.moveMarker.bind(this))
-                .on('click', this.moveMarker.bind(this));
+                .on('locationfound', this.setMarker.bind(this))
+                .on('click', this.setMarker.bind(this));
             
-            this.marker = new L.marker(e.latlng, { draggable: true, autoPan: true })
-                .on('dragend', dragEnd.bind(this))
+            this.marker = new L.marker([0,0], { draggable: true, autoPan: true })
+                .on('dragend', this.moveMarker.bind(this))
                 .addTo(this.map);
 
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(this.map);
             L.control.currentLocation().addTo(this.map);
 
             this.map.locate({setView: true, maxZoom: 16});
+            mapPopup = $el;
         },
-        dragEnd(e) {
+        moveMarker(e) {
             var position = this.marker.getLatLng();
             this.lat = position.lat
             this.lng = position.lng
-        }
-        moveMarker(e) {
+        },
+        setMarker(e) {
             this.lat = e.latlng.lat
             this.lng = e.latlng.lng
             this.marker.setLatLng(e.latlng)
         }
     }"
-    x-show="mapPopupOpen"
-    class="absolute w-full rounded-md border bg-white border-gray-100 dark:bg-aux-dark dark:border-aux-dark"
+    class="absolute open:flex open:flex-col w-[75dvw] h-[95dvh] rounded-md border bg-white border-gray-100 dark:bg-aux-dark dark:border-aux-dark"
 >
     <div class="relative flex items-center gap-4 px-4 py-2">
         <div class="relative flex items-center justify-center w-2/3 m-auto">
@@ -40,7 +40,13 @@
                     class="h-4 w-4 fill-none stroke-current stroke-[2rem] [stroke-miterlimit:10]"
                 >
                     <path d="M221.09,64A157.09,157.09,0,1,0,378.18,221.09,157.1,157.1,0,0,0,221.09,64Z" />
-                    <line x1="338.29" y1="338.29" x2="448" y2="448" style="stroke-linecap: round" />
+                    <line
+                        x1="338.29"
+                        y1="338.29"
+                        x2="448"
+                        y2="448"
+                        style="stroke-linecap: round"
+                    />
                 </svg>
             </button>
             <input
@@ -50,20 +56,31 @@
             />
         </div>
         <button
-            @click="mapPopupOpen = false"
+            @click="mapPopup.close()"
             class="absolute right-4 p-1 rounded hover:bg-gray-100 dark:hover:bg-accent-dark dark:hover:text-white"
         >
-            <svg viewBox="0 0 1024 1024" class="w-4 h-4 fill-current [fill-rule:evenodd]">
+            <svg
+                viewBox="0 0 1024 1024"
+                class="w-4 h-4 fill-current [fill-rule:evenodd]"
+            >
                 <path
                     d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
                 ></path>
             </svg>
         </button>
     </div>
-    <div :id="data.id + '-location'" class="h-[500px]"></div>
+    <div
+        id="map-popup"
+        class="flex-1 h-full"
+    ></div>
     <div class="mx-5 py-4">
         <div x-show="false"></div>
-        <span x-show="true" class="text-base">No Results</span>
+        <span
+            x-show="true"
+            class="text-base"
+        >
+            No Results
+        </span>
     </div>
-</div>
+</dialog>
 {{ end }}

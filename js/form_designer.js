@@ -432,7 +432,8 @@ document.addEventListener("alpine:init", function (e) {
         editData: {},
         editModalOpen: false,
 
-        mapPopupOpen: false,
+        /** @type {HTMLDialogElement} */
+        mapPopup: null,
 
         previewFull: true,
         previewWidth: 450,
@@ -528,8 +529,9 @@ document.addEventListener("alpine:init", function (e) {
             await removeElement(el);
             delete this.fieldData[id];
         },
-        showMapPopup() {
-            this.mapPopupOpen = true;
+        showMapPopup(data) {
+            console.log(data);
+            this.mapPopup.showModal();
         },
         isInput() {
             if (!this.editData) {

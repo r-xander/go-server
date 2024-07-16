@@ -10,10 +10,23 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
 ></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-<script src="/js/form_designer.js" type="text/javascript" charset="utf-8"></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"
+    defer
+></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js"
+    defer
+></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    defer
+></script>
+<script
+    src="/js/form_designer.js"
+    type="text/javascript"
+    charset="utf-8"
+></script>
 {{ end }} {{ define "body" }}
 <main
     x-data="formData"
@@ -59,14 +72,20 @@
                 class="absolute -right-12 top-4 shadow-md rounded-md overflow-hidden bg-white dark:bg-card-dark"
             >
                 <button class="flex items-center justify-center h-8 w-8 hover:bg-neutral-200 dark:hover:bg-aux-dark">
-                    <svg class="inline-block h-3 overflow-visible fill-current" viewBox="0 0 576 512">
+                    <svg
+                        class="inline-block h-3 overflow-visible fill-current"
+                        viewBox="0 0 576 512"
+                    >
                         <path
                             d="M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1.8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z"
                         ></path>
                     </svg>
                 </button>
                 <button class="flex items-center justify-center h-8 w-8 hover:bg-neutral-200 dark:hover:bg-aux-dark">
-                    <svg class="inline-block h-3 overflow-visible fill-current" viewBox="0 0 576 512">
+                    <svg
+                        class="inline-block h-3 overflow-visible fill-current"
+                        viewBox="0 0 576 512"
+                    >
                         <path
                             d="M288 144a110.94 110.94 0 0 0-31.24 5 55.4 55.4 0 0 1 7.24 27 56 56 0 0 1-56 56 55.4 55.4 0 0 1-27-7.24A111.71 111.71 0 1 0 288 144zm284.52 97.4C518.29 135.59 410.93 64 288 64S57.68 135.64 3.48 241.41a32.35 32.35 0 0 0 0 29.19C57.71 376.41 165.07 448 288 448s230.32-71.64 284.52-177.41a32.35 32.35 0 0 0 0-29.19zM288 400c-98.65 0-189.09-55-237.93-144C98.91 167 189.34 112 288 112s189.09 55 237.93 144C477.1 345 386.66 400 288 400z"
                         ></path>
@@ -76,7 +95,10 @@
                     @click="addSectionElement"
                     class="flex items-center justify-center h-8 w-8 hover:bg-neutral-200 dark:hover:bg-aux-dark"
                 >
-                    <svg class="inline-block h-3 overflow-visible fill-current" viewBox="0 0 448 512">
+                    <svg
+                        class="inline-block h-3 overflow-visible fill-current"
+                        viewBox="0 0 448 512"
+                    >
                         <path
                             d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
                         ></path>
@@ -94,7 +116,10 @@
                 x-transition
                 class="grid h-fit mb-5 rounded-md overflow-hidden border-x border-b divide-y bg-gray-100 border-gray-100 divide-gray-100 dark:bg-card-dark dark:border-aux-dark dark:divide-aux-dark"
             >
-                <template x-for="section of sections" :key="section.id">
+                <template
+                    x-for="section of sections"
+                    :key="section.id"
+                >
                     <button
                         x-text="section.label"
                         class="py-2 px-4 hover:bg-gray-100 dark:hover:bg-aux-dark"
@@ -113,7 +138,10 @@
         class="relative z-10 w-[22rem] shrink-0 grow-0 select-none overflow-hidden dark:bg-card-dark"
         @pointerdown.stop
     >
-        <div x-data="{ tab: 1 }" class="absolute inset-0">
+        <div
+            x-data="{ tab: 1 }"
+            class="absolute inset-0"
+        >
             <div
                 class="flex items-center h-10 text-sm font-semibold text-[#929292] bg-[#f1f5f9] divide-x dark:bg-aux-dark dark:text-[#b5b5b5]"
             >
@@ -140,15 +168,27 @@
                 </button>
             </div>
             <div class="absolute top-10 bottom-0 left-0 right-0">
-                <div x-show="tab === 1" class="flex flex-col p-4 pt-8 gap-4 text-sm">
+                <div
+                    x-show="tab === 1"
+                    class="flex flex-col p-4 pt-8 gap-4 text-sm"
+                >
                     <div class="grid grid-cols-[5fr_7fr] gap-1 items-center">
                         <label for="form-name">Form</label>
-                        <input x-model="formName" type="text" name="form-name" id="form-name" class="w-full" />
+                        <input
+                            x-model="formName"
+                            type="text"
+                            name="form-name"
+                            id="form-name"
+                            class="w-full"
+                        />
                     </div>
                     <div class="grid grid-cols-[5fr_7fr] gap-2 items-center">
                         <label for="preview-width">Preview Width</label>
                         <div class="flex w-full gap-4">
-                            <label for="preview-full" class="flex items-center gap-2 h-9">
+                            <label
+                                for="preview-full"
+                                class="flex items-center gap-2 h-9"
+                            >
                                 <input
                                     x-model="previewFull"
                                     type="checkbox"
@@ -196,8 +236,14 @@
                         </div>
                     </div>
                 </div>
-                <div x-show="tab === 2" class="flex flex-col p-4 gap-4 text-sm"></div>
-                <div x-show="tab === 3" class="flex flex-col p-4 gap-4 text-sm"></div>
+                <div
+                    x-show="tab === 2"
+                    class="flex flex-col p-4 gap-4 text-sm"
+                ></div>
+                <div
+                    x-show="tab === 3"
+                    class="flex flex-col p-4 gap-4 text-sm"
+                ></div>
             </div>
         </div>
         <div
@@ -213,7 +259,10 @@
                         @click="setActiveElement(null)"
                         class="absolute top-2 left-4 p-1 rounded transition text-neutral-500 hover:text-neutral-700 hover:bg-[#f1f5f9] dark:text-neutral-300 dark:hover:text-white dark:hover:bg-aux-dark"
                     >
-                        <svg viewBox="0 0 1024 1024" class="w-4 h-4 fill-current [fill-rule:evenodd]">
+                        <svg
+                            viewBox="0 0 1024 1024"
+                            class="w-4 h-4 fill-current [fill-rule:evenodd]"
+                        >
                             <path
                                 d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
                             ></path>
@@ -223,7 +272,10 @@
                         <button
                             class="w-6 h-6 p-1 rounded transition text-neutral-500 hover:text-neutral-700 hover:bg-[#f1f5f9] dark:text-neutral-300 dark:hover:text-white dark:hover:bg-aux-dark"
                         >
-                            <svg viewBox="0 0 15 15" class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]">
+                            <svg
+                                viewBox="0 0 15 15"
+                                class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]"
+                            >
                                 <path
                                     d="M1 9.50006C1 10.3285 1.67157 11.0001 2.5 11.0001H4L4 10.0001H2.5C2.22386 10.0001 2 9.7762 2 9.50006L2 2.50006C2 2.22392 2.22386 2.00006 2.5 2.00006L9.5 2.00006C9.77614 2.00006 10 2.22392 10 2.50006V4.00002H5.5C4.67158 4.00002 4 4.67159 4 5.50002V12.5C4 13.3284 4.67158 14 5.5 14H12.5C13.3284 14 14 13.3284 14 12.5V5.50002C14 4.67159 13.3284 4.00002 12.5 4.00002H11V2.50006C11 1.67163 10.3284 1.00006 9.5 1.00006H2.5C1.67157 1.00006 1 1.67163 1 2.50006V9.50006ZM5 5.50002C5 5.22388 5.22386 5.00002 5.5 5.00002H12.5C12.7761 5.00002 13 5.22388 13 5.50002V12.5C13 12.7762 12.7761 13 12.5 13H5.5C5.22386 13 5 12.7762 5 12.5V5.50002Z"
                                 />
@@ -232,14 +284,20 @@
                         <button
                             class="w-6 h-6 p-1 rounded transition text-neutral-500 hover:text-neutral-700 hover:bg-[#f1f5f9] dark:text-neutral-300 dark:hover:text-white dark:hover:bg-aux-dark"
                         >
-                            <svg viewBox="0 0 448 512" class="aspect-square fill-current">
+                            <svg
+                                viewBox="0 0 448 512"
+                                class="aspect-square fill-current"
+                            >
                                 <path
                                     d="M268 416h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12zM432 80h-82.41l-34-56.7A48 48 0 0 0 274.41 0H173.59a48 48 0 0 0-41.16 23.3L98.41 80H16A16 16 0 0 0 0 96v16a16 16 0 0 0 16 16h16v336a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128h16a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16zM171.84 50.91A6 6 0 0 1 177 48h94a6 6 0 0 1 5.15 2.91L293.61 80H154.39zM368 464H80V128h288zm-212-48h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12z"
                                 ></path>
                             </svg>
                         </button>
                     </div>
-                    <div x-text="editData.id" class="h-11 p-2 text-center"></div>
+                    <div
+                        x-text="editData.id"
+                        class="h-11 p-2 text-center"
+                    ></div>
                 </div>
                 <div
                     class="grid grid-cols-2 h-9 mx-4 rounded-md text-sm border bg-[#fafbfc] border-gray-100 dark:bg-aux-dark dark:border-aux-dark"
@@ -279,12 +337,20 @@
                     >
                         <h3 class="text-[13px] font-semibold">Field State</h3>
                         <span class="flex items-center">
-                            <svg x-show="open" viewBox="0 0 384 512" class="fill-current h-3">
+                            <svg
+                                x-show="open"
+                                viewBox="0 0 384 512"
+                                class="fill-current h-3"
+                            >
                                 <path
                                     d="M368 224H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h352c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                                 ></path>
                             </svg>
-                            <svg x-show="!open" viewBox="0 0 384 512" class="fill-current h-3">
+                            <svg
+                                x-show="!open"
+                                viewBox="0 0 384 512"
+                                class="fill-current h-3"
+                            >
                                 <path
                                     d="M368 224H224V80c0-8.84-7.16-16-16-16h-32c-8.84 0-16 7.16-16 16v144H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h144v144c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16V288h144c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                                 ></path>
@@ -302,6 +368,7 @@
             </div>
         </div>
     </div>
+    <template x-teleport="body"> {{ template "map_popup" }} </template>
 </main>
 {{ template "text_field" "text" }} {{ template "text_field" "number" }} {{ template "text_field" "select" }} {{ template
 "text_field" "datetime" }} {{ template "text_field" "location" }} {{ template "section" }} {{ end }}
