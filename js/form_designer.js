@@ -434,6 +434,8 @@ document.addEventListener("alpine:init", function (e) {
 
         /** @type {HTMLDialogElement} */
         mapPopup: null,
+        map: null,
+        marker: null,
 
         previewFull: true,
         previewWidth: 450,
@@ -532,6 +534,7 @@ document.addEventListener("alpine:init", function (e) {
         showMapPopup(data) {
             console.log(data);
             this.mapPopup.showModal();
+            this.map.invalidateSize().locate({ setView: true, maxZoom: 16 });
         },
         isInput() {
             if (!this.editData) {
@@ -791,37 +794,42 @@ document.addEventListener("alpine:init", function (e) {
 
 //@ts-ignore
 L.Control.CurrentLocation = L.Control.extend({
-    options: {
-        position: "topleft",
-        id: "",
-        title: "",
-        classes: "",
-        content: "",
-        style: {},
-        datas: {},
-        events: {},
-    },
+    options: { position: "topleft" },
     container: null,
     map: null,
     onAdd: function (map) {
-        //@ts-ignore
-        this.container = L.DomUtil.create("button");
-        this.container.title = "Current Location";
         this.map = map;
 
-        this.container.innerHTML =
-            '<svg viewBox="0 0 512 512" class="w-[1.375rem] h-[1.375rem] fill-none stroke-current stroke-[3rem] [stroke-linecap:round] [stroke-linejoin:round]"><line x1="256" y1="96" x2="256" y2="56" /><line x1="256" y1="456" x2="256" y2="416" /><path d="M256,112A144,144,0,1,0,400,256,144,144,0,0,0,256,112Z" /><line x1="416" y1="256" x2="456" y2="256" /><line x1="56" y1="256" x2="96" y2="256" /></svg>';
-        this.container.classList.add("p-1", "rounded", "bg-white", "text-black", "border-2", "border-black/30");
+        /** @type {HTMLDivElement} */
+        //@ts-ignore
+        this.container = L.DomUtil.create("div");
+        this.container.setAttribute("class", "leaflet-bar");
 
+        //@ts-ignore
+        L.DomEvent.on(this.container, "contextmenu", L.DomEvent.preventDefault);
         //@ts-ignore
         L.DomEvent.disableScrollPropagation(this.container);
         //@ts-ignore
         L.DomEvent.disableClickPropagation(this.container);
-        //@ts-ignore
-        L.DomEvent.on(this.container, "contextmenu", L.DomEvent.stopPropagation);
-        //@ts-ignore
-        L.DomEvent.on(this.container, "click", this.getCurrentLocation, this);
 
+        /** @type {HTMLAnchorElement} */
+        //@ts-ignore
+        const anchor = L.DomUtil.create("a");
+        anchor.title = "Current Location";
+        anchor.href = "#";
+        anchor.role = "button";
+        anchor.setAttribute("class", "p-1");
+        anchor.innerHTML =
+            '<svg viewBox="0 0 24 24" class="w-5.5 h-5.5 fill-none stroke-current stroke-[2px] [stroke-linecap:round] [stroke-linejoin:round]"><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0" /><path d="M12 2l0 2" /><path d="M12 20l0 2" /><path d="M20 12l2 0" /><path d="M2 12l2 0" /></svg>';
+
+        //@ts-ignore
+        L.DomEvent.on(anchor, "click", L.DomEvent.stop);
+        //@ts-ignore
+        L.DomEvent.on(anchor, "click", this.getCurrentLocation, this);
+        //@ts-ignore
+        L.DomEvent.on(anchor, "click", this._refocusOnMap, this);
+
+        this.container.append(anchor);
         return this.container;
     },
     onRemove: function (map) {
@@ -835,4 +843,69 @@ L.Control.CurrentLocation = L.Control.extend({
 
 L.control.currentLocation = function (options) {
     return new L.Control.CurrentLocation(options);
+};
+
+//@ts-ignore
+L.Control.Search = L.Control.extend({
+    options: { position: "topright" },
+    container: null,
+    map: null,
+    onAdd: function (map) {
+        this.map = map;
+
+        /** @type {HTMLDivElement} */
+        //@ts-ignore
+        this.container = L.DomUtil.create("div");
+        this.container.setAttribute(
+            "class",
+            "relative flex px-5 py-3 shadow-md rounded-full text-accent-dark bg-white border-2 border-black/20 focus-within:!border-[#2880caB3]"
+        );
+        this.container.title = "Search";
+
+        /** @type {HTMLInputElement} */
+        //@ts-ignore
+        const input = L.DomUtil.create("input");
+        input.setAttribute("class", "w-[clamp(240px,40dvh,340px)] mr-6 text-sm bg-transparent");
+        input.style.outline = "none";
+        input.placeholder = "Search";
+
+        /** @type {HTMLButtonElement} */
+        //@ts-ignore
+        const searchBtn = L.DomUtil.create("button");
+        searchBtn.setAttribute(
+            "class",
+            "absolute p-1.5 top-1.5 right-1.5 rounded-full transition hover:!text-[#2880ca] focus:!text-[#2880ca]"
+        );
+        searchBtn.style.outline = "none";
+        searchBtn.innerHTML =
+            '<svg viewBox="0 0 512 512" class="h-5 w-5 fill-none stroke-current stroke-[3rem] [stroke-miterlimit:10]"><path d="M221.09,64A157.09,157.09,0,1,0,378.18,221.09,157.1,157.1,0,0,0,221.09,64Z" /><line x1="338.29" y1="338.29" x2="448" y2="448" style="stroke-linecap: round" /></svg>';
+
+        this.container.append(input);
+        this.container.append(searchBtn);
+
+        //@ts-ignore
+        L.DomEvent.disableScrollPropagation(this.container);
+        //@ts-ignore
+        L.DomEvent.disableClickPropagation(this.container);
+        //@ts-ignore
+        L.DomEvent.on(this.container, "contextmenu", L.DomEvent.stopPropagation);
+        //@ts-ignore
+        L.DomEvent.on(input, "input", this.onInput, this);
+
+        return this.container;
+    },
+    onRemove: function (map) {
+        //@ts-ignore
+        L.DomEvent.off(this.container, "click", this.getCurrentLocation, this);
+    },
+    getCurrentLocation: function (e) {
+        this.map.locate({ setView: true, maxZoom: 16 });
+    },
+    onInput(e) {
+        console.log(e);
+    },
+});
+
+L.control.search = function (options) {
+    return new L.Control.Search(options);
 };

@@ -1,86 +1,81 @@
 {{ define "map_popup" }}
 <dialog
     x-data="{
-        map: null,
-        marker: null,
+        location: null,
+        latitude: 0,
+        longitude: 0,
         init() {
-            this.map = L.map('map-popup')
+            mapPopup = $el;
+            map = L.map('map-popup')
                 .on('locationerror', (e) => alert('error finding location'))
                 .on('locationfound', this.setMarker.bind(this))
                 .on('click', this.setMarker.bind(this));
             
-            this.marker = new L.marker([0,0], { draggable: true, autoPan: true })
-                .on('dragend', this.moveMarker.bind(this))
-                .addTo(this.map);
+            marker = new L.marker([this.latitude, this.longitude], { draggable: true, autoPan: true })
+                .on('dragend', this.dragEnd.bind(this))
+                .addTo(map);
 
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(this.map);
-            L.control.currentLocation().addTo(this.map);
-
-            this.map.locate({setView: true, maxZoom: 16});
-            mapPopup = $el;
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: `&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors`,
+                className: 'map-tiles'
+            }).addTo(map);
+            L.control.currentLocation().addTo(map);
+            L.control.search().addTo(map);
         },
-        moveMarker(e) {
-            var position = this.marker.getLatLng();
-            this.lat = position.lat
-            this.lng = position.lng
+        dragEnd(e) {
+            var position = marker.getLatLng();
+            this.latitude = position.lat
+            this.longitude = position.lng
+            this.location = ''
         },
         setMarker(e) {
-            this.lat = e.latlng.lat
-            this.lng = e.latlng.lng
-            this.marker.setLatLng(e.latlng)
+            this.latitude = e.latlng.lat
+            this.longitude = e.latlng.lng
+            marker.setLatLng(e.latlng).addTo(map)
+            this.location = ''
         }
     }"
-    class="absolute open:flex open:flex-col w-[75dvw] h-[95dvh] rounded-md border bg-white border-gray-100 dark:bg-aux-dark dark:border-aux-dark"
+    x-transition
+    class="relative backdrop:bg-gray-400/40 open:flex flex-col w-[60dvw] h-[85dvh] p-4 shadow-lg rounded-md bg-white dark:bg-aux-dark"
 >
-    <div class="relative flex items-center gap-4 px-4 py-2">
-        <div class="relative flex items-center justify-center w-2/3 m-auto">
-            <button class="absolute p-2 right-0">
-                <svg
-                    viewBox="0 0 512 512"
-                    class="h-4 w-4 fill-none stroke-current stroke-[2rem] [stroke-miterlimit:10]"
-                >
-                    <path d="M221.09,64A157.09,157.09,0,1,0,378.18,221.09,157.1,157.1,0,0,0,221.09,64Z" />
-                    <line
-                        x1="338.29"
-                        y1="338.29"
-                        x2="448"
-                        y2="448"
-                        style="stroke-linecap: round"
-                    />
-                </svg>
-            </button>
-            <input
-                type="text"
-                style="padding-right: 2rem"
-                class="w-full border bg-gray-50 border-gray-200 dark:bg-accent-dark dark:border-accent-dark"
-            />
+    <div class="relative flex p-4 -mx-4 -mt-4">
+        <div class="flex gap-4 items-center">
+            <h2>Select a Location</h2>
         </div>
         <button
             @click="mapPopup.close()"
             class="absolute right-4 p-1 rounded hover:bg-gray-100 dark:hover:bg-accent-dark dark:hover:text-white"
         >
-            <svg
-                viewBox="0 0 1024 1024"
-                class="w-4 h-4 fill-current [fill-rule:evenodd]"
-            >
+            <svg viewBox="0 0 1024 1024" class="w-4 h-4 fill-current [fill-rule:evenodd]">
                 <path
                     d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
                 ></path>
             </svg>
         </button>
     </div>
+    <div id="map-popup" class="flex-1 h-full rounded"></div>
     <div
-        id="map-popup"
-        class="flex-1 h-full"
-    ></div>
-    <div class="mx-5 py-4">
-        <div x-show="false"></div>
-        <span
-            x-show="true"
-            class="text-base"
-        >
-            No Results
-        </span>
+        x-show="location !== null"
+        class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-start justify-between gap-12 p-4 z-[10000] text-sm rounded-lg bg-white dark:bg-aux-dark"
+    >
+        <div>
+            <h3>6801 Industrial Rd</h3>
+            <div class="text-xs text-neutral-400">Springfield, VA 22151</div>
+            <hr class="my-2" />
+            <span x-text="`${latitude.toFixed(8)}, ${longitude.toFixed(8)}`" class="text-xs text-[#2cb9e3]"></span>
+        </div>
+        <div class="grid gap-2">
+            <button class="px-5 py-1.5 rounded border text-white bg-[var(--primary)] border-[var(--primary)]">
+                Use Location
+            </button>
+            <button
+                class="px-5 py-1.5 rounded border border-gray-200 dark:border-[#434343]"
+                @click="location = null; marker.remove()"
+            >
+                Clear
+            </button>
+        </div>
     </div>
 </dialog>
 {{ end }}

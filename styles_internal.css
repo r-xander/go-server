@@ -7,7 +7,8 @@
     --font-color: rgb(255 255 255 / 0.87);
     --accent-color: rgb(56 56 56);
     --primary: #0284c7;
-    --primary: #0ea5e9;
+    --primary: #2880ca;
+    --map-tiles-filter: invert(95%) hue-rotate(180deg) brightness(95%) contrast(110%);
 
     color-scheme: light dark;
     color: #525252;
@@ -28,6 +29,30 @@
         -webkit-text-fill-color: var(--font-color) !important;
         border: 1px solid rgb(206, 206, 206) !important;
         caret-color: var(--font-color);
+    }
+
+    .map-tiles {
+        filter: var(--map-tiles-filter, none);
+    }
+
+    .leaflet-control {
+        border: 2px solid rgb(215 215 215 / 0.4) !important;
+        background-color: #2e2e2e;
+    }
+
+    .leaflet-control > a {
+        border-color: #3e3e3e;
+    }
+
+    .leaflet-control > * {
+        color: var(--font-color) !important;
+        background-color: transparent !important;
+        transition: all 0.15s ease;
+    }
+
+    .leaflet-control a:hover {
+        color: white !important;
+        background-color: #3e3e3e !important;
     }
 }
 

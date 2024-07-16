@@ -7,6 +7,10 @@ module.exports = {
     content: ["./**/*.{html,js}"],
     theme: {
         extend: {
+            spacing: {
+                4.5: "1.125rem",
+                5.5: "1.375rem",
+            },
             gridTemplateColumns: {
                 "fill-20": "repeat(auto-fill, minmax(5rem, 1fr))",
                 input: "minmax(0, 5fr) minmax(0, 7fr)",
