@@ -339,13 +339,16 @@ const defaults = {
         type: "location",
         name: "location",
         label: "Location",
+        placeholder: "Address",
         address: "",
+        streetNumber: "",
+        street: "",
         city: "",
         state: "",
         zip: "",
         lat: "",
         long: "",
-        defaultValue: "",
+        defaultCurrent: false,
         layout: "inline",
         description: "",
         includeLabel: true,
@@ -858,7 +861,7 @@ L.Control.Search = L.Control.extend({
         this.container = L.DomUtil.create("div");
         this.container.setAttribute(
             "class",
-            "relative flex shadow-md rounded-full text-accent-dark bg-white dark:bg-[#121212] dark:text-white"
+            "relative flex mt-4 mr-4 shadow-md rounded-full text-accent-dark bg-white dark:bg-[#121212] dark:text-white"
         );
         this.container.title = "Search";
 
@@ -867,7 +870,7 @@ L.Control.Search = L.Control.extend({
         const input = L.DomUtil.create("input");
         input.setAttribute(
             "class",
-            "w-[clamp(240px,40dvh,340px)] pl-5 pr-11 py-3 text-sm rounded-full bg-transparent border-2 border-black/20 dark:border-[#73737366] focus:!border-[#2880caB3] placeholder:!text-neutral-500"
+            "w-[clamp(240px,40dvh,340px)] pl-5 pr-11 py-3 text-sm rounded-full bg-transparent border-2 border-black/20 dark:border-[#73737366] focus:!border-[#2880caB3] placeholder:!text-neutral-400"
         );
         input.style.outline = "none";
         input.placeholder = "Search";
@@ -877,7 +880,7 @@ L.Control.Search = L.Control.extend({
         const searchBtn = L.DomUtil.create("button");
         searchBtn.setAttribute(
             "class",
-            "absolute p-1.5 top-2 right-2 rounded-full transition text-neutral-500 hover:!text-[#2880ca] focus:!text-[#2880ca]"
+            "absolute p-1.5 top-2 right-2 rounded-full transition text-neutral-400 hover:!text-[#2880ca] focus:!text-[#2880ca]"
         );
         searchBtn.style.outline = "none";
         searchBtn.innerHTML =

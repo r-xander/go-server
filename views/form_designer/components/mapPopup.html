@@ -39,7 +39,7 @@
     x-transition
     class="relative backdrop:bg-gray-400/40 open:flex flex-col w-[60dvw] h-[85dvh] p-4 shadow-lg rounded-md bg-white dark:bg-card-dark"
 >
-    <div class="relative flex p-4 -mx-4 -mt-4">
+    <div class="relative flex px-4 py-2 -mx-4 -mt-4">
         <div class="flex gap-4 items-center">
             <h2>Select a Location</h2>
         </div>
@@ -47,10 +47,7 @@
             @click="mapPopup.close()"
             class="absolute right-4 p-1 rounded hover:bg-gray-100 dark:hover:bg-accent-dark dark:hover:text-white"
         >
-            <svg
-                viewBox="0 0 1024 1024"
-                class="w-4 h-4 fill-current [fill-rule:evenodd]"
-            >
+            <svg viewBox="0 0 1024 1024" class="w-4 h-4 fill-current [fill-rule:evenodd]">
                 <path
                     d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
                 ></path>
@@ -59,20 +56,17 @@
     </div>
     <div
         id="map-popup"
-        class="flex-1 h-full rounded"
+        class="flex-1 h-full rounded border-2 border-black/20 dark:border-[#73737366] dark:!bg-[#121212]"
     ></div>
     <div
         x-show="location !== null"
-        class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-start justify-between gap-12 p-4 z-[10000] text-sm rounded-lg bg-white dark:bg-card-dark"
+        class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-start justify-between gap-12 p-4 z-[10000] text-sm rounded-lg border-2 bg-white border-black/20 dark:bg-card-dark dark:border-[#73737366]"
     >
         <div>
             <h3>6801 Industrial Rd</h3>
             <div class="text-xs text-neutral-400">Springfield, VA 22151</div>
             <hr class="mt-3 mb-2" />
-            <span
-                x-text="`${latitude.toFixed(8)}, ${longitude.toFixed(8)}`"
-                class="text-xs text-[#2cb9e3]"
-            ></span>
+            <span x-text="`${latitude.toFixed(8)}, ${longitude.toFixed(8)}`" class="text-xs text-[#2cb9e3]"></span>
         </div>
         <div class="grid gap-3">
             <button class="px-5 py-1.5 rounded border text-white bg-[var(--primary)] border-[var(--primary)]">
