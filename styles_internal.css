@@ -35,24 +35,24 @@
         filter: var(--map-tiles-filter, none);
     }
 
-    .leaflet-control {
-        border: 2px solid rgb(215 215 215 / 0.4) !important;
-        background-color: #2e2e2e;
+    .leaflet-control:not(.leaflet-control-attribution, :has(input)) {
+        border: 2px solid #73737366 !important;
+        background-color: #121212;
     }
 
-    .leaflet-control > a {
-        border-color: #3e3e3e;
+    .leaflet-control:not(.leaflet-control-attribution) > a {
+        border-color: #2e2e2e;
     }
 
-    .leaflet-control > * {
-        color: var(--font-color) !important;
+    .leaflet-control:not(.leaflet-control-attribution) > :not(input, button) {
+        color: #b4b4b4 !important;
         background-color: transparent !important;
         transition: all 0.15s ease;
     }
 
-    .leaflet-control a:hover {
+    .leaflet-control:not(.leaflet-control-attribution) a:hover {
         color: white !important;
-        background-color: #3e3e3e !important;
+        background-color: #2e2e2e !important;
     }
 }
 
