@@ -357,6 +357,20 @@ const defaults = {
         disabled: false,
         hidden: false,
     }),
+    calculation: () => ({
+        type: "calculation",
+        name: "calculation",
+        label: "Calculation",
+        calculation: "",
+        calcFields: [],
+        layout: "inline",
+        description: "",
+        includeLabel: true,
+        required: false,
+        readonly: false,
+        disabled: false,
+        hidden: false,
+    }),
 };
 
 /** @type {import("../types").Sortable.Options} */
