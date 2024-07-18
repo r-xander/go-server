@@ -1,5 +1,9 @@
 {{ define "text_field_edit" }}
-<div x-data="{ data: editData }" class="text-sm">
+<div
+    x-data="{ data: editData, hasValidName: true }"
+    class="text-sm"
+    @active.document="hasValidName = validateName(editData)"
+>
     <div x-data="{ open: true }">
         <div
             class="flex items-center justify-between px-5 py-2 -my-px border-y border-collapse border-gray-100 bg-[#fafbfc] dark:bg-aux-dark dark:border-accent-dark"
@@ -23,7 +27,19 @@
             <div class="grid gap-3 px-5 py-4">
                 <div class="grid grid-cols-input items-center gap-1">
                     <label for="name">Name</label>
-                    <input x-model="editData.name" type="text" name="name" id="name" placeholder="Name" />
+                    <input
+                        x-model="editData.name"
+                        type="text"
+                        name="name"
+                        id="name"
+                        placeholder="Name"
+                        class="lowercase"
+                        :class="{ '!border-red-500 !ring-red-500': !hasValidName }"
+                        @blur="hasValidName = validateName(editData); !hasValidName && $el.focus(); !hasValidName && $el.select()"
+                    />
+                    <span x-show="!hasValidName" class="col-span-full justify-self-end font-semibold text-red-500">
+                        name must be unique
+                    </span>
                 </div>
                 <div class="grid grid-cols-input items-baseline gap-1">
                     <label for="label">Label</label>
@@ -428,15 +444,6 @@
                     </div>
                     <div x-show="!editData.dropdown" class="grid grid-cols-input items-center gap-1">
                         <label for="columns">Columns</label>
-                        <!-- <input
-                            x-model="editData.columns"
-                            type="number"
-                            name="columns"
-                            id="columns"
-                            placeholder="Columns"
-                            min="1"
-                            max="6"
-                        /> -->
                         <div
                             class="grid grid-cols-6 h-8 rounded-md border border-gray-100 bg-[#fafbfc] dark:bg-aux-dark dark:border-aux-dark"
                         >
@@ -484,6 +491,137 @@
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <template x-if="editData.type === 'calculation'">
+        <div
+            x-data="{ 
+                open: true,
+                calcFields: null,
+                getFieldOfType() {
+                    const fields = Object.keys(fieldData).map((key) => {
+                        const field = Alpine.raw(fieldData[key]) 
+                        if (editData === field) {
+                            return null;
+                        }
+
+                        const fieldType = field.type;
+                        let localType = editData.calcType
+                        
+                        if (localType === 'duration' && (fieldType === 'datetime' || fieldType === 'time')) {
+                            fieldType = 'duration'
+                        }
+                        
+                        //console.log(fieldType, localType, fieldData[key])
+                        return fieldType === localType ? field : null
+                    }).filter((v) => v !== null);
+                    
+                    this.calcFields = fields
+                }
+            }"
+            id="calc-panel"
+            @active.document="getFieldOfType();"
+        >
+            <div
+                class="flex items-center justify-between px-5 py-2 -my-px border-y border-collapse border-gray-100 bg-[#fafbfc] dark:bg-aux-dark dark:border-accent-dark"
+                @click="open = !open"
+            >
+                <h3 class="text-[13px] font-semibold">Calculation</h3>
+                <span class="flex items-center">
+                    <svg x-show="open" viewBox="0 0 384 512" class="fill-current h-3">
+                        <path
+                            d="M368 224H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h352c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
+                        ></path>
+                    </svg>
+                    <svg x-show="!open" viewBox="0 0 384 512" class="fill-current h-3">
+                        <path
+                            d="M368 224H224V80c0-8.84-7.16-16-16-16h-32c-8.84 0-16 7.16-16 16v144H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h144v144c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16V288h144c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
+                        ></path>
+                    </svg>
+                </span>
+            </div>
+            <div x-show="open" class="divide-y divide-gray-100 dark:divide-accent-dark">
+                <!-- <div class="relative grid gap-2 px-5 py-4 items-center"></div> -->
+                <div class="relative grid gap-2 px-5 py-4 items-center">
+                    <div class="grid grid-cols-input items-center gap-1">
+                        <label for="calc-type">Type</label>
+                        <div class="relative">
+                            <select
+                                x-model="editData.calcType"
+                                name="calc-type"
+                                id="calc-type"
+                                class="w-full"
+                                @change="getFieldOfType()"
+                            >
+                                <option value=""></option>
+                                <option value="text">Text</option>
+                                <option value="number">Numeric</option>
+                                <option value="date">Date</option>
+                                <option value="time">Time</option>
+                                <option value="duration">Duration</option>
+                            </select>
+                            <span
+                                x-show="editData.defaultValue === ''"
+                                class="absolute top-1.5 left-2 pointer-events-none text-neutral-400"
+                            >
+                                --Select Option--
+                            </span>
+                        </div>
+                    </div>
+                    <div class="grid gap-1 mb-2">
+                        <label for="calc-field">Add Field</label>
+                        <div class="flex gap-2">
+                            <select name="calc-type" id="calc-type" class="w-full">
+                                <option value=""></option>
+                                <template x-for="field in calcFields">
+                                    <option :value="field.name" x-text="field.name"></option>
+                                </template>
+                            </select>
+                            <button
+                                class="px-2.5 py-1 justify-self-end rounded text-[13px] font-semibold text-white bg-[var(--primary)] hover:bg-sky-600"
+                            >
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                    <div
+                        x-data="{
+                            getCaretTopPoint() {
+                                const sel = document.getSelection()
+                                const r = sel.getRangeAt(0)
+                                let rect
+                                let r2
+                            
+                                const node = r.startContainer
+                                const offset = r.startOffset
+                                if (offset > 0) {
+                                    r2 = document.createRange()
+                                    r2.setStart(node, (offset - 1))
+                                    r2.setEnd(node, offset)
+                                    rect = r2.getBoundingClientRect()
+                                    return { left: rect.right, top: rect.top }
+                                } else if (offset < node.length) {
+                                    r2 = document.createRange()
+                                    r2.setStart(node, offset)
+                                    r2.setEnd(node, (offset + 1))
+                                    rect = r2.getBoundingClientRect()
+                                    return { left: rect.left, top: rect.top }
+                                } else {
+                                    rect = node.getBoundingClientRect()
+                                    const styles = getComputedStyle(node)
+                                    const lineHeight = parseInt(styles.lineHeight)
+                                    const fontSize = parseInt(styles.fontSize)
+                                    const delta = (lineHeight - fontSize) / 2
+                                    return { left: rect.left, top: (rect.top + delta) }
+                                }
+                            }
+                        }"
+                        contenteditable="true"
+                        class="min-h-28 py-2 px-3 rounded break-all dark:bg-aux-dark"
+                        @input="console.log(getCaretTopPoint())"
+                    ></div>
                 </div>
             </div>
         </div>

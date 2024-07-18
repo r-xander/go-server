@@ -12,7 +12,7 @@
             },
             async removeSection() {
                 if (activeElementId === this.data.id) {
-                    setActiveElement(null)
+                    editFieldData(null)
                 }
 
                 for (const field of this.data.fields) {
@@ -23,7 +23,7 @@
             },
             removeField(id) {
                 if (activeElementId === id) {
-                    setActiveElement(null)
+                    editFieldData(null)
                 }
 
                 this.data.fields = this.data.fields.filter((field) => field !== id)

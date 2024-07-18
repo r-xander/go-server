@@ -361,6 +361,7 @@ const defaults = {
         type: "calculation",
         name: "calculation",
         label: "Calculation",
+        calcType: null,
         calculation: "",
         calcFields: [],
         layout: "inline",
@@ -458,7 +459,10 @@ document.addEventListener("alpine:init", function (e) {
         previewWidth: 450,
         formLayout: "single",
 
-        initField(/** @type {String} */ type) {
+        /**
+         * @param {String} type
+         */
+        initField(type) {
             // @ts-ignore
             let id = this.formAcronym + "-" + this.currentFieldIndex.toString().padStart(5, "0");
             const data = { id, ...defaults[type]() };
@@ -467,7 +471,22 @@ document.addEventListener("alpine:init", function (e) {
             this.fieldData[id] = data;
             return this.fieldData[id];
         },
-        initSection(/** @type {HTMLElement} */ el) {
+        validateName(data) {
+            if (data.name === "") {
+                return false;
+            }
+
+            const nameValid = !Object.keys(this.fieldData).some((x) => {
+                const field = this.fieldData[x];
+                return field === data ? false : field.name === data.name;
+            });
+
+            return nameValid;
+        },
+        /**
+         * @param {HTMLElement} el
+         */
+        initSection(el) {
             // @ts-ignore
             const id = this.formAcronym + "-section-" + this.currentSectionIndex.toString().padStart(5, "0");
             const data = {
@@ -484,54 +503,51 @@ document.addEventListener("alpine:init", function (e) {
             return this.sections[id];
         },
         /**
-         * @param {string} fromId
-         * @param {string} toId
-         * @param {string} movedId
-         * @param {number} fromIndex
-         * @param {number} toIndex
+         * @param {import("../types").Sortable.SortableEvent} e
          */
-        moveField(movedId, fromId, toId, fromIndex, toIndex) {
+        processFieldMove(e) {
+            const moveId = e.item.id;
+            const fromId = e.from.closest("[section-container]").id;
+            const fromIndex = e.oldDraggableIndex;
+            const toId = e.to.closest("[section-container]").id;
+            const toIndex = e.newDraggableIndex;
+
             if (this.lastMoveSectionId && this.lastMoveSectionId !== toId) {
                 console.log("removing from last move section", this.lastMoveSectionId);
                 const lastMoveSection = this.sections[this.lastMoveSectionId];
-                lastMoveSection.fields = lastMoveSection.fields.filter((elemId) => elemId != movedId);
+                lastMoveSection.fields = lastMoveSection.fields.filter((elemId) => elemId != moveId);
                 this.lastMoveSectionId = null;
             }
 
             if (fromId === toId) {
-                console.log("moving element within", fromId, movedId, ":", fromIndex, "->", toIndex);
+                console.log("moving element within", fromId, moveId, ":", fromIndex, "->", toIndex);
 
                 const fromSection = this.sections[fromId];
                 fromSection.fields.splice(fromIndex, 1);
-                fromSection.fields.splice(toIndex, 0, movedId);
+                fromSection.fields.splice(toIndex, 0, moveId);
                 return;
             }
 
-            console.log("moving element from", fromId, "->", toId, movedId, ":", fromIndex, "->", toIndex);
+            console.log("moving element from", fromId, "->", toId, moveId, ":", fromIndex, "->", toIndex);
             this.lastMoveSectionId = toId;
 
             const fromSection = this.sections[fromId];
             const toSection = this.sections[toId];
 
             fromSection.fields.splice(fromIndex, 1);
-            toSection.fields.splice(toIndex, 0, movedId);
+            toSection.fields.splice(toIndex, 0, moveId);
         },
-        processFieldMove(e) {
-            const moveId = e.item.id;
-            const fromId = e.from.closest("[section-container]").id;
-            const fromIdx = e.oldDraggableIndex;
-            const toId = e.to.closest("[section-container]").id;
-            const toIdx = e.newDraggableIndex;
-
-            this.moveField(moveId, fromId, toId, fromIdx, toIdx);
-        },
-        editFieldData(id) {
-            this.editData = this.fieldData[id] ?? this.sections[id];
-            this.setActiveElement(id);
-        },
-        setActiveElement(id) {
-            if (this.settingElementId) {
+        /**
+         * @param {String | null} id
+         */
+        editFieldData(id = null) {
+            if (this.settingElementId || (this.activeElementId !== null && !this.validateName(this.editData))) {
                 return;
+            }
+
+            if (id !== null) {
+                this.editData = this.fieldData[id] ?? this.sections[id];
+                setTimeout(() => document.dispatchEvent(new Event("active")), 0);
             }
 
             this.activeElementId = id;
@@ -543,7 +559,10 @@ document.addEventListener("alpine:init", function (e) {
             this.fieldData[data.id] = { ...data };
             this.editModalOpen = false;
         },
-        async removeFieldData(/** @type {String} */ id) {
+        /**
+         * @param {String} id
+         */
+        async removeFieldData(id) {
             const el = document.getElementById(id);
             await removeElement(el);
             delete this.fieldData[id];
