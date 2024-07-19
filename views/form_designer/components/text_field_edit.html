@@ -619,7 +619,7 @@
                                     this.getCaretTopPoint()
                                     this.shouldCollectValue = true;
                                     const popup = $refs.calcFieldPopup;
-                                    popup.style.bottom = (window.innerHeight - this.calcFieldLocation.top) + 'px'
+                                    popup.style.bottom = (window.innerHeight - this.calcFieldLocation.top + 4) + 'px'
                                     popup.style.left = this.calcFieldLocation.left + 'px'
                                     setTimeout(() => (this.showCalcFieldPopup = true), 0)
                                 } else if (e.key === 'Backspace') {
