@@ -11,19 +11,30 @@
         >
             <h3 class="text-[13px] font-semibold">Properties</h3>
             <span class="flex items-center">
-                <svg x-show="open" viewBox="0 0 384 512" class="fill-current h-3">
+                <svg
+                    x-show="open"
+                    viewBox="0 0 384 512"
+                    class="fill-current h-3"
+                >
                     <path
                         d="M368 224H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h352c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                     ></path>
                 </svg>
-                <svg x-show="!open" viewBox="0 0 384 512" class="fill-current h-3">
+                <svg
+                    x-show="!open"
+                    viewBox="0 0 384 512"
+                    class="fill-current h-3"
+                >
                     <path
                         d="M368 224H224V80c0-8.84-7.16-16-16-16h-32c-8.84 0-16 7.16-16 16v144H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h144v144c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16V288h144c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                     ></path>
                 </svg>
             </span>
         </div>
-        <div x-show="open" class="divide-y divide-gray-100 dark:divide-accent-dark">
+        <div
+            x-show="open"
+            class="divide-y divide-gray-100 dark:divide-accent-dark"
+        >
             <div class="grid gap-3 px-5 py-4">
                 <div class="grid grid-cols-input items-center gap-1">
                     <label for="name">Name</label>
@@ -37,7 +48,10 @@
                         :class="{ '!border-red-500 !ring-red-500': !hasValidName }"
                         @blur="hasValidName = validateName(editData); !hasValidName && $el.focus(); !hasValidName && $el.select()"
                     />
-                    <span x-show="!hasValidName" class="col-span-full justify-self-end font-semibold text-red-500">
+                    <span
+                        x-show="!hasValidName"
+                        class="col-span-full justify-self-end font-semibold text-red-500"
+                    >
                         name must be unique
                     </span>
                 </div>
@@ -94,28 +108,45 @@
             </div>
         </div>
     </div>
-    <div x-show="editData.type !== 'section'" x-data="{ open: true }">
+    <div
+        x-show="editData.type !== 'section'"
+        x-data="{ open: true }"
+    >
         <div
             class="flex items-center justify-between px-5 py-2 -my-px border-y border-collapse border-gray-100 bg-[#fafbfc] dark:bg-aux-dark dark:border-accent-dark"
             @click="open = !open"
         >
             <h3 class="text-[13px] font-semibold">Attributes</h3>
             <span class="flex items-center">
-                <svg x-show="open" viewBox="0 0 384 512" class="fill-current h-3">
+                <svg
+                    x-show="open"
+                    viewBox="0 0 384 512"
+                    class="fill-current h-3"
+                >
                     <path
                         d="M368 224H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h352c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                     ></path>
                 </svg>
-                <svg x-show="!open" viewBox="0 0 384 512" class="fill-current h-3">
+                <svg
+                    x-show="!open"
+                    viewBox="0 0 384 512"
+                    class="fill-current h-3"
+                >
                     <path
                         d="M368 224H224V80c0-8.84-7.16-16-16-16h-32c-8.84 0-16 7.16-16 16v144H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h144v144c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16V288h144c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                     ></path>
                 </svg>
             </span>
         </div>
-        <div x-show="open" class="divide-y divide-gray-100 dark:divide-accent-dark">
+        <div
+            x-show="open"
+            class="divide-y divide-gray-100 dark:divide-accent-dark"
+        >
             <div class="grid gap-3 px-5 py-4">
-                <label for="required" class="flex items-center justify-between cursor-pointer select-none">
+                <label
+                    for="required"
+                    class="flex items-center justify-between cursor-pointer select-none"
+                >
                     Required
                     <div class="relative">
                         <input
@@ -133,7 +164,10 @@
                         ></div>
                     </div>
                 </label>
-                <label for="readonly" class="flex items-center justify-between cursor-pointer select-none">
+                <label
+                    for="readonly"
+                    class="flex items-center justify-between cursor-pointer select-none"
+                >
                     Read Only
                     <div class="relative">
                         <input
@@ -151,7 +185,10 @@
                         ></div>
                     </div>
                 </label>
-                <label for="disabled" class="flex items-center justify-between cursor-pointer select-none">
+                <label
+                    for="disabled"
+                    class="flex items-center justify-between cursor-pointer select-none"
+                >
                     Disabled
                     <div class="relative">
                         <input
@@ -197,18 +234,36 @@
                         </template>
                     </div>
                     <div class="grid grid-cols-input items-center gap-1">
-                        <label for="min" x-text="'Minimum' + (editData.type === 'text' ? ' Length' : '')"></label>
+                        <label
+                            for="min"
+                            x-text="'Minimum' + (editData.type === 'text' ? ' Length' : '')"
+                        ></label>
                         <template x-if="editData.type === 'text' || editData.type === 'number'">
-                            <input x-model="editData.min" type="number" name="min" id="min" placeholder="Min" />
+                            <input
+                                x-model="editData.min"
+                                type="number"
+                                name="min"
+                                id="min"
+                                placeholder="Min"
+                            />
                         </template>
                         <template x-if="editData.type === 'datetime' || editData.type === 'date'">
                             {{ template "date_field" }}
                         </template>
                     </div>
                     <div class="grid grid-cols-input items-center gap-1">
-                        <label for="max" x-text="'Maximum' + (editData.type === 'text' ? ' Length' : '')"></label>
+                        <label
+                            for="max"
+                            x-text="'Maximum' + (editData.type === 'text' ? ' Length' : '')"
+                        ></label>
                         <template x-if="editData.type === 'text' || editData.type === 'number'">
-                            <input x-model="editData.max" type="number" name="max" id="max" placeholder="Max" />
+                            <input
+                                x-model="editData.max"
+                                type="number"
+                                name="max"
+                                id="max"
+                                placeholder="Max"
+                            />
                         </template>
                         <template x-if="editData.type === 'datetime' || editData.type === 'date'">
                             {{ template "date_field" }}
@@ -218,7 +273,10 @@
             </template>
             <template x-if="editData.type === 'location'">
                 <div class="grid gap-3 px-5 py-4">
-                    <label for="default-current" class="flex items-center justify-between cursor-pointer select-none">
+                    <label
+                        for="default-current"
+                        class="flex items-center justify-between cursor-pointer select-none"
+                    >
                         Default to Current Location
                         <div class="relative">
                             <input
@@ -305,21 +363,35 @@
             >
                 <h3 class="text-[13px] font-semibold">Options</h3>
                 <span class="flex items-center">
-                    <svg x-show="open" viewBox="0 0 384 512" class="fill-current h-3">
+                    <svg
+                        x-show="open"
+                        viewBox="0 0 384 512"
+                        class="fill-current h-3"
+                    >
                         <path
                             d="M368 224H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h352c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                         ></path>
                     </svg>
-                    <svg x-show="!open" viewBox="0 0 384 512" class="fill-current h-3">
+                    <svg
+                        x-show="!open"
+                        viewBox="0 0 384 512"
+                        class="fill-current h-3"
+                    >
                         <path
                             d="M368 224H224V80c0-8.84-7.16-16-16-16h-32c-8.84 0-16 7.16-16 16v144H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h144v144c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16V288h144c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                         ></path>
                     </svg>
                 </span>
             </div>
-            <div x-show="open" class="divide-y divide-gray-100 dark:divide-accent-dark">
+            <div
+                x-show="open"
+                class="divide-y divide-gray-100 dark:divide-accent-dark"
+            >
                 <div class="relative grid gap-2 px-5 py-4 items-center">
-                    <span x-show="editData.options.length === 0 && !showNewOption" class="absolute left-12">
+                    <span
+                        x-show="editData.options.length === 0 && !showNewOption"
+                        class="absolute left-12"
+                    >
                         No options have been added
                     </span>
                     <div
@@ -352,7 +424,10 @@
                                     @click="editData.options.splice(index, 1)"
                                     tabindex="-1"
                                 >
-                                    <svg viewBox="0 0 1024 1024" class="w-3.5 h-3.5 fill-current [fill-rule:evenodd]">
+                                    <svg
+                                        viewBox="0 0 1024 1024"
+                                        class="w-3.5 h-3.5 fill-current [fill-rule:evenodd]"
+                                    >
                                         <path
                                             d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"
                                         ></path>
@@ -378,7 +453,10 @@
                     </button>
                 </div>
                 <div class="relative grid gap-3 px-5 py-4 items-center">
-                    <label for="multiselect" class="flex items-center justify-between cursor-pointer select-none">
+                    <label
+                        for="multiselect"
+                        class="flex items-center justify-between cursor-pointer select-none"
+                    >
                         Multiple Select
                         <div class="relative">
                             <input
@@ -396,7 +474,10 @@
                             ></div>
                         </div>
                     </label>
-                    <label for="dropdown" class="flex items-center justify-between cursor-pointer select-none">
+                    <label
+                        for="dropdown"
+                        class="flex items-center justify-between cursor-pointer select-none"
+                    >
                         Dropdown
                         <div class="relative">
                             <input
@@ -416,9 +497,18 @@
                     </label>
                 </div>
                 <div class="relative grid gap-3 px-5 py-4 items-center">
-                    <div x-show="editData.dropdown" class="grid grid-cols-input items-center gap-1">
+                    <div
+                        x-show="editData.dropdown"
+                        class="grid grid-cols-input items-center gap-1"
+                    >
                         <label for="prompt">Prompt</label>
-                        <input x-model="editData.prompt" type="text" name="prompt" id="prompt" placeholder="Prompt" />
+                        <input
+                            x-model="editData.prompt"
+                            type="text"
+                            name="prompt"
+                            id="prompt"
+                            placeholder="Prompt"
+                        />
                     </div>
                     <div class="grid grid-cols-input items-center gap-1">
                         <label for="default">Default</label>
@@ -431,7 +521,10 @@
                             >
                                 <option value=""></option>
                                 <template x-for="option in editData.options">
-                                    <option :value="option.value" x-text="option.label"></option>
+                                    <option
+                                        :value="option.value"
+                                        x-text="option.label"
+                                    ></option>
                                 </template>
                             </select>
                             <span
@@ -442,7 +535,10 @@
                             </span>
                         </div>
                     </div>
-                    <div x-show="!editData.dropdown" class="grid grid-cols-input items-center gap-1">
+                    <div
+                        x-show="!editData.dropdown"
+                        class="grid grid-cols-input items-center gap-1"
+                    >
                         <label for="columns">Columns</label>
                         <div
                             class="grid grid-cols-6 h-8 rounded-md border border-gray-100 bg-[#fafbfc] dark:bg-aux-dark dark:border-aux-dark"
@@ -530,19 +626,30 @@
             >
                 <h3 class="text-[13px] font-semibold">Calculation</h3>
                 <span class="flex items-center">
-                    <svg x-show="open" viewBox="0 0 384 512" class="fill-current h-3">
+                    <svg
+                        x-show="open"
+                        viewBox="0 0 384 512"
+                        class="fill-current h-3"
+                    >
                         <path
                             d="M368 224H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h352c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                         ></path>
                     </svg>
-                    <svg x-show="!open" viewBox="0 0 384 512" class="fill-current h-3">
+                    <svg
+                        x-show="!open"
+                        viewBox="0 0 384 512"
+                        class="fill-current h-3"
+                    >
                         <path
                             d="M368 224H224V80c0-8.84-7.16-16-16-16h-32c-8.84 0-16 7.16-16 16v144H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h144v144c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16V288h144c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
                         ></path>
                     </svg>
                 </span>
             </div>
-            <div x-show="open" class="divide-y divide-gray-100 dark:divide-accent-dark">
+            <div
+                x-show="open"
+                class="divide-y divide-gray-100 dark:divide-accent-dark"
+            >
                 <!-- <div class="relative grid gap-2 px-5 py-4 items-center"></div> -->
                 <div class="relative grid gap-2 px-5 py-4 items-center">
                     <div class="grid grid-cols-input items-center gap-1">
@@ -573,10 +680,17 @@
                     <div class="grid gap-1 mb-2">
                         <label for="calc-field">Add Field</label>
                         <div class="flex gap-2">
-                            <select name="calc-type" id="calc-type" class="w-full">
+                            <select
+                                name="calc-type"
+                                id="calc-type"
+                                class="w-full"
+                            >
                                 <option value=""></option>
                                 <template x-for="field in calcFields">
-                                    <option :value="field.name" x-text="field.name"></option>
+                                    <option
+                                        :value="field.name"
+                                        x-text="field.name"
+                                    ></option>
                                 </template>
                             </select>
                             <button
@@ -588,6 +702,8 @@
                     </div>
                     <div
                         x-data="{
+                            value: '',
+                            shouldCollectValue: false,
                             getCaretTopPoint() {
                                 const sel = document.getSelection()
                                 const r = sel.getRangeAt(0)
@@ -616,11 +732,39 @@
                                     const delta = (lineHeight - fontSize) / 2
                                     return { left: rect.left, top: (rect.top + delta) }
                                 }
-                            }
+                            },
+                            createSquareKeydown(e) {
+                                if(e.key === '{') {
+                                    const coords = this.getCaretTopPoint()
+                                    const square = document.createElement('div');
+                                    square.style.position = 'absolute'
+                                    square.style.bottom = (window.innerHeight - coords.top + 4) + 'px'
+                                    square.style.left = coords.left + 'px'
+                                    square.style.backgroundColor = 'red'
+                                    square.style.height = '10px'
+                                    square.style.width = '10px'
+                                    square.style.zIndex = '10000'
+                                    document.body.append(square)
+
+                                    this.shouldCollectValue = true;
+                                } else if (e.key === 'Backspace') {
+                                    this.value = this.value.slice(0, -1)
+                                }
+                            },
+                            collectValue(e) {
+                                if (this.shouldCollectValue && e.inputType === 'insertText') {
+                                    this.value += e.data
+                                    console.log(this.value)
+                                } else if (e.inputType !== 'insertText' && e.inputType !== 'deleteContentBackward') {
+                                    e.preventDefault()
+                                }
+                            } 
                         }"
                         contenteditable="true"
                         class="min-h-28 py-2 px-3 rounded break-all dark:bg-aux-dark"
-                        @input="console.log(getCaretTopPoint())"
+                        @keydown="createSquareKeydown"
+                        @beforeinput="collectValue"
+                        @input="calculation = $el.textContent"
                     ></div>
                 </div>
             </div>
