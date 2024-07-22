@@ -590,7 +590,6 @@
                         x-data="{
                             value: '',
                             shouldCollectValue: false,
-                            showCalcFieldPopup: false,
                             calcFieldLocation: { left: 0, right: 0, top: 0, bottom: 0 },
                             getCaretTopPoint() {
                                 const range = document.getSelection().getRangeAt(0)
@@ -614,27 +613,32 @@
                                     this.calcFieldLocation = { right: left, left, top, bottom }
                                 }
                             },
+                            openCalcFieldPopup() {
+                                getFieldOfType()
+                                this.getCaretTopPoint()
+
+                                const popup = $refs.calcFieldPopup;
+                                popup.style.display = ''
+                                popup.style.top = this.calcFieldLocation.bottom + 'px'
+                                popup.style.left = this.calcFieldLocation.left + 'px'
+                            },
+                            closeCalcFieldPopup() {
+                                const popup = $refs.calcFieldPopup;
+                                popup.style.display = 'none' 
+                                popup.style.top = popup.style.left = ''
+                            },
                             createSquareKeydown(e) {
                                 if(e.key === '{') {
-                                    getFieldOfType()
-                                    this.getCaretTopPoint()
-                                    this.showCalcFieldPopup = this.shouldCollectValue = true;
-
-                                    const popup = $refs.calcFieldPopup;
-                                    popup.style.display = ''
-                                    popup.style.top = this.calcFieldLocation.bottom + 'px'
-                                    popup.style.left = this.calcFieldLocation.left + 'px'
+                                    this.openCalcFieldPopup();
+                                    this.shouldCollectValue = true;
                                 } else if (e.key === '}') {
-                                    this.showCalcFieldPopop = this.shouldCollectValue = false;
+                                    this.closeCalcFieldPopup()
                                     validateValue()
                                 } else if (e.key === 'Backspace') {
                                     const isOpenDelim = calculation[calculation.length - 1] === '{';
                                     
                                     if (isOpenDelim) {
-                                    const popup = $refs.calcFieldPopup;
-                                    popup.style.display = ''
-                                    popup.style.top = this.calcFieldLocation.bottom + 'px'
-                                    popup.style.left = this.calcFieldLocation.left + 'px'
+                                        this.closeCalcFieldPopup()
                                     }
 
                                     this.value = isOpenDelim ? '' : this.value.slice(0, -1);
