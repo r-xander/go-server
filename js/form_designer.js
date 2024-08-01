@@ -824,6 +824,125 @@ document.addEventListener("alpine:init", function (e) {
 
 /************************************************/
 /*                                              */
+/*                  reactivity                  */
+/*                                              */
+/************************************************/
+
+/**
+ * @typedef Effect
+ * @property {() => void} execute
+ * @property {Set<Set<Effect>>} dependencies
+ */
+
+/** @type {Effect[]} */
+let context = [];
+
+/**
+ * @template T
+ * @param {(...args: any) => T} fn
+ * @returns {T}
+ */
+export function untrack(fn) {
+    const prevContext = context;
+    context = [];
+    const res = fn();
+    context = prevContext;
+    return res;
+}
+
+/** @param {Effect} observer */
+function cleanup(observer) {
+    for (const dep of observer.dependencies) {
+        dep.delete(observer);
+    }
+    observer.dependencies.clear();
+}
+
+/**
+ *
+ * @param {Effect} observer
+ * @param {Set<Effect>} subscriptions
+ */
+function subscribe(observer, subscriptions) {
+    subscriptions.add(observer);
+    observer.dependencies.add(subscriptions);
+}
+
+/**
+ * @template T
+ * @param {T} [value]
+ * @returns {[() => T, (value?: T) => void]}
+ */
+export function createSignal(value) {
+    const subscriptions = new Set();
+
+    /** @type {() => T} */
+    const read = () => {
+        const observer = context[context.length - 1];
+        if (observer) subscribe(observer, subscriptions);
+        return value;
+    };
+
+    /** @type {(value: T) => void} */
+    const write = (newValue) => {
+        value = newValue;
+        for (const observer of [...subscriptions]) {
+            observer.execute();
+        }
+    };
+
+    return [read, write];
+}
+
+/** @param {() => void} fn */
+export function createEffect(fn) {
+    /** @type {Effect} */
+    const effect = {
+        execute() {
+            cleanup(effect);
+            context.push(effect);
+            fn();
+            context.pop();
+        },
+        dependencies: new Set(),
+    };
+
+    effect.execute();
+}
+
+/**
+ * @template T
+ * @param {() => T} fn
+ * @returns {() => T}
+ */
+export function createMemo(fn) {
+    const [signal, setSignal] = createSignal();
+    createEffect(() => setSignal(fn()));
+    return signal;
+}
+
+/************************************************/
+/*                                              */
+/*               Custom Elements                */
+/*                                              */
+/************************************************/
+
+class BaseFieldContainer extends HTMLElement {
+    #state;
+
+    constructor() {
+        super();
+
+        this.#state = null;
+    }
+
+    connectedCallback() {}
+
+    disconnectedCallback() {}
+}
+
+/************************************************/
+/*                                              */
 /*              Leaflet Extensions              */
 /*                                              */
 /************************************************/

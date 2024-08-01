@@ -9,7 +9,6 @@
         }"
         x-init="editFieldData(data.id)"
         :id="data.id"
-        form-field="{{ . }}"
         class="relative rounded"
         @pointerdown="editFieldData(data.id);"
         @pointerover.stop="hoverElementId = data.id"
