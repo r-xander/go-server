@@ -114,7 +114,7 @@
             </span>
         </div>
         <div x-show="open" class="divide-y divide-gray-100 dark:divide-accent-dark">
-            <div x-show="editData.type !== 'calculation'" class="grid gap-3 px-5 py-4">
+            <div class="grid gap-3 px-5 py-4">
                 <label for="required" class="flex items-center justify-between cursor-pointer select-none">
                     Required
                     <div class="relative">
@@ -628,10 +628,10 @@
                                 popup.style.top = popup.style.left = ''
                             },
                             createSquareKeydown(e) {
-                                if(e.key === '{') {
+                                if(e.key === '<') {
                                     this.openCalcFieldPopup();
                                     this.shouldCollectValue = true;
-                                } else if (e.key === '}') {
+                                } else if (e.key === '>') {
                                     this.closeCalcFieldPopup()
                                     validateValue()
                                 } else if (e.key === 'Backspace') {
