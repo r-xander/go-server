@@ -842,7 +842,7 @@ let context = [];
  * @param {(...args: any) => T} fn
  * @returns {T}
  */
-export function untrack(fn) {
+function untrack(fn) {
     const prevContext = context;
     context = [];
     const res = fn();
@@ -873,7 +873,7 @@ function subscribe(observer, subscriptions) {
  * @param {T} [value]
  * @returns {[() => T, (value?: T) => void]}
  */
-export function createSignal(value) {
+function createSignal(value) {
     const subscriptions = new Set();
 
     /** @type {() => T} */
@@ -894,8 +894,32 @@ export function createSignal(value) {
     return [read, write];
 }
 
+/**
+ *
+ * @param {any} value
+ * @returns {{subscriptions: Set}}
+ */
+function reactive(value) {
+    const reactiveObject = {
+        subscriptions: new Set(),
+        get value() {
+            const observer = context[context.length - 2];
+            if (observer) subscribe(observer, this.subscriptions);
+            return value;
+        },
+        set value(newValue) {
+            value = newValue;
+            for (const observer of [...this.subscriptions]) {
+                observer.execute();
+            }
+        },
+    };
+
+    return reactiveObject;
+}
+
 /** @param {() => void} fn */
-export function createEffect(fn) {
+function createEffect(fn) {
     /** @type {Effect} */
     const effect = {
         execute() {
@@ -915,7 +939,7 @@ export function createEffect(fn) {
  * @param {() => T} fn
  * @returns {() => T}
  */
-export function createMemo(fn) {
+function createMemo(fn) {
     const [signal, setSignal] = createSignal();
     createEffect(() => setSignal(fn()));
     return signal;
@@ -927,18 +951,54 @@ export function createMemo(fn) {
 /*                                              */
 /************************************************/
 
-class BaseFieldContainer extends HTMLElement {
-    #state;
+class FormField extends HTMLElement {
+    /**  @type {boolean} */
+    dropTop;
+
+    /**  @type {boolean} */
+    dropBottom;
 
     constructor() {
         super();
+        this.dropTop = false;
+        this.dropBottom = false;
 
-        this.#state = null;
+        this.addEventListener("pointerdown", this.sendEditEvent.bind(this));
+        this.addEventListener("pointerover", this.sendSetHoverEvent.bind(this));
+        this.addEventListener("pointerout", this.sendUnsetHoverEvent.bind(this));
+
+        this.dispatchEvent(new CustomEvent("add-field", { detail: { field: this } }));
+        this.sendEditEvent();
     }
 
     connectedCallback() {}
 
-    disconnectedCallback() {}
+    disconnectedCallback() {
+        this.removeEventListener("", this.sendEditEvent);
+        this.removeEventListener("", this.sendSetHoverEvent);
+        this.removeEventListener("", this.sendUnsetHoverEvent);
+
+        this.dispatchEvent(new CustomEvent("remove-field", { detail: { field: this.id } }));
+    }
+
+    sendEditEvent() {
+        const event = new CustomEvent("edit-field", { detail: { field: this.id } });
+        this.dispatchEvent(event);
+    }
+
+    sendSetHoverEvent(e) {
+        e.stopPropagation();
+
+        const event = new CustomEvent("set-hover", { detail: { data: this } });
+        this.dispatchEvent(event);
+    }
+
+    sendUnsetHoverEvent(e) {
+        e.stopPropagation();
+
+        const event = new CustomEvent("unset-hover", { detail: { data: this } });
+        this.dispatchEvent(event);
+    }
 }
 
 /************************************************/
