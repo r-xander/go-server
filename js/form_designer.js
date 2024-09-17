@@ -894,30 +894,6 @@ function createSignal(value) {
     return [read, write];
 }
 
-/**
- *
- * @param {any} value
- * @returns {{subscriptions: Set}}
- */
-function reactive(value) {
-    const reactiveObject = {
-        subscriptions: new Set(),
-        get value() {
-            const observer = context[context.length - 2];
-            if (observer) subscribe(observer, this.subscriptions);
-            return value;
-        },
-        set value(newValue) {
-            value = newValue;
-            for (const observer of [...this.subscriptions]) {
-                observer.execute();
-            }
-        },
-    };
-
-    return reactiveObject;
-}
-
 /** @param {() => void} fn */
 function createEffect(fn) {
     /** @type {Effect} */
@@ -945,40 +921,178 @@ function createMemo(fn) {
     return signal;
 }
 
+/**
+ * @template T
+ * @param {FormFieldBase} obj
+ * @param {string} property
+ * @param {T} initialValue
+ */
+function createReactiveProperty(obj, property, initialValue) {
+    obj.subscribers.set(property, []);
+
+    Object.defineProperty(obj, property, {
+        writable: true,
+        get() {
+            const observer = context[context.length - 1];
+            if (observer) obj.subscribers.get(property).push(observer);
+            return obj[property];
+        },
+        set(value) {
+            obj[property] = value;
+            for (const observer of [...obj.subscribers.get(property)]) {
+                observer.execute();
+            }
+        },
+    });
+
+    obj[property] = initialValue;
+}
+
 /************************************************/
 /*                                              */
 /*               Custom Elements                */
 /*                                              */
 /************************************************/
 
-class FormField extends HTMLElement {
-    /**  @type {boolean} */
+class FormFieldBase extends HTMLElement {
+    /** @type {boolean} */
     dropTop;
 
-    /**  @type {boolean} */
+    /** @type {boolean} */
     dropBottom;
 
-    constructor() {
+    /** @type {boolean} */
+    dropZoneVisible;
+
+    /** @type {HTMLSlotElement} */
+    inputSlot;
+
+    /** @type {HTMLSlotElement} */
+    fieldHighlightSlot;
+
+    /** @type {HTMLSlotElement} */
+    topDropZoneSlot;
+
+    /** @type {HTMLSlotElement} */
+    bottomDropZoneSlot;
+
+    /** @type {Record<string, any>} */
+    data = null;
+
+    /** @type {Map<string, Effect[]>} */
+    subscribers;
+
+    /** @type {Array<() => void>} */
+    cleanup;
+
+    /**
+     *
+     * @param {Record<string, any>} data
+     */
+    constructor(data) {
         super();
-        this.dropTop = false;
-        this.dropBottom = false;
+        this.data = data;
+        this.inputSlot = document.createElement("slot");
+        this.fieldHighlightSlot = document.createElement("slot");
+        this.topDropZoneSlot = document.createElement("slot");
+        this.bottomDropZoneSlot = document.createElement("slot");
 
-        this.addEventListener("pointerdown", this.sendEditEvent.bind(this));
-        this.addEventListener("pointerover", this.sendSetHoverEvent.bind(this));
-        this.addEventListener("pointerout", this.sendUnsetHoverEvent.bind(this));
+        const shadowRoot = this.attachShadow({ mode: "open" });
+        shadowRoot.append(this.inputSlot, this.fieldHighlightSlot, this.topDropZoneSlot, this.bottomDropZoneSlot);
 
-        this.dispatchEvent(new CustomEvent("add-field", { detail: { field: this } }));
+        this.addEvent(this, "pointerdown", this.sendEditEvent);
+        this.addEvent(this, "pointerover", this.sendSetHoverEvent);
+        this.addEvent(this, "pointerout", this.sendUnsetHoverEvent);
+
+        this.dispatchEvent(new CustomEvent("addfield", { detail: { data: this.data } }));
         this.sendEditEvent();
     }
 
-    connectedCallback() {}
+    connectedCallback() {
+        createReactiveProperty(this, "dropTop", false);
+        createReactiveProperty(this, "dropBottom", false);
+        createReactiveProperty(this, "dropZonesVisible", false);
+
+        this.topDropZoneSlot.innerHTML = `
+                <div style="display: none;" class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
+                    <div style="display: none;" class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
+                        <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
+                    </div>
+                </div>`;
+
+        const topDropZone = this.topDropZoneSlot.firstElementChild;
+        this.addEvent(topDropZone, "dragover", () => (this.dropTop = true));
+        this.addEvent(topDropZone, "dragleave", () => (this.dropTop = false));
+        this.addEvent(topDropZone, "drop", () => (this.dropTop = false));
+        createEffect(() => (topDropZone.firstElementChild.style.display = this.dropTop ? "" : "none"));
+
+        this.bottomDropZoneSlot.innerHTML = `
+                <div style="display: none;" class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white" data-insert-location="afterend">
+                    <div style="display: none;" class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
+                        <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
+                    </div>
+                </div>`;
+
+        const bottomDropZone = this.bottomDropZoneSlot.firstElementChild;
+        this.addEvent(bottomDropZone, "dragover", () => (this.dropBottom = true));
+        this.addEvent(bottomDropZone, "dragleave", () => (this.dropBottom = false));
+        this.addEvent(bottomDropZone, "drop", () => (this.dropBottom = false));
+        createEffect(() => (bottomDropZone.firstElementChild.style.display = this.dropBottom ? "" : "none"));
+
+        this.addEvent(this, "creating", () => (this.dropZoneVisible = true), true);
+        this.addEvent(this, "created", () => (this.dropZoneVisible = false), true);
+        this.addEvent(this, "moving", () => (this.dropZoneVisible = true), true);
+        this.addEvent(this, "moved", () => (this.dropZoneVisible = false), true);
+        createEffect(
+            () => (topDropZone.style.display = bottomDropZone.style.display = this.dropZoneVisible ? "" : "none")
+        );
+    }
 
     disconnectedCallback() {
-        this.removeEventListener("", this.sendEditEvent);
-        this.removeEventListener("", this.sendSetHoverEvent);
-        this.removeEventListener("", this.sendUnsetHoverEvent);
-
+        this.cleanup.forEach((fn) => fn());
         this.dispatchEvent(new CustomEvent("remove-field", { detail: { field: this.id } }));
+    }
+
+    slotChanged(e) {
+        const nodes = /** @type {HTMLSlotElement} */ (e.target).assignedElements();
+        this.processAttributes(nodes);
+    }
+
+    /**
+     * @param {Element[]} elements
+     */
+    processAttributes(elements) {
+        elements.forEach((el) => {
+            if (el.childElementCount > 0) {
+                this.processAttributes([...el.children]);
+            }
+
+            el.getAttributeNames().forEach((attr) => {
+                switch (attr[0]) {
+                    case "@":
+                        // processEvent(el, attr);
+                        break;
+                    case "$":
+                        // processHttpRequest(el, attr);
+                        break;
+                    case ":":
+                        // processBinding(el, attr);
+                        break;
+                    default:
+                        return;
+                }
+            });
+        });
+    }
+
+    /**
+     * @param {string} event
+     * @param {() => void} fn
+     * @param {boolean} useCapture
+     */
+    addEvent(el, event, fn, useCapture = false) {
+        el.addEventListener(event, fn);
+        this.cleanup.push(() => el.removeEventListener(event, fn, useCapture));
     }
 
     sendEditEvent() {
@@ -989,17 +1103,41 @@ class FormField extends HTMLElement {
     sendSetHoverEvent(e) {
         e.stopPropagation();
 
-        const event = new CustomEvent("set-hover", { detail: { data: this } });
+        const event = new CustomEvent("set-hover", { detail: { data: this.data } });
         this.dispatchEvent(event);
     }
 
     sendUnsetHoverEvent(e) {
         e.stopPropagation();
 
-        const event = new CustomEvent("unset-hover", { detail: { data: this } });
+        const event = new CustomEvent("unset-hover", { detail: { data: this.data } });
         this.dispatchEvent(event);
     }
 }
+
+customElements.define(
+    "text-field",
+    class TextFormField extends FormFieldBase {
+        constructor() {
+            super({
+                type: "text",
+                name: "text",
+                label: "Text Input",
+                placeholder: "",
+                min: 0,
+                max: 2000,
+                defaultValue: "",
+                layout: "inline",
+                description: "",
+                includeLabel: true,
+                required: false,
+                readonly: false,
+                disabled: false,
+                hidden: false,
+            });
+        }
+    }
+);
 
 /************************************************/
 /*                                              */

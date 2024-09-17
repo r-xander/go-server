@@ -299,6 +299,16 @@
     const context = [];
 
     /**
+     *
+     * @param {Effect} observer
+     * @param {Set<Effect>} subscriptions
+     */
+    function subscribe(observer, subscriptions) {
+        subscriptions.add(observer);
+        observer.dependencies.add(subscriptions);
+    }
+
+    /**
      * @param {HTMLElement & { subsribers: Map }} obj
      * @param {string} property
      */
@@ -321,6 +331,21 @@
         });
 
         obj[property] = value;
+    }
+
+    function createEffect(fn) {
+        /** @type {Effect} */
+        const effect = {
+            execute() {
+                cleanup(effect);
+                context.push(effect);
+                fn();
+                context.pop();
+            },
+            dependencies: new Set(),
+        };
+
+        effect.execute();
     }
 
     class FormFieldBase extends HTMLElement {
@@ -355,10 +380,6 @@
         cleanup;
 
         constructor() {
-            createReactiveProperty(this, "dropTop", false);
-            createReactiveProperty(this, "dropBottom", false);
-            createReactiveProperty(this, "dropZonesVisible", false);
-
             this.inputSlot = document.createElement("slot");
             this.fieldHighlightSlot = document.createElement("slot");
             this.topDropZoneSlot = document.createElement("slot");
@@ -371,16 +392,15 @@
             this.addEvent(this, "pointerover", this.sendSetHoverEvent);
             this.addEvent(this, "pointerout", this.sendUnsetHoverEvent);
 
-            this.addEvent(this, "creating", () => this.toggleDropZonesVisibility(""), true);
-            this.addEvent(this, "created", () => this.toggleDropZonesVisibility("none"), true);
-            this.addEvent(this, "moving", () => this.toggleDropZonesVisibility(""), true);
-            this.addEvent(this, "moved", () => this.toggleDropZonesVisibility("none"), true);
-
             this.dispatchEvent(new CustomEvent("addfield", { detail: { data } }));
             this.sendEditEvent();
         }
 
         connectedCallback() {
+            createReactiveProperty(this, "dropTop", false);
+            createReactiveProperty(this, "dropBottom", false);
+            createReactiveProperty(this, "dropZonesVisible", false);
+
             this.topDropZoneSlot.innerHTML = `
                 <div style="display: none;" class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
                     <div style="display: none;" class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
@@ -389,9 +409,10 @@
                 </div>`;
 
             const topDropZone = this.topDropZoneSlot.firstElementChild;
-            this.addEvent(topDropZone, "dragover", () => (topDropZone.firstElementChild.style.display = ""));
-            this.addEvent(topDropZone, "dragleave", () => (topDropZone.firstElementChild.style.display = "none"));
-            this.addEvent(topDropZone, "drop", () => (topDropZone.firstElementChild.style.display = "none"));
+            this.addEvent(topDropZone, "dragover", () => (this.dropTop = true));
+            this.addEvent(topDropZone, "dragleave", () => (this.dropTop = false));
+            this.addEvent(topDropZone, "drop", () => (this.dropTop = false));
+            createEffect(() => (topDropZone.firstElementChild.style.display = this.dropTop ? "" : "none"));
 
             this.bottomDropZoneSlot.innerHTML = `
                 <div style="display: none;" class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white" data-insert-location="afterend">
@@ -401,14 +422,29 @@
                 </div>`;
 
             const bottomDropZone = this.bottomDropZoneSlot.firstElementChild;
-            this.addEvent(bottomDropZone, "dragover", () => (bottomDropZone.firstElementChild.style.display = ""));
-            this.addEvent(bottomDropZone, "dragleave", () => (bottomDropZone.firstElementChild.style.display = "none"));
-            this.addEvent(bottomDropZone, "drop", () => (bottomDropZone.firstElementChild.style.display = "none"));
+            this.addEvent(bottomDropZone, "dragover", () => (this.dropBottom = true));
+            this.addEvent(bottomDropZone, "dragleave", () => (this.dropBottom = false));
+            this.addEvent(bottomDropZone, "drop", () => (this.dropBottom = false));
+            createEffect(() => (topDropZone.firstElementChild.style.display = this.dropBottom ? "" : "none"));
+
+            this.addEvent(this, "creating", () => (this.dropZoneVisible = true), true);
+            this.addEvent(this, "created", () => (this.dropZoneVisible = false), true);
+            this.addEvent(this, "moving", () => (this.dropZoneVisible = true), true);
+            this.addEvent(this, "moved", () => (this.dropZoneVisible = false), true);
+            createEffect(
+                () => (topDropZone.style.display = bottomDropZone.style.display = this.dropZoneVisible ? "" : "none")
+            );
         }
 
         disconnectedCallback() {
             this.cleanup.forEach((fn) => fn());
             this.dispatchEvent(new CustomEvent("remove-field", { detail: { field: this.id } }));
+        }
+
+        setupTopDropZone() {}
+
+        setupBottomDropZone() {
+            const [hoverBottom, setHoverBottom] = createSignal(false);
         }
 
         slotChanged(e) {
