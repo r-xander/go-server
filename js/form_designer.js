@@ -1053,6 +1053,9 @@ class FormFieldBase extends HTMLElement {
         this.dispatchEvent(new CustomEvent("remove-field", { detail: { field: this.id } }));
     }
 
+    /**
+     * @param {Event} e
+     */
     slotChanged(e) {
         const nodes = /** @type {HTMLSlotElement} */ (e.target).assignedElements();
         this.processAttributes(nodes);
