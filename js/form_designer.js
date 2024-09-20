@@ -954,148 +954,173 @@ function createReactiveProperty(obj, property, initialValue) {
 /*                                              */
 /************************************************/
 
+/** @type {WeakMap<Element, Array<() => void>>} */
+const cleanupMap = new WeakMap();
+
+/** @param {Element} el */
+function registerElementCleanup(el) {
+    cleanupMap.set(el, []);
+}
+
+/**
+ * @param {Element} el
+ * @param {string | string[]} event
+ * @param {() => void} fn
+ * @param {boolean} useCapture
+ */
+function addEvents(el, event, fn, useCapture = false) {
+    if (typeof event === "string") {
+        event = [event];
+    }
+
+    const cleanups = cleanupMap.get(el);
+    event.forEach((event) => {
+        el.addEventListener(event, fn, useCapture);
+        cleanups.push(() => el.removeEventListener(event, fn, useCapture));
+    });
+}
+
+/** @param {Element} el */
+function cleanupElement(el) {
+    cleanupMap.get(el).forEach((fn) => fn());
+}
+
+class ContainerHighlight extends HTMLElement {
+    constructor() {
+        super();
+
+        // const root = this.attachShadow({ mode: "open" })
+        // root.innerHTML = "<slot name=dele>"
+    }
+    connectedCallback() {
+        this.insertAdjacentHTML(
+            "beforeend",
+            `<button class="w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
+                <svg class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]"><use href="#copy-icon" /></svg>
+            </button>`
+        );
+
+        this.insertAdjacentHTML(
+            "beforeend",
+            `<button class="w-5 h-5 p-1 cursor-pointer transition relative bg-sky-500 text-white hover:bg-sky-600">
+                <svg class="aspect-square fill-current"><use href="#delete-icon" /></svg>
+            </button>`
+        );
+
+        this.className = "absolute -right-px bottom-full flex gap-1";
+    }
+
+    showDeleteModal() {
+        this.insertAdjacentHTML(
+            "beforeend",
+            `<div class="grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
+                <h1>Are you sure you want to delete this field?</h1>
+                <div class="flex gap-2 justify-self-end">
+                    <button class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70">Delete</button>
+                    <button class="px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]">Cancel</button>
+                </div>
+            </div>`
+        );
+    }
+
+    hideDeleteModal() {
+        this.lastElementChild.remove();
+    }
+}
+
+class ContainerDropZone extends HTMLElement {
+    constructor() {
+        super();
+        this.style.display = "none";
+
+        this.indicatorSlot = document.createElement("slot");
+        const root = this.attachShadow({ mode: "open", slotAssignment: "manual" });
+        root.append(this.indicatorSlot);
+
+        registerElementCleanup(this);
+    }
+
+    connectedCallback() {
+        addEvents(this, "dragover", () => this.indicatorSlot.assign(this.firstElementChild));
+        addEvents(this, "dragleave", () => this.indicatorSlot.assign());
+        addEvents(this, "drop", () => this.indicatorSlot.assign());
+    }
+
+    disconnectedCallback() {
+        cleanupElement(this);
+    }
+
+    show() {
+        this.style.display = "block";
+    }
+
+    hide() {
+        this.style.display = "none";
+    }
+}
+customElements.define("container-drop-zone", ContainerDropZone);
+
 class FormFieldBase extends HTMLElement {
-    /** @type {boolean} */
-    dropTop;
-
-    /** @type {boolean} */
-    dropBottom;
-
-    /** @type {boolean} */
-    dropZoneVisible;
-
-    /** @type {HTMLSlotElement} */
-    inputSlot;
-
-    /** @type {HTMLSlotElement} */
-    fieldHighlightSlot;
-
-    /** @type {HTMLSlotElement} */
-    topDropZoneSlot;
-
-    /** @type {HTMLSlotElement} */
-    bottomDropZoneSlot;
-
     /** @type {Record<string, any>} */
     data = null;
 
     /** @type {Map<string, Effect[]>} */
     subscribers;
 
-    /** @type {Array<() => void>} */
-    cleanup;
-
-    /**
-     *
-     * @param {Record<string, any>} data
-     */
+    /** @param {Record<string, any>} data */
     constructor(data) {
         super();
+
         this.data = data;
-        this.inputSlot = document.createElement("slot");
-        this.fieldHighlightSlot = document.createElement("slot");
-        this.topDropZoneSlot = document.createElement("slot");
-        this.bottomDropZoneSlot = document.createElement("slot");
+        registerElementCleanup(this);
 
         const shadowRoot = this.attachShadow({ mode: "open" });
-        shadowRoot.append(this.inputSlot, this.fieldHighlightSlot, this.topDropZoneSlot, this.bottomDropZoneSlot);
-
-        this.addEvent(this, "pointerdown", this.sendEditEvent);
-        this.addEvent(this, "pointerover", this.sendSetHoverEvent);
-        this.addEvent(this, "pointerout", this.sendUnsetHoverEvent);
+        shadowRoot.innerHTML =
+            '<slot></slot><slot name="field-highlight"></slot><slot name="top-drop-zone"></slot><slot name="bottom-drop-zone"></slot>';
 
         this.dispatchEvent(new CustomEvent("addfield", { detail: { data: this.data } }));
         this.sendEditEvent();
     }
 
     connectedCallback() {
-        createReactiveProperty(this, "dropTop", false);
-        createReactiveProperty(this, "dropBottom", false);
-        createReactiveProperty(this, "dropZonesVisible", false);
-
-        this.topDropZoneSlot.innerHTML = `
-                <div style="display: none;" class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
-                    <div style="display: none;" class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
-                        <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
-                    </div>
-                </div>`;
-
-        const topDropZone = this.topDropZoneSlot.firstElementChild;
-        this.addEvent(topDropZone, "dragover", () => (this.dropTop = true));
-        this.addEvent(topDropZone, "dragleave", () => (this.dropTop = false));
-        this.addEvent(topDropZone, "drop", () => (this.dropTop = false));
-        createEffect(() => (topDropZone.firstElementChild.style.display = this.dropTop ? "" : "none"));
-
-        this.bottomDropZoneSlot.innerHTML = `
-                <div style="display: none;" class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white" data-insert-location="afterend">
-                    <div style="display: none;" class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
-                        <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
-                    </div>
-                </div>`;
-
-        const bottomDropZone = this.bottomDropZoneSlot.firstElementChild;
-        this.addEvent(bottomDropZone, "dragover", () => (this.dropBottom = true));
-        this.addEvent(bottomDropZone, "dragleave", () => (this.dropBottom = false));
-        this.addEvent(bottomDropZone, "drop", () => (this.dropBottom = false));
-        createEffect(() => (bottomDropZone.firstElementChild.style.display = this.dropBottom ? "" : "none"));
-
-        this.addEvent(this, "creating", () => (this.dropZoneVisible = true), true);
-        this.addEvent(this, "created", () => (this.dropZoneVisible = false), true);
-        this.addEvent(this, "moving", () => (this.dropZoneVisible = true), true);
-        this.addEvent(this, "moved", () => (this.dropZoneVisible = false), true);
-        createEffect(
-            () => (topDropZone.style.display = bottomDropZone.style.display = this.dropZoneVisible ? "" : "none")
+        this.insertAdjacentHTML(
+            "beforeend",
+            `<container-drop-zone slot="top-drop-zone" class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
+                <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
+                    <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
+                </div>
+            </form-field-drop-zone>`
         );
+
+        this.insertAdjacentHTML(
+            "beforeend",
+            `<container-drop-zone slot="bottom-drop-zone" class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white" data-insert-location="afterend">
+                <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
+                    <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
+                </div>
+            </div>`
+        );
+
+        addEvents(this, "pointerdown", this.sendEditEvent);
+        addEvents(this, "pointerover", this.sendSetHoverEvent);
+        addEvents(this, "pointerout", this.sendUnsetHoverEvent);
+        addEvents(this, ["creating", "moving"], this.showDropZones, true);
+        addEvents(this, ["created", "moved"], this.hideDropZones, true);
     }
 
     disconnectedCallback() {
-        this.cleanup.forEach((fn) => fn());
+        cleanupElement(this);
         this.dispatchEvent(new CustomEvent("remove-field", { detail: { field: this.id } }));
     }
 
-    /**
-     * @param {Event} e
-     */
-    slotChanged(e) {
-        const nodes = /** @type {HTMLSlotElement} */ (e.target).assignedElements();
-        this.processAttributes(nodes);
+    showDropZones() {
+        /** @type {ContainerDropZone} */ (this.querySelector("[slot='top-drop-zone']")).show();
+        /** @type {ContainerDropZone} */ (this.querySelector("[slot='bottom-drop-zone']")).show();
     }
 
-    /**
-     * @param {Element[]} elements
-     */
-    processAttributes(elements) {
-        elements.forEach((el) => {
-            if (el.childElementCount > 0) {
-                this.processAttributes([...el.children]);
-            }
-
-            el.getAttributeNames().forEach((attr) => {
-                switch (attr[0]) {
-                    case "@":
-                        // processEvent(el, attr);
-                        break;
-                    case "$":
-                        // processHttpRequest(el, attr);
-                        break;
-                    case ":":
-                        // processBinding(el, attr);
-                        break;
-                    default:
-                        return;
-                }
-            });
-        });
-    }
-
-    /**
-     * @param {string} event
-     * @param {() => void} fn
-     * @param {boolean} useCapture
-     */
-    addEvent(el, event, fn, useCapture = false) {
-        el.addEventListener(event, fn);
-        this.cleanup.push(() => el.removeEventListener(event, fn, useCapture));
+    hideDropZones() {
+        /** @type {ContainerDropZone} */ (this.querySelector("[slot='top-drop-zone']")).hide();
+        /** @type {ContainerDropZone} */ (this.querySelector("[slot='bottom-drop-zone']")).hide();
     }
 
     sendEditEvent() {

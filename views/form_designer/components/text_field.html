@@ -34,10 +34,9 @@
                     *
                 </span>
             </div>
-            {{ if eq . "text" }} {{ template "text_input" }} {{ else if eq . "number" }} {{ template "number_input" }}
-            {{ else if eq . "select" }} {{ template "select_input" }} {{ else if eq . "datetime" }} {{ template
-            "date_field" }} {{ else if eq . "location" }} {{ template "location_field" }} {{ else if eq . "calculation"
-            }} {{ template "calculation_field" }} {{ end }}
+            {{ if eq . "text" }} {{ template "text_input" }} {{ else if eq . "number" }} {{ template "number_input" }} {{ else if eq .
+            "select" }} {{ template "select_input" }} {{ else if eq . "datetime" }} {{ template "date_field" }} {{ else if eq . "location"
+            }} {{ template "location_field" }} {{ else if eq . "calculation" }} {{ template "calculation_field" }} {{ end }}
             <div
                 x-show="data.description != ''"
                 class="col-span-full break-all"
@@ -299,7 +298,6 @@
     const context = [];
 
     /**
-     *
      * @param {Effect} observer
      * @param {Set<Effect>} subscriptions
      */
@@ -347,199 +345,6 @@
 
         effect.execute();
     }
-
-    class FormFieldBase extends HTMLElement {
-        /** @type {boolean} */
-        dropTop;
-
-        /** @type {boolean} */
-        dropBottom;
-
-        /** @type {boolean} */
-        dropZoneVisible;
-
-        /** @type {HTMLSlotElement} */
-        inputSlot;
-
-        /** @type {HTMLDivElement} */
-        fieldHighlightSlot;
-
-        /** @type {HTMLDivElement} */
-        topDropZoneSlot;
-
-        /** @type {HTMLDivElement} */
-        bottomDropZoneSlot;
-
-        /** @type {Record<string, string>} */
-        data = null;
-
-        /** @type {Map<string, Array<() => void>>} */
-        subscribers;
-
-        /** @type {Array<() => void>} */
-        cleanup;
-
-        constructor() {
-            this.inputSlot = document.createElement("slot");
-            this.fieldHighlightSlot = document.createElement("slot");
-            this.topDropZoneSlot = document.createElement("slot");
-            this.bottomDropZoneSlot = document.createElement("slot");
-
-            const shadowRoot = this.attachShadow({ mode: "open" });
-            shadowRoot.append(this.inputSlot, this.fieldHighlightSlot, this.topDropZoneSlot, this.bottomDropZoneSlot);
-
-            this.addEvent(this, "pointerdown", this.sendEditEvent);
-            this.addEvent(this, "pointerover", this.sendSetHoverEvent);
-            this.addEvent(this, "pointerout", this.sendUnsetHoverEvent);
-
-            this.dispatchEvent(new CustomEvent("addfield", { detail: { data } }));
-            this.sendEditEvent();
-        }
-
-        connectedCallback() {
-            createReactiveProperty(this, "dropTop", false);
-            createReactiveProperty(this, "dropBottom", false);
-            createReactiveProperty(this, "dropZonesVisible", false);
-
-            this.topDropZoneSlot.innerHTML = `
-                <div style="display: none;" class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
-                    <div style="display: none;" class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
-                        <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
-                    </div>
-                </div>`;
-
-            const topDropZone = this.topDropZoneSlot.firstElementChild;
-            this.addEvent(topDropZone, "dragover", () => (this.dropTop = true));
-            this.addEvent(topDropZone, "dragleave", () => (this.dropTop = false));
-            this.addEvent(topDropZone, "drop", () => (this.dropTop = false));
-            createEffect(() => (topDropZone.firstElementChild.style.display = this.dropTop ? "" : "none"));
-
-            this.bottomDropZoneSlot.innerHTML = `
-                <div style="display: none;" class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white" data-insert-location="afterend">
-                    <div style="display: none;" class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
-                        <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
-                    </div>
-                </div>`;
-
-            const bottomDropZone = this.bottomDropZoneSlot.firstElementChild;
-            this.addEvent(bottomDropZone, "dragover", () => (this.dropBottom = true));
-            this.addEvent(bottomDropZone, "dragleave", () => (this.dropBottom = false));
-            this.addEvent(bottomDropZone, "drop", () => (this.dropBottom = false));
-            createEffect(() => (topDropZone.firstElementChild.style.display = this.dropBottom ? "" : "none"));
-
-            this.addEvent(this, "creating", () => (this.dropZoneVisible = true), true);
-            this.addEvent(this, "created", () => (this.dropZoneVisible = false), true);
-            this.addEvent(this, "moving", () => (this.dropZoneVisible = true), true);
-            this.addEvent(this, "moved", () => (this.dropZoneVisible = false), true);
-            createEffect(
-                () => (topDropZone.style.display = bottomDropZone.style.display = this.dropZoneVisible ? "" : "none")
-            );
-        }
-
-        disconnectedCallback() {
-            this.cleanup.forEach((fn) => fn());
-            this.dispatchEvent(new CustomEvent("remove-field", { detail: { field: this.id } }));
-        }
-
-        setupTopDropZone() {}
-
-        setupBottomDropZone() {
-            const [hoverBottom, setHoverBottom] = createSignal(false);
-        }
-
-        slotChanged(e) {
-            const nodes = /** @type {HTMLSlotElement} */ (e.target).assignedElements();
-            processAttributes(nodes);
-        }
-
-        /**
-         * @param {HTMLElement[]} elements
-         */
-        processAttributes(elements) {
-            elements.forEach((el) => {
-                if (el.childElementCount > 0) {
-                    processAttributes(el.children);
-                }
-
-                el.getAttributeNames().forEach((attr) => {
-                    switch (attr[0]) {
-                        case "@":
-                            processEvent(el, attr);
-                            break;
-                        case "$":
-                            processHttpRequest(el, attr);
-                            break;
-                        case ":":
-                            processBinding(el, attr);
-                            break;
-                        default:
-                            return;
-                    }
-                });
-            });
-        }
-
-        /**
-         * @param {string} event
-         * @param {() => void} fn
-         * @param {boolean} useCapture
-         * @returns {() => void} cleanup function
-         */
-        addEvent(el, event, fn, useCapture = false) {
-            el.addEventListener(event, fn);
-            this.cleanup.push(() => el.removeEventListener(event, fn, useCapture));
-        }
-
-        /** @type {string} */
-        toggleDropZonesVisibility(attributeValue) {
-            this.topDropZoneSlot.firstElementChild.style.display = attributeValue;
-            this.bottomDropZoneSlot.firstElementChild.style.display = attributeValue;
-        }
-
-        sendEditEvent() {
-            const event = new CustomEvent("edit-field", { detail: { field: this.id } });
-            this.dispatchEvent(event);
-        }
-
-        sendSetHoverEvent(e) {
-            e.stopPropagation();
-
-            const event = new CustomEvent("set-hover", { detail: { field: this.name, data: this } });
-            this.dispatchEvent(event);
-        }
-
-        sendUnsetHoverEvent() {
-            e.stopPropagation();
-
-            const event = new CustomEvent("unset-hover", { detail: { field: this.name, data: this } });
-            this.dispatchEvent(event);
-        }
-    }
-
-    customElements.define(
-        "text-field",
-        class TextFormField extends FormFieldBase {
-            constructor() {
-                this.data = {
-                    type: "text",
-                    name: "text",
-                    label: "Text Input",
-                    placeholder: "",
-                    min: 0,
-                    max: 2000,
-                    defaultValue: "",
-                    layout: "inline",
-                    description: "",
-                    includeLabel: true,
-                    required: false,
-                    readonly: false,
-                    disabled: false,
-                    hidden: false,
-                };
-                super();
-            }
-        }
-    );
 </script>
 
 <div
@@ -629,38 +434,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div
-        x-show="showNewFieldDropZone"
-        @dragover="dropTop = true"
-        @dragleave="dropTop = false"
-        @drop="dropTop = false"
-        class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white"
-        data-insert-location="beforebegin"
-    >
-        <div
-            inert
-            x-show="dropTop"
-            class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500"
-        >
-            <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
-        </div>
-    </div>
-    <div
-        x-show="showNewFieldDropZone"
-        @dragover="dropBottom = true"
-        @dragleave="dropBottom = false"
-        @drop="dropBottom = false"
-        class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white"
-        data-insert-location="afterend"
-    >
-        <div
-            inert
-            x-show="dropBottom"
-            class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500"
-        >
-            <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
         </div>
     </div>
 </template>
