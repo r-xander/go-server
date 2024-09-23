@@ -954,7 +954,7 @@ function createReactiveProperty(obj, property, initialValue) {
 /*                                              */
 /************************************************/
 
-/** @type {WeakMap<Element, Array<() => void>>} */
+/** @type {WeakMap<EventTarget, Array<() => void>>} */
 const cleanupMap = new WeakMap();
 
 /** @param {Element} el */
@@ -963,9 +963,9 @@ function registerElementCleanup(el) {
 }
 
 /**
- * @param {Element} el
+ * @param {EventTarget} el
  * @param {string | string[]} event
- * @param {() => void} fn
+ * @param {(...e: any | undefined ) => void} fn
  * @param {boolean} useCapture
  */
 function addEvents(el, event, fn, useCapture = false) {
@@ -982,49 +982,105 @@ function addEvents(el, event, fn, useCapture = false) {
 
 /** @param {Element} el */
 function cleanupElement(el) {
-    cleanupMap.get(el).forEach((fn) => fn());
+    cleanupMap.get(el)?.forEach((fn) => fn());
+
+    if (el.childElementCount > 0) {
+        [...el.children].forEach((el) => cleanupElement(el));
+    }
 }
 
 class ContainerHighlight extends HTMLElement {
+    static observedAttributes = ["type", "state"];
+
     constructor() {
         super();
-
-        // const root = this.attachShadow({ mode: "open" })
-        // root.innerHTML = "<slot name=dele>"
     }
+
     connectedCallback() {
-        this.insertAdjacentHTML(
-            "beforeend",
-            `<button class="w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
-                <svg class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]"><use href="#copy-icon" /></svg>
-            </button>`
-        );
+        this.className = "absolute inset-0 cursor-pointer transition border border-sky-500";
 
-        this.insertAdjacentHTML(
-            "beforeend",
-            `<button class="w-5 h-5 p-1 cursor-pointer transition relative bg-sky-500 text-white hover:bg-sky-600">
-                <svg class="aspect-square fill-current"><use href="#delete-icon" /></svg>
-            </button>`
-        );
+        //type and name spans
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "absolute -left-px bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500";
 
-        this.className = "absolute -right-px bottom-full flex gap-1";
+        const typeSpan = document.createElement("span");
+        typeSpan.className = "font-bold italic cursor-default select-none";
+        addEvents(this, "type-change", (/** @type {CustomEvent} */ e) => (typeSpan.textContent = e.detail.attribute));
+
+        const stateSpan = document.createElement("span");
+        stateSpan.className = "opacity-80";
+        addEvents(this, "state-change", (/** @type {CustomEvent} */ e) => (typeSpan.textContent = e.detail.state));
+
+        nameDiv.append(typeSpan, stateSpan);
+        this.append(nameDiv);
+
+        //buttons
+        const buttonDiv = document.createElement("div");
+        buttonDiv.className = "absolute -right-px bottom-full flex gap-1";
+
+        const copyButton = document.createElement("button");
+        copyButton.className = "w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600";
+        copyButton.innerHTML = '<svg class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]"><use href="#copy-icon" /></svg>';
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600";
+        deleteButton.innerHTML = '<svg class="fill-current aspect-square"><use href="#delete-icon" /></svg>';
+
+        addEvents(copyButton, "click", (() => this.dispatchEvent(new CustomEvent("copy-field"))).bind(this));
+        addEvents(deleteButton, "click", this.showDeleteModal.bind(this));
+
+        buttonDiv.append(copyButton, deleteButton);
+        this.append(buttonDiv);
+    }
+
+    /**
+     *
+     * @param {string} attribute
+     * @param {string} oldValue
+     * @param {string} newValue
+     */
+    attributeChangedCallback(attribute, oldValue, newValue) {
+        if (attribute === "active") {
+            this.classList.toggle("bg-sky-500/20", newValue === "true");
+        }
     }
 
     showDeleteModal() {
-        this.insertAdjacentHTML(
-            "beforeend",
-            `<div class="grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
-                <h1>Are you sure you want to delete this field?</h1>
-                <div class="flex gap-2 justify-self-end">
-                    <button class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70">Delete</button>
-                    <button class="px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]">Cancel</button>
-                </div>
-            </div>`
-        );
+        const div = document.createElement("div");
+        div.className =
+            "grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark";
+
+        const h1 = document.createElement("h1");
+        h1.textContent = "Are you sure you want to delete this field?";
+
+        const buttonContainer = document.createElement("div");
+        buttonContainer.className =
+            "px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70";
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className =
+            "px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70";
+        deleteButton.textContent = "Delete";
+
+        const cancelButton = document.createElement("buttonm");
+        cancelButton.className =
+            "px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]";
+        cancelButton.textContent = "Cancel";
+
+        buttonContainer.append(deleteButton, cancelButton);
+        div.append(h1, buttonContainer);
+
+        addEvents(deleteButton, "click", (() => this.dispatchEvent(new CustomEvent("delete-field"))).bind(this));
+        addEvents(cancelButton, "click", this.hideDeleteModal.bind(this));
+
+        this.append(div);
     }
 
     hideDeleteModal() {
-        this.lastElementChild.remove();
+        const modal = this.lastElementChild;
+        cleanupElement(modal);
+
+        modal.remove();
     }
 }
 
@@ -1083,6 +1139,7 @@ class FormFieldBase extends HTMLElement {
     }
 
     connectedCallback() {
+        this.insertAdjacentHTML("beforeend", "<container-highlight active>");
         this.insertAdjacentHTML(
             "beforeend",
             `<container-drop-zone slot="top-drop-zone" class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
@@ -1098,7 +1155,7 @@ class FormFieldBase extends HTMLElement {
                 <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
                     <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
                 </div>
-            </div>`
+            </container-drop-zone>`
         );
 
         addEvents(this, "pointerdown", this.sendEditEvent);
@@ -1124,8 +1181,11 @@ class FormFieldBase extends HTMLElement {
     }
 
     sendEditEvent() {
-        const event = new CustomEvent("edit-field", { detail: { field: this.id } });
+        const event = new CustomEvent("edit-field", { detail: { element: this } });
         this.dispatchEvent(event);
+
+        const highlight = this.shadowRoot.querySelector("container-highlight");
+        highlight.setAttribute("active", "");
     }
 
     sendSetHoverEvent(e) {
