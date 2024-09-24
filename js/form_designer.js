@@ -997,94 +997,78 @@ class ContainerHighlight extends HTMLElement {
     }
 
     connectedCallback() {
-        this.className = "absolute inset-0 cursor-pointer transition border border-sky-500";
+        this.insertAdjacentHTML(
+            "beforeend",
+            `<div class="absolute -left-px bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500">
+                <span class="font-bold italic cursor-default select-none">${this.getAttribute("type")}<span>
+                <span class="opacity-80">${this.getAttribute("state")}<span>
+            </div>`
+        );
 
-        //type and name spans
-        const nameDiv = document.createElement("div");
-        nameDiv.className = "absolute -left-px bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500";
+        const spans = this.getElementsByTagName("span");
+        addEvents(spans[0], "type-change", (/** @type {CustomEvent} */ e) => (spans[0].textContent = e.detail.attribute));
+        addEvents(spans[1], "state-change", (/** @type {CustomEvent} */ e) => (spans[1].textContent = e.detail.state));
 
-        const typeSpan = document.createElement("span");
-        typeSpan.className = "font-bold italic cursor-default select-none";
-        addEvents(this, "type-change", (/** @type {CustomEvent} */ e) => (typeSpan.textContent = e.detail.attribute));
+        this.insertAdjacentHTML(
+            "beforeend",
+            `<div class="absolute -right-px bottom-full flex gap-1">
+                <button class="font-bold italic cursor-default select-none">
+                    <svg class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]"><use href="#copy-icon" /></svg>
+                </button>
+                <button class="opacity-80">
+                    <svg class="fill-current aspect-square"><use href="#delete-icon" /></svg>
+                </button>
+            </div>`
+        );
 
-        const stateSpan = document.createElement("span");
-        stateSpan.className = "opacity-80";
-        addEvents(this, "state-change", (/** @type {CustomEvent} */ e) => (typeSpan.textContent = e.detail.state));
+        this.insertAdjacentHTML(
+            "beforeend",
+            `<div class="grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
+                <h1>Are you sure you want to delete this field?</h1>;
+                <div class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70">
+                    <button class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70">Delete</button>
+                    <button class="px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]">Cancel</button>
+                </div>
+            </div>`
+        );
 
-        nameDiv.append(typeSpan, stateSpan);
-        this.append(nameDiv);
-
-        //buttons
-        const buttonDiv = document.createElement("div");
-        buttonDiv.className = "absolute -right-px bottom-full flex gap-1";
-
-        const copyButton = document.createElement("button");
-        copyButton.className = "w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600";
-        copyButton.innerHTML = '<svg class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]"><use href="#copy-icon" /></svg>';
-
-        const deleteButton = document.createElement("button");
-        deleteButton.className = "w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600";
-        deleteButton.innerHTML = '<svg class="fill-current aspect-square"><use href="#delete-icon" /></svg>';
-
-        addEvents(copyButton, "click", (() => this.dispatchEvent(new CustomEvent("copy-field"))).bind(this));
-        addEvents(deleteButton, "click", this.showDeleteModal.bind(this));
-
-        buttonDiv.append(copyButton, deleteButton);
-        this.append(buttonDiv);
+        const buttons = this.getElementsByTagName("button");
+        addEvents(buttons[0], "click", () => this.dispatchEvent(new CustomEvent("copy-field")));
+        addEvents(buttons[1], "click", () => this.showDeleteModal);
+        addEvents(buttons[2], "click", () => {
+            this.dispatchEvent(new CustomEvent("delete-field"));
+            this.hideDeleteModal();
+        });
+        addEvents(buttons[3], "click", () => this.hideDeleteModal());
     }
 
     /**
-     *
      * @param {string} attribute
      * @param {string} oldValue
      * @param {string} newValue
      */
     attributeChangedCallback(attribute, oldValue, newValue) {
         if (attribute === "active") {
-            this.classList.toggle("bg-sky-500/20", newValue === "true");
+            this.classList.toggle("bg-sky-500/20", newValue !== null);
+        } else if (attribute === "type") {
+            this.dispatchEvent(new CustomEvent("type-change", { detail: { attribute: newValue } }));
+        } else if (attribute === "state") {
+            this.dispatchEvent(new CustomEvent("state-change", { detail: { attribute: newValue } }));
         }
     }
 
     showDeleteModal() {
-        const div = document.createElement("div");
-        div.className =
-            "grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark";
-
-        const h1 = document.createElement("h1");
-        h1.textContent = "Are you sure you want to delete this field?";
-
-        const buttonContainer = document.createElement("div");
-        buttonContainer.className =
-            "px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70";
-
-        const deleteButton = document.createElement("button");
-        deleteButton.className =
-            "px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70";
-        deleteButton.textContent = "Delete";
-
-        const cancelButton = document.createElement("buttonm");
-        cancelButton.className =
-            "px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]";
-        cancelButton.textContent = "Cancel";
-
-        buttonContainer.append(deleteButton, cancelButton);
-        div.append(h1, buttonContainer);
-
-        addEvents(deleteButton, "click", (() => this.dispatchEvent(new CustomEvent("delete-field"))).bind(this));
-        addEvents(cancelButton, "click", this.hideDeleteModal.bind(this));
-
-        this.append(div);
+        /** @type {HTMLElement} */ (this.lastElementChild).style.display = "";
     }
 
     hideDeleteModal() {
-        const modal = this.lastElementChild;
-        cleanupElement(modal);
-
-        modal.remove();
+        /** @type {HTMLElement} */ (this.lastElementChild).style.display = "none";
     }
 }
 
 class ContainerDropZone extends HTMLElement {
+    static observedAttributes = ["visible"];
+
     constructor() {
         super();
         this.style.display = "none";
@@ -1102,19 +1086,21 @@ class ContainerDropZone extends HTMLElement {
         addEvents(this, "drop", () => this.indicatorSlot.assign());
     }
 
+    /**
+     * @param {string} attribute
+     * @param {string} oldValue
+     * @param {string} newValue
+     */
+    attributeChangedCallback(attribute, oldValue, newValue) {
+        if (attribute === "visible") {
+            this.style.display = newValue !== null ? "block" : "none";
+        }
+    }
+
     disconnectedCallback() {
         cleanupElement(this);
     }
-
-    show() {
-        this.style.display = "block";
-    }
-
-    hide() {
-        this.style.display = "none";
-    }
 }
-customElements.define("container-drop-zone", ContainerDropZone);
 
 class FormFieldBase extends HTMLElement {
     /** @type {Record<string, any>} */
@@ -1139,14 +1125,18 @@ class FormFieldBase extends HTMLElement {
     }
 
     connectedCallback() {
-        this.insertAdjacentHTML("beforeend", "<container-highlight active>");
+        this.insertAdjacentHTML(
+            "beforeend",
+            '<container-highlight class="absolute inset-0 cursor-pointer transition border border-sky-500">'
+        );
+
         this.insertAdjacentHTML(
             "beforeend",
             `<container-drop-zone slot="top-drop-zone" class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
                 <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
                     <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
                 </div>
-            </form-field-drop-zone>`
+            </container-drop-zone>`
         );
 
         this.insertAdjacentHTML(
@@ -1171,21 +1161,21 @@ class FormFieldBase extends HTMLElement {
     }
 
     showDropZones() {
-        /** @type {ContainerDropZone} */ (this.querySelector("[slot='top-drop-zone']")).show();
-        /** @type {ContainerDropZone} */ (this.querySelector("[slot='bottom-drop-zone']")).show();
+        this.querySelector("[slot='top-drop-zone']").setAttribute("visible", "");
+        this.querySelector("[slot='bottom-drop-zone']").setAttribute("visible", "");
     }
 
     hideDropZones() {
-        /** @type {ContainerDropZone} */ (this.querySelector("[slot='top-drop-zone']")).hide();
-        /** @type {ContainerDropZone} */ (this.querySelector("[slot='bottom-drop-zone']")).hide();
+        this.querySelector("[slot='top-drop-zone']").removeAttribute("visible");
+        this.querySelector("[slot='bottom-drop-zone']").removeAttribute("visible");
     }
 
     sendEditEvent() {
-        const event = new CustomEvent("edit-field", { detail: { element: this } });
-        this.dispatchEvent(event);
-
         const highlight = this.shadowRoot.querySelector("container-highlight");
         highlight.setAttribute("active", "");
+
+        const event = new CustomEvent("edit-field", { detail: { element: this } });
+        this.dispatchEvent(event);
     }
 
     sendSetHoverEvent(e) {
@@ -1203,6 +1193,8 @@ class FormFieldBase extends HTMLElement {
     }
 }
 
+customElements.define("container-highlight", ContainerHighlight);
+customElements.define("container-drop-zone", ContainerDropZone);
 customElements.define(
     "text-field",
     class TextFormField extends FormFieldBase {
