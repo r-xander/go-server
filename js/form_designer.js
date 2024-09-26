@@ -1138,9 +1138,23 @@ class FormFieldBase extends HTMLElement {
     }
 
     connectedCallback() {
+        const inputBlock = parseHtml(
+            `<div class="grid gap-1 w-full items-start">
+                <div class="flex gap-1 p-1.5 m-px">
+                    <label class="font-medium select-none break-all"></label>
+                    <span class="leading-4 font-semibold text-rose-500">*</span>
+                </div>
+                <input type="text" />
+                <div class="col-span-full break-all">
+                    <span></span>
+                </div>
+            </div>`
+        );
+
         const containerHighlight = parseHtml(
             `<container-highlight type="${this.data.type}" state slot="field-highlight" class="absolute inset-0 cursor-pointer transition border border-sky-500">`
         );
+
         const topDropZone = parseHtml(
             `<container-drop-zone slot="top-drop-zone" class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
                 <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
