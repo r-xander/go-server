@@ -23,10 +23,10 @@
 
         function newField(name, parentSelector, type) {
             /** @type {HTMLTemplateElement} */
-            const template = formDesigner.fieldTemplates[type];
+            const templ = formDesigner.fieldTemplates[type];
 
             /** @type {HTMLElement} */
-            const child = template.firstChild.cloneNode(true);
+            const child = templ.firstChild.cloneNode(true);
 
             child.internals = {
                 /** @type {TextInputAttributes} */
@@ -98,14 +98,14 @@
                 const templateName = input.getAttribute("dd-template");
 
                 /** @type {HTMLTemplateElement} */
-                const template = input.querySelector("#" + templateName);
+                const templ = input.querySelector("#" + templateName);
 
                 function dragStartHandler(e) {
-                    e.dataTransfer.setData("text/html", template.content.innerHTML);
+                    e.dataTransfer.setData("text/html", templ.content.innerHTML);
                 }
 
                 formDesigner.actions[templateName] = {
-                    template,
+                    template: templ,
                     handler: dragStartHandler,
                 };
 

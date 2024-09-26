@@ -973,6 +973,10 @@ function addEvents(el, event, fn, useCapture = false) {
         event = [event];
     }
 
+    if (!cleanupMap.has(el)) {
+        cleanupMap.set(el, []);
+    }
+
     const cleanups = cleanupMap.get(el);
     event.forEach((event) => {
         el.addEventListener(event, fn, useCapture);
@@ -989,57 +993,67 @@ function cleanupElement(el) {
     }
 }
 
+const parseTemplate = document.createElement("template");
+
+/** @param {string} html */
+function parseHtml(html) {
+    parseTemplate.innerHTML = html;
+    return parseTemplate.content.firstElementChild;
+}
+
 class ContainerHighlight extends HTMLElement {
     static observedAttributes = ["type", "state"];
 
     constructor() {
         super();
+        registerElementCleanup(this);
     }
 
     connectedCallback() {
-        this.insertAdjacentHTML(
-            "beforeend",
+        const nameBlock = parseHtml(
             `<div class="absolute -left-px bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500">
-                <span class="font-bold italic cursor-default select-none">${this.getAttribute("type")}<span>
+                <span class="font-bold italic cursor-default select-none">${this.getAttribute("type")}</span>
                 <span class="opacity-80">${this.getAttribute("state")}<span>
             </div>`
         );
 
-        const spans = this.getElementsByTagName("span");
+        const spans = nameBlock.getElementsByTagName("span");
         addEvents(spans[0], "type-change", (/** @type {CustomEvent} */ e) => (spans[0].textContent = e.detail.attribute));
         addEvents(spans[1], "state-change", (/** @type {CustomEvent} */ e) => (spans[1].textContent = e.detail.state));
 
-        this.insertAdjacentHTML(
-            "beforeend",
+        const buttonsBlock = parseHtml(
             `<div class="absolute -right-px bottom-full flex gap-1">
-                <button class="font-bold italic cursor-default select-none">
-                    <svg class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]"><use href="#copy-icon" /></svg>
+                <button class="w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
+                    <svg class="aspect-square fill-current [fill-rule:evenodd] [clip-rule:evenodd]"><use href="#copy-icon" /></svg>
                 </button>
-                <button class="opacity-80">
-                    <svg class="fill-current aspect-square"><use href="#delete-icon" /></svg>
+                <button class="w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
+                    <svg class="aspect-square fill-current"><use href="#delete-icon" /></svg>
                 </button>
             </div>`
         );
 
-        this.insertAdjacentHTML(
-            "beforeend",
-            `<div class="grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
-                <h1>Are you sure you want to delete this field?</h1>;
-                <div class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70">
+        const actionButtons = buttonsBlock.getElementsByTagName("button");
+        addEvents(actionButtons[0], "click", () => this.dispatchEvent(new CustomEvent("copy-field")));
+        addEvents(actionButtons[1], "click", () => this.showDeleteModal());
+
+        const deleteModal = parseHtml(
+            `<div style="display: none;" class="grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
+                <h1>Are you sure you want to delete this field?</h1>
+                <div class="flex gap-2 justify-self-end">
                     <button class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70">Delete</button>
                     <button class="px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]">Cancel</button>
                 </div>
             </div>`
         );
 
-        const buttons = this.getElementsByTagName("button");
-        addEvents(buttons[0], "click", () => this.dispatchEvent(new CustomEvent("copy-field")));
-        addEvents(buttons[1], "click", () => this.showDeleteModal);
-        addEvents(buttons[2], "click", () => {
+        const deleteModalButtons = deleteModal.getElementsByTagName("button");
+        addEvents(deleteModalButtons[0], "click", () => {
             this.dispatchEvent(new CustomEvent("delete-field"));
             this.hideDeleteModal();
         });
-        addEvents(buttons[3], "click", () => this.hideDeleteModal());
+        addEvents(deleteModalButtons[1], "click", () => this.hideDeleteModal());
+
+        this.append(nameBlock, buttonsBlock, deleteModal);
     }
 
     /**
@@ -1058,11 +1072,12 @@ class ContainerHighlight extends HTMLElement {
     }
 
     showDeleteModal() {
-        /** @type {HTMLElement} */ (this.lastElementChild).style.display = "";
+        console.log("delete");
+        /** @type {HTMLElement} */ (this.closest("container-highlight").lastElementChild).style.display = "";
     }
 
     hideDeleteModal() {
-        /** @type {HTMLElement} */ (this.lastElementChild).style.display = "none";
+        /** @type {HTMLElement} */ (this.closest("container-highlight").lastElementChild).style.display = "none";
     }
 }
 
@@ -1119,19 +1134,14 @@ class FormFieldBase extends HTMLElement {
         const shadowRoot = this.attachShadow({ mode: "open" });
         shadowRoot.innerHTML =
             '<slot></slot><slot name="field-highlight"></slot><slot name="top-drop-zone"></slot><slot name="bottom-drop-zone"></slot>';
-
-        this.dispatchEvent(new CustomEvent("addfield", { detail: { data: this.data } }));
-        this.sendEditEvent();
+        this.className = "block relative rounded";
     }
 
     connectedCallback() {
-        this.insertAdjacentHTML(
-            "beforeend",
-            '<container-highlight class="absolute inset-0 cursor-pointer transition border border-sky-500">'
+        const containerHighlight = parseHtml(
+            `<container-highlight type="${this.data.type}" state slot="field-highlight" class="absolute inset-0 cursor-pointer transition border border-sky-500">`
         );
-
-        this.insertAdjacentHTML(
-            "beforeend",
+        const topDropZone = parseHtml(
             `<container-drop-zone slot="top-drop-zone" class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
                 <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
                     <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
@@ -1139,8 +1149,7 @@ class FormFieldBase extends HTMLElement {
             </container-drop-zone>`
         );
 
-        this.insertAdjacentHTML(
-            "beforeend",
+        const bottomDropZone = parseHtml(
             `<container-drop-zone slot="bottom-drop-zone" class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white" data-insert-location="afterend">
                 <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
                     <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
@@ -1153,6 +1162,10 @@ class FormFieldBase extends HTMLElement {
         addEvents(this, "pointerout", this.sendUnsetHoverEvent);
         addEvents(this, ["creating", "moving"], this.showDropZones, true);
         addEvents(this, ["created", "moved"], this.hideDropZones, true);
+
+        this.append(containerHighlight, topDropZone, bottomDropZone);
+        this.dispatchEvent(new CustomEvent("addfield", { detail: { data: this.data } }));
+        this.sendEditEvent();
     }
 
     disconnectedCallback() {
@@ -1171,7 +1184,7 @@ class FormFieldBase extends HTMLElement {
     }
 
     sendEditEvent() {
-        const highlight = this.shadowRoot.querySelector("container-highlight");
+        const highlight = this.querySelector("container-highlight");
         highlight.setAttribute("active", "");
 
         const event = new CustomEvent("edit-field", { detail: { element: this } });
