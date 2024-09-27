@@ -7,7 +7,7 @@
                 <span class="leading-4 font-semibold text-rose-500">*</span>
             </div>
             <input type="text" />
-            <div class="col-span-full break-all" >
+            <div class="col-span-full break-all">
                 <span x-text="data.description"></span>
             </div>
         </div>
@@ -150,66 +150,6 @@
     disabled
 />
 {{ end }} {{ define "form_field_custom_element" }}
-<script>
-    /**
-     * @typedef Effect
-     * @property {() => void} execute
-     * @property {Set<Set<Effect>>} dependencies
-     */
-
-    /** @type {Effect[]} */
-    const context = [];
-
-    /**
-     * @param {Effect} observer
-     * @param {Set<Effect>} subscriptions
-     */
-    function subscribe(observer, subscriptions) {
-        subscriptions.add(observer);
-        observer.dependencies.add(subscriptions);
-    }
-
-    /**
-     * @param {HTMLElement & { subsribers: Map }} obj
-     * @param {string} property
-     */
-    function createReactiveProperty(obj, property, initialValue) {
-        obj.subsribers.add(property, []);
-
-        Object.defineProperty(obj, property, {
-            writable: true,
-            get() {
-                const observer = context[context.length - 1];
-                if (observer) obj.subsribers.get(property).push(observer);
-                return value;
-            },
-            set(value) {
-                value = newValue;
-                for (const observer of [...subscriptions]) {
-                    observer.execute();
-                }
-            },
-        });
-
-        obj[property] = value;
-    }
-
-    function createEffect(fn) {
-        /** @type {Effect} */
-        const effect = {
-            execute() {
-                cleanup(effect);
-                context.push(effect);
-                fn();
-                context.pop();
-            },
-            dependencies: new Set(),
-        };
-
-        effect.execute();
-    }
-</script>
-
 <div
     class="grid gap-1 w-full items-start"
     :class="{ 'opacity-50': data.hidden, 'grid-cols-[3fr_4fr]': data.layout === 'inline' && data.label !== '' }"
