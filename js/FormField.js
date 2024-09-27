@@ -48,7 +48,7 @@ function parseHtml(html) {
 }
 
 class ContainerHighlight extends HTMLElement {
-    static observedAttributes = ["type", "state"];
+    static observedAttributes = ["active", "type", "state"];
 
     constructor() {
         super();
@@ -109,7 +109,9 @@ class ContainerHighlight extends HTMLElement {
      */
     attributeChangedCallback(attribute, oldValue, newValue) {
         if (attribute === "active") {
+            console.log(attribute, oldValue, newValue);
             this.classList.toggle("bg-sky-500/20", newValue !== null);
+            this.classList.toggle("invisible", newValue === null);
         } else if (attribute === "type") {
             this.dispatchEvent(new CustomEvent("type-change", { detail: { attribute: newValue } }));
         } else if (attribute === "state") {
@@ -119,11 +121,11 @@ class ContainerHighlight extends HTMLElement {
 
     showDeleteModal() {
         console.log("delete");
-        /** @type {HTMLElement} */ (this.closest("container-highlight").lastElementChild).style.display = "";
+        /** @type {HTMLElement} */ (this.lastElementChild).style.display = "";
     }
 
     hideDeleteModal() {
-        /** @type {HTMLElement} */ (this.closest("container-highlight").lastElementChild).style.display = "none";
+        /** @type {HTMLElement} */ (this.lastElementChild).style.display = "none";
     }
 }
 
@@ -164,6 +166,9 @@ class ContainerDropZone extends HTMLElement {
 }
 
 class FormFieldBase extends HTMLElement {
+    /** @type {boolean} */
+    isActive = false;
+
     /** @type {Record<string, any>} */
     data = null;
 
@@ -177,20 +182,19 @@ class FormFieldBase extends HTMLElement {
         this.data = data;
         registerElementCleanup(this);
 
-        const shadowRoot = this.attachShadow({ mode: "open" });
-        shadowRoot.innerHTML =
-            '<slot></slot><slot name="field-highlight"></slot><slot name="top-drop-zone"></slot><slot name="bottom-drop-zone"></slot>';
-        this.className = "block relative rounded";
+        //const shadowRoot = this.attachShadow({ mode: "open" });
+        //shadowRoot.innerHTML = '<slot></slot><slot name="field-highlight"></slot><slot name="top-drop-zone"></slot><slot name="bottom-drop-zone"></slot>';
+        this.className = "m-6 block relative rounded";
     }
 
     connectedCallback() {
         const inputBlock = parseHtml(
-            `<div class="grid gap-1 w-full items-start">
+            `<div class="grid grid-cols-[3fr_4fr] gap-1 w-full items-start" inert>
                 <div class="flex gap-1 p-1.5 m-px">
-                    <label class="font-medium select-none break-all"></label>
+                    <label class="font-medium select-none break-all">Label</label>
                     <span class="leading-4 font-semibold text-rose-500">*</span>
                 </div>
-                <input type="text" />
+                <input class="border border-neutral-500" type="text" value="test" />
                 <div class="col-span-full break-all">
                     <span></span>
                 </div>
@@ -198,7 +202,7 @@ class FormFieldBase extends HTMLElement {
         );
 
         const containerHighlight = parseHtml(
-            `<container-highlight type="${this.data.type}" state slot="field-highlight" class="absolute inset-0 cursor-pointer transition border border-sky-500">`
+            `<container-highlight type="${this.data.type}" state slot="field-highlight" class="invisible absolute inset-0 cursor-pointer transition border border-sky-500">`
         );
 
         const topDropZone = parseHtml(
@@ -220,10 +224,16 @@ class FormFieldBase extends HTMLElement {
         addEvents(this, "pointerdown", this.sendEditEvent);
         addEvents(this, "pointerover", this.sendSetHoverEvent);
         addEvents(this, "pointerout", this.sendUnsetHoverEvent);
+        addEvents(window, "click", (e) => {
+            if (e.target !== this && !this.contains(e.target)) {
+                this.querySelector("container-highlight").removeAttribute("active");
+                this.isActive = false;
+            }
+        });
         addEvents(this, ["creating", "moving"], this.showDropZones, true);
         addEvents(this, ["created", "moved"], this.hideDropZones, true);
 
-        this.append(containerHighlight, topDropZone, bottomDropZone);
+        this.append(inputBlock, containerHighlight, topDropZone, bottomDropZone);
         this.dispatchEvent(new CustomEvent("addfield", { detail: { data: this.data } }));
         this.sendEditEvent();
     }
@@ -244,9 +254,9 @@ class FormFieldBase extends HTMLElement {
     }
 
     sendEditEvent() {
-        const highlight = this.querySelector("container-highlight");
-        highlight.setAttribute("active", "");
-
+        this.isActive = true;
+        this.querySelector("container-highlight").setAttribute("active", "");
+        this.querySelector("container-highlight").classList.remove("invisible");
         const event = new CustomEvent("edit-field", { detail: { element: this } });
         this.dispatchEvent(event);
     }
@@ -254,12 +264,20 @@ class FormFieldBase extends HTMLElement {
     sendSetHoverEvent(e) {
         e.stopPropagation();
 
+        if (!this.isActive) {
+            this.querySelector("container-highlight").classList.remove("invisible");
+        }
+
         const event = new CustomEvent("set-hover", { detail: { data: this.data } });
         this.dispatchEvent(event);
     }
 
     sendUnsetHoverEvent(e) {
         e.stopPropagation();
+
+        if (!this.isActive) {
+            this.querySelector("container-highlight").classList.add("invisible");
+        }
 
         const event = new CustomEvent("unset-hover", { detail: { data: this.data } });
         this.dispatchEvent(event);
