@@ -41,14 +41,20 @@ function cleanupElement(el) {
 
 const parseTemplate = document.createElement("template");
 
-/** @param {string} html */
+/**
+ * @param {string} html
+ * @returns {HTMLElement}
+ */
 function parseHtml(html) {
     parseTemplate.innerHTML = html;
-    return parseTemplate.content.firstElementChild;
+    return /** @type {HTMLElement} */ (parseTemplate.content.firstElementChild);
 }
 
 class ContainerHighlight extends HTMLElement {
     static observedAttributes = ["active", "type", "state"];
+
+    /** @type {HTMLSpanElement} */
+    stateSpan;
 
     constructor() {
         super();
@@ -59,13 +65,9 @@ class ContainerHighlight extends HTMLElement {
         const nameBlock = parseHtml(
             `<div class="absolute -left-px bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500">
                 <span class="font-bold italic cursor-default select-none">${this.getAttribute("type")}</span>
-                <span class="opacity-80">${this.getAttribute("state")}<span>
+                <span class="opacity-80"><span>
             </div>`
         );
-
-        const spans = nameBlock.getElementsByTagName("span");
-        addEvents(spans[0], "type-change", (/** @type {CustomEvent} */ e) => (spans[0].textContent = e.detail.attribute));
-        addEvents(spans[1], "state-change", (/** @type {CustomEvent} */ e) => (spans[1].textContent = e.detail.state));
 
         const buttonsBlock = parseHtml(
             `<div class="absolute -right-px bottom-full flex gap-1">
@@ -78,10 +80,6 @@ class ContainerHighlight extends HTMLElement {
             </div>`
         );
 
-        const actionButtons = buttonsBlock.getElementsByTagName("button");
-        addEvents(actionButtons[0], "click", () => this.dispatchEvent(new CustomEvent("copy-field")));
-        addEvents(actionButtons[1], "click", () => this.showDeleteModal());
-
         const deleteModal = parseHtml(
             `<div style="display: none;" class="grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
                 <h1>Are you sure you want to delete this field?</h1>
@@ -92,12 +90,18 @@ class ContainerHighlight extends HTMLElement {
             </div>`
         );
 
+        this.stateSpan = nameBlock.getElementsByTagName("span")[1];
+
+        const actionButtons = buttonsBlock.getElementsByTagName("button");
+        addEvents(actionButtons[0], "click", () => this.dispatchEvent(new CustomEvent("copy-field", { detail: { element: this } })));
+        addEvents(actionButtons[1], "click", () => (deleteModal.style.display = ""));
+
         const deleteModalButtons = deleteModal.getElementsByTagName("button");
         addEvents(deleteModalButtons[0], "click", () => {
             this.dispatchEvent(new CustomEvent("delete-field"));
             this.hideDeleteModal();
         });
-        addEvents(deleteModalButtons[1], "click", () => this.hideDeleteModal());
+        addEvents(deleteModalButtons[1], "click", () => (deleteModal.style.display = "none"));
 
         this.append(nameBlock, buttonsBlock, deleteModal);
     }
@@ -109,13 +113,11 @@ class ContainerHighlight extends HTMLElement {
      */
     attributeChangedCallback(attribute, oldValue, newValue) {
         if (attribute === "active") {
-            console.log(attribute, oldValue, newValue);
             this.classList.toggle("bg-sky-500/20", newValue !== null);
             this.classList.toggle("invisible", newValue === null);
-        } else if (attribute === "type") {
-            this.dispatchEvent(new CustomEvent("type-change", { detail: { attribute: newValue } }));
         } else if (attribute === "state") {
-            this.dispatchEvent(new CustomEvent("state-change", { detail: { attribute: newValue } }));
+            this.stateSpan.style.display = newValue == null ? "none" : "";
+            this.stateSpan.textContent = newValue;
         }
     }
 
@@ -182,7 +184,7 @@ class FormFieldBase extends HTMLElement {
         this.data = data;
         registerElementCleanup(this);
 
-        //const shadowRoot = this.attachShadow({ mode: "open" });
+        const shadowRoot = this.attachShadow({ mode: "open" });
         //shadowRoot.innerHTML = '<slot></slot><slot name="field-highlight"></slot><slot name="top-drop-zone"></slot><slot name="bottom-drop-zone"></slot>';
         this.className = "m-6 block relative rounded";
     }
@@ -194,7 +196,7 @@ class FormFieldBase extends HTMLElement {
                     <label class="font-medium select-none break-all">Label</label>
                     <span class="leading-4 font-semibold text-rose-500">*</span>
                 </div>
-                <input class="border border-neutral-500" type="text" value="test" />
+                <slot></slot>
                 <div class="col-span-full break-all">
                     <span></span>
                 </div>
@@ -221,19 +223,35 @@ class FormFieldBase extends HTMLElement {
             </container-drop-zone>`
         );
 
+        // local events
         addEvents(this, "pointerdown", this.sendEditEvent);
-        addEvents(this, "pointerover", this.sendSetHoverEvent);
-        addEvents(this, "pointerout", this.sendUnsetHoverEvent);
-        addEvents(window, "click", (e) => {
-            if (e.target !== this && !this.contains(e.target)) {
-                this.querySelector("container-highlight").removeAttribute("active");
+        addEvents(this, "pointerover", (/** @type {PointerEvent} */ e) => {
+            e.stopPropagation();
+            containerHighlight.classList.add("invisible");
+        });
+        addEvents(this, "pointerout", (/** @type {PointerEvent} */ e) => {
+            e.stopPropagation();
+            containerHighlight.classList.remove("invisible");
+        });
+
+        // global events
+        addEvents(window, ["creating", "moving"], () => {
+            topDropZone.setAttribute("visible", "");
+            bottomDropZone.setAttribute("visible", "");
+        });
+        addEvents(window, ["created", "moved"], () => {
+            topDropZone.removeAttribute("visible");
+            bottomDropZone.removeAttribute("visible");
+        });
+        addEvents(window, "click", (/** @type {MouseEvent} */ e) => {
+            if (!this.contains(/** @type {Node} */ (e.target))) {
+                containerHighlight.removeAttribute("active");
                 this.isActive = false;
             }
         });
-        addEvents(this, ["creating", "moving"], this.showDropZones, true);
-        addEvents(this, ["created", "moved"], this.hideDropZones, true);
 
-        this.append(inputBlock, containerHighlight, topDropZone, bottomDropZone);
+        //complete setup
+        this.shadowRoot.append(inputBlock, containerHighlight, topDropZone, bottomDropZone);
         this.dispatchEvent(new CustomEvent("addfield", { detail: { data: this.data } }));
         this.sendEditEvent();
     }
@@ -243,43 +261,12 @@ class FormFieldBase extends HTMLElement {
         this.dispatchEvent(new CustomEvent("remove-field", { detail: { field: this.id } }));
     }
 
-    showDropZones() {
-        this.querySelector("[slot='top-drop-zone']").setAttribute("visible", "");
-        this.querySelector("[slot='bottom-drop-zone']").setAttribute("visible", "");
-    }
-
-    hideDropZones() {
-        this.querySelector("[slot='top-drop-zone']").removeAttribute("visible");
-        this.querySelector("[slot='bottom-drop-zone']").removeAttribute("visible");
-    }
-
     sendEditEvent() {
         this.isActive = true;
         this.querySelector("container-highlight").setAttribute("active", "");
         this.querySelector("container-highlight").classList.remove("invisible");
+
         const event = new CustomEvent("edit-field", { detail: { element: this } });
-        this.dispatchEvent(event);
-    }
-
-    sendSetHoverEvent(e) {
-        e.stopPropagation();
-
-        if (!this.isActive) {
-            this.querySelector("container-highlight").classList.remove("invisible");
-        }
-
-        const event = new CustomEvent("set-hover", { detail: { data: this.data } });
-        this.dispatchEvent(event);
-    }
-
-    sendUnsetHoverEvent(e) {
-        e.stopPropagation();
-
-        if (!this.isActive) {
-            this.querySelector("container-highlight").classList.add("invisible");
-        }
-
-        const event = new CustomEvent("unset-hover", { detail: { data: this.data } });
         this.dispatchEvent(event);
     }
 }
@@ -306,6 +293,10 @@ customElements.define(
                 disabled: false,
                 hidden: false,
             });
+        }
+
+        connectedCallback() {
+            this.append(parseHtml(`<input type=text />`));
         }
     }
 );
