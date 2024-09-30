@@ -42,12 +42,12 @@ function subscribe(observer, subscriptions) {
 
 function createReactiveObject(object) {
     return new Proxy(object, {
-        get: function(target, property, receiver) {
+        get: function (target, property, receiver) {
             const observer = context[context.length - 1];
             if (observer) subscribe(observer, subscriptions);
             return target[property];
-        }
-    })
+        },
+    });
 }
 
 /** @type {WeakMap<EventTarget, Array<() => void>>} */
@@ -281,7 +281,7 @@ class FormFieldBase extends HTMLElement {
 
     connectedCallback() {
         //local events
-        addEvents(this.label, "")
+        addEvents(this.label, "", () => {});
 
         // this events
         addEvents(this, "pointerdown", this.sendEditEvent);
@@ -363,7 +363,7 @@ customElements.define(
             this.input.id = this.data.id;
             this.name = this.data.name;
 
-            addEvents(this.input, (
+            addEvents(this.input, "", () => {});
             super.connectedCallback();
         }
     }
