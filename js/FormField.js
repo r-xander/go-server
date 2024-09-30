@@ -1,12 +1,57 @@
 //@ts-check
 
+/**
+ * @typedef Effect
+ * @property {() => void} execute
+ * @property {Set<Set<Effect>>} dependencies
+ */
+
+/** @type {Effect[]} */
+let context = [];
+
+/**
+ * @template T
+ * @param {(...args: any) => T} fn
+ * @returns {T}
+ */
+function untrack(fn) {
+    const prevContext = context;
+    context = [];
+    const res = fn();
+    context = prevContext;
+    return res;
+}
+
+/** @param {Effect} observer */
+function cleanup(observer) {
+    for (const dep of observer.dependencies) {
+        dep.delete(observer);
+    }
+    observer.dependencies.clear();
+}
+
+/**
+ *
+ * @param {Effect} observer
+ * @param {Set<Effect>} subscriptions
+ */
+function subscribe(observer, subscriptions) {
+    subscriptions.add(observer);
+    observer.dependencies.add(subscriptions);
+}
+
+function createReactiveObject(object) {
+    return new Proxy(object, {
+        get: function(target, property, receiver) {
+            const observer = context[context.length - 1];
+            if (observer) subscribe(observer, subscriptions);
+            return target[property];
+        }
+    })
+}
+
 /** @type {WeakMap<EventTarget, Array<() => void>>} */
 const cleanupMap = new WeakMap();
-
-/** @param {Element} el */
-function registerElementCleanup(el) {
-    cleanupMap.set(el, []);
-}
 
 /**
  * @param {EventTarget} el
@@ -58,7 +103,6 @@ class ContainerHighlight extends HTMLElement {
 
     constructor() {
         super();
-        registerElementCleanup(this);
     }
 
     connectedCallback() {
@@ -99,7 +143,9 @@ class ContainerHighlight extends HTMLElement {
         const deleteModalButtons = deleteModal.getElementsByTagName("button");
         addEvents(deleteModalButtons[0], "click", () => {
             this.dispatchEvent(new CustomEvent("delete-field"));
-            this.hideDeleteModal();
+            deleteModal.style.display = "none";
+
+            removeElement(this);
         });
         addEvents(deleteModalButtons[1], "click", () => (deleteModal.style.display = "none"));
 
@@ -120,15 +166,6 @@ class ContainerHighlight extends HTMLElement {
             this.stateSpan.textContent = newValue;
         }
     }
-
-    showDeleteModal() {
-        console.log("delete");
-        /** @type {HTMLElement} */ (this.lastElementChild).style.display = "";
-    }
-
-    hideDeleteModal() {
-        /** @type {HTMLElement} */ (this.lastElementChild).style.display = "none";
-    }
 }
 
 class ContainerDropZone extends HTMLElement {
@@ -141,8 +178,6 @@ class ContainerDropZone extends HTMLElement {
         this.indicatorSlot = document.createElement("slot");
         const root = this.attachShadow({ mode: "open", slotAssignment: "manual" });
         root.append(this.indicatorSlot);
-
-        registerElementCleanup(this);
     }
 
     connectedCallback() {
@@ -177,81 +212,105 @@ class FormFieldBase extends HTMLElement {
     /** @type {Map<string, Effect[]>} */
     subscribers;
 
-    /** @param {Record<string, any>} data */
-    constructor(data) {
+    /** @type {HTMLElement} */
+    input;
+
+    /** @type {HTMLElement} */
+    label;
+
+    /** @type {HTMLElement} */
+    description;
+
+    /** @type {HTMLElement} */
+    highlight;
+
+    /** @type {HTMLElement} */
+    topDropZone;
+
+    /** @type {HTMLElement} */
+    bottomDropZone;
+
+    /**
+     * @param {Record<string, any>} data
+     * @param {HTMLElement} input
+     */
+    constructor(data, input) {
         super();
 
         this.data = data;
-        registerElementCleanup(this);
-
-        const shadowRoot = this.attachShadow({ mode: "open" });
-        //shadowRoot.innerHTML = '<slot></slot><slot name="field-highlight"></slot><slot name="top-drop-zone"></slot><slot name="bottom-drop-zone"></slot>';
         this.className = "m-6 block relative rounded";
-    }
 
-    connectedCallback() {
-        const inputBlock = parseHtml(
-            `<div class="grid grid-cols-[3fr_4fr] gap-1 w-full items-start" inert>
-                <div class="flex gap-1 p-1.5 m-px">
-                    <label class="font-medium select-none break-all">Label</label>
-                    <span class="leading-4 font-semibold text-rose-500">*</span>
-                </div>
-                <slot></slot>
-                <div class="col-span-full break-all">
-                    <span></span>
-                </div>
+        this.input = input;
+        this.label = parseHtml(
+            `<div class="flex gap-1 p-1.5 m-px">
+                <label class="font-medium select-none break-all">Label</label>
+                <span class="leading-4 font-semibold text-rose-500">*</span>
+            </div>`
+        );
+        this.description = parseHtml(
+            `<div class="col-span-full break-all">
+                <span></span>
             </div>`
         );
 
-        const containerHighlight = parseHtml(
-            `<container-highlight type="${this.data.type}" state slot="field-highlight" class="invisible absolute inset-0 cursor-pointer transition border border-sky-500">`
+        const inputBlock = parseHtml(`<div class="grid grid-cols-[3fr_4fr] gap-1 w-full items-start" inert></div>`);
+        inputBlock.append(this.label, this.input, this.description);
+
+        this.containerHighlight = parseHtml(
+            `<container-highlight type="${this.data.type}" class="invisible absolute inset-0 cursor-pointer transition border border-sky-500">`
         );
 
-        const topDropZone = parseHtml(
-            `<container-drop-zone slot="top-drop-zone" class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
+        this.topDropZone = parseHtml(
+            `<container-drop-zone class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
                 <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
                     <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
                 </div>
             </container-drop-zone>`
         );
 
-        const bottomDropZone = parseHtml(
-            `<container-drop-zone slot="bottom-drop-zone" class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white" data-insert-location="afterend">
+        this.bottomDropZone = parseHtml(
+            `<container-drop-zone class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white" data-insert-location="afterend">
                 <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
                     <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
                 </div>
             </container-drop-zone>`
         );
 
-        // local events
+        this.append(inputBlock, this.highlight, this.topDropZone, this.bottomDropZone);
+    }
+
+    connectedCallback() {
+        //local events
+        addEvents(this.label, "")
+
+        // this events
         addEvents(this, "pointerdown", this.sendEditEvent);
         addEvents(this, "pointerover", (/** @type {PointerEvent} */ e) => {
             e.stopPropagation();
-            containerHighlight.classList.add("invisible");
+            this.highlight.classList.remove("invisible");
         });
         addEvents(this, "pointerout", (/** @type {PointerEvent} */ e) => {
             e.stopPropagation();
-            containerHighlight.classList.remove("invisible");
+            this.highlight.classList.add("invisible");
         });
 
         // global events
         addEvents(window, ["creating", "moving"], () => {
-            topDropZone.setAttribute("visible", "");
-            bottomDropZone.setAttribute("visible", "");
+            this.topDropZone.setAttribute("visible", "");
+            this.bottomDropZone.setAttribute("visible", "");
         });
         addEvents(window, ["created", "moved"], () => {
-            topDropZone.removeAttribute("visible");
-            bottomDropZone.removeAttribute("visible");
+            this.topDropZone.removeAttribute("visible");
+            this.bottomDropZone.removeAttribute("visible");
         });
         addEvents(window, "click", (/** @type {MouseEvent} */ e) => {
             if (!this.contains(/** @type {Node} */ (e.target))) {
-                containerHighlight.removeAttribute("active");
+                this.highlight.removeAttribute("active");
                 this.isActive = false;
             }
         });
 
         //complete setup
-        this.shadowRoot.append(inputBlock, containerHighlight, topDropZone, bottomDropZone);
         this.dispatchEvent(new CustomEvent("addfield", { detail: { data: this.data } }));
         this.sendEditEvent();
     }
@@ -263,8 +322,8 @@ class FormFieldBase extends HTMLElement {
 
     sendEditEvent() {
         this.isActive = true;
-        this.querySelector("container-highlight").setAttribute("active", "");
-        this.querySelector("container-highlight").classList.remove("invisible");
+        this.highlight.setAttribute("active", "");
+        this.highlight.classList.remove("invisible");
 
         const event = new CustomEvent("edit-field", { detail: { element: this } });
         this.dispatchEvent(event);
@@ -277,26 +336,35 @@ customElements.define(
     "text-field",
     class TextFormField extends FormFieldBase {
         constructor() {
-            super({
-                type: "text",
-                name: "text",
-                label: "Text Input",
-                placeholder: "",
-                min: 0,
-                max: 2000,
-                defaultValue: "",
-                layout: "inline",
-                description: "",
-                includeLabel: true,
-                required: false,
-                readonly: false,
-                disabled: false,
-                hidden: false,
-            });
+            const input = parseHtml(`<input type=text />`);
+
+            super(
+                {
+                    type: "text",
+                    name: "text",
+                    label: "Text Input",
+                    placeholder: "",
+                    min: 0,
+                    max: 2000,
+                    defaultValue: "",
+                    layout: "inline",
+                    description: "",
+                    includeLabel: true,
+                    required: false,
+                    readonly: false,
+                    disabled: false,
+                    hidden: false,
+                },
+                input
+            );
         }
 
         connectedCallback() {
-            this.append(parseHtml(`<input type=text />`));
+            this.input.id = this.data.id;
+            this.name = this.data.name;
+
+            addEvents(this.input, (
+            super.connectedCallback();
         }
     }
 );
