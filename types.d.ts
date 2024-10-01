@@ -630,28 +630,30 @@ declare namespace Sortable {
     }
 }
 
-type TextInputAttributes = {
+type FormFieldBaseAttributes = {
     id: string;
+    type: string;
     name: string;
-    maxLength: number;
-    minLength: number;
-    pattern: string;
-    defaultValue: string;
-    placeholder: string;
+    label?: string;
+    includeLabel: boolean;
+    description?: string;
+    defaultValue?: string;
+    layout: "inline" | "block";
     required: boolean;
     readonly: boolean;
     disabled: boolean;
+    hidden: boolean;
+}
+
+type TextFormFieldAttributes = FormFieldBaseAttributes & {
+    placeholder?: string?;
+    max: number;
+    min: number;
 };
 
-type NumberInputAttributes = {
-    id: string;
-    name: string;
+type NumberInputAttributes = FormFieldBaseAttributes & {
+    placeholder: string;
     max: number;
     min: number;
     step: number;
-    defaultValue: string;
-    placeholder: string;
-    required: boolean;
-    readonly: boolean;
-    disabled: boolean;
 };

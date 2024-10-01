@@ -854,33 +854,6 @@ function createSignal(value) {
     return [read, write];
 }
 
-/**
- * @template T
- * @param {FormFieldBase} obj
- * @param {string} property
- * @param {T} initialValue
- */
-function createReactiveProperty(obj, property, initialValue) {
-    obj.subscribers.set(property, []);
-
-    Object.defineProperty(obj, property, {
-        writable: true,
-        get() {
-            const observer = context[context.length - 1];
-            if (observer) obj.subscribers.get(property).push(observer);
-            return obj[property];
-        },
-        set(value) {
-            obj[property] = value;
-            for (const observer of [...obj.subscribers.get(property)]) {
-                observer.execute();
-            }
-        },
-    });
-
-    obj[property] = initialValue;
-}
-
 /************************************************/
 /*                                              */
 /*               Custom Elements                */
