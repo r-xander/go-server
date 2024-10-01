@@ -828,125 +828,58 @@ document.addEventListener("alpine:init", function (e) {
 /*                                              */
 /************************************************/
 
-// /**
-//  * @typedef Effect
-//  * @property {() => void} execute
-//  * @property {Set<Set<Effect>>} dependencies
-//  */
+/**
+ * @template T
+ * @param {T} [value]
+ * @returns {[() => T, (value?: T) => void]}
+ */
+function createSignal(value) {
+    const subscriptions = new Set();
 
-// /** @type {Effect[]} */
-// let context = [];
+    /** @type {() => T} */
+    const read = () => {
+        const observer = context[context.length - 1];
+        if (observer) subscribe(observer, subscriptions);
+        return value;
+    };
 
-// /**
-//  * @template T
-//  * @param {(...args: any) => T} fn
-//  * @returns {T}
-//  */
-// function untrack(fn) {
-//     const prevContext = context;
-//     context = [];
-//     const res = fn();
-//     context = prevContext;
-//     return res;
-// }
+    /** @type {(value: T) => void} */
+    const write = (newValue) => {
+        value = newValue;
+        for (const observer of [...subscriptions]) {
+            observer.execute();
+        }
+    };
 
-// /** @param {Effect} observer */
-// function cleanup(observer) {
-//     for (const dep of observer.dependencies) {
-//         dep.delete(observer);
-//     }
-//     observer.dependencies.clear();
-// }
+    return [read, write];
+}
 
-// /**
-//  *
-//  * @param {Effect} observer
-//  * @param {Set<Effect>} subscriptions
-//  */
-// function subscribe(observer, subscriptions) {
-//     subscriptions.add(observer);
-//     observer.dependencies.add(subscriptions);
-// }
+/**
+ * @template T
+ * @param {FormFieldBase} obj
+ * @param {string} property
+ * @param {T} initialValue
+ */
+function createReactiveProperty(obj, property, initialValue) {
+    obj.subscribers.set(property, []);
 
-// /**
-//  * @template T
-//  * @param {T} [value]
-//  * @returns {[() => T, (value?: T) => void]}
-//  */
-// function createSignal(value) {
-//     const subscriptions = new Set();
+    Object.defineProperty(obj, property, {
+        writable: true,
+        get() {
+            const observer = context[context.length - 1];
+            if (observer) obj.subscribers.get(property).push(observer);
+            return obj[property];
+        },
+        set(value) {
+            obj[property] = value;
+            for (const observer of [...obj.subscribers.get(property)]) {
+                observer.execute();
+            }
+        },
+    });
 
-//     /** @type {() => T} */
-//     const read = () => {
-//         const observer = context[context.length - 1];
-//         if (observer) subscribe(observer, subscriptions);
-//         return value;
-//     };
-
-//     /** @type {(value: T) => void} */
-//     const write = (newValue) => {
-//         value = newValue;
-//         for (const observer of [...subscriptions]) {
-//             observer.execute();
-//         }
-//     };
-
-//     return [read, write];
-// }
-
-// /** @param {() => void} fn */
-// function createEffect(fn) {
-//     /** @type {Effect} */
-//     const effect = {
-//         execute() {
-//             cleanup(effect);
-//             context.push(effect);
-//             fn();
-//             context.pop();
-//         },
-//         dependencies: new Set(),
-//     };
-
-//     effect.execute();
-// }
-
-// /**
-//  * @template T
-//  * @param {() => T} fn
-//  * @returns {() => T}
-//  */
-// function createMemo(fn) {
-//     const [signal, setSignal] = createSignal();
-//     createEffect(() => setSignal(fn()));
-//     return signal;
-// }
-
-// /**
-//  * @template T
-//  * @param {FormFieldBase} obj
-//  * @param {string} property
-//  * @param {T} initialValue
-//  */
-// function createReactiveProperty(obj, property, initialValue) {
-//     obj.subscribers.set(property, []);
-
-//     Object.defineProperty(obj, property, {
-//         writable: true,
-//         get() {
-//             const observer = context[context.length - 1];
-//             if (observer) obj.subscribers.get(property).push(observer);
-//             return obj[property];
-//         },
-//         set(value) {
-//             obj[property] = value;
-//             for (const observer of [...obj.subscribers.get(property)]) {
-//                 observer.execute();
-//             }
-//         },
-//     });
-
-//     obj[property] = initialValue;
-// }
+    obj[property] = initialValue;
+}
 
 /************************************************/
 /*                                              */

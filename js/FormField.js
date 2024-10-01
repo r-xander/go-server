@@ -31,7 +31,6 @@ function cleanup(observer) {
 }
 
 /**
- *
  * @param {Effect} observer
  * @param {Set<Effect>} subscriptions
  */
@@ -40,14 +39,56 @@ function subscribe(observer, subscriptions) {
     observer.dependencies.add(subscriptions);
 }
 
-function createReactiveObject(object) {
-    return new Proxy(object, {
-        get: function (target, property, receiver) {
-            const observer = context[context.length - 1];
-            if (observer) subscribe(observer, subscriptions);
-            return target[property];
+/** @param {() => void} fn */
+function createEffect(fn) {
+    /** @type {Effect} */
+    const effect = {
+        execute() {
+            cleanup(effect);
+            context.push(effect);
+            fn();
+            context.pop();
         },
-    });
+        dependencies: new Set(),
+    };
+
+    effect.execute();
+}
+
+/**
+ * @template T
+ * @param {() => T} fn
+ * @returns {() => T}
+ */
+function createMemo(fn) {
+    const [signal, setSignal] = createSignal();
+    createEffect(() => setSignal(fn()));
+    return signal;
+}
+
+/** @param {Object} obj */
+function createReactiveObject(obj) {
+    for (let [key, value] of Object.entries(obj)) {
+        if (value instanceof Object) {
+            createReactiveObject(value);
+        }
+
+        const subscriptions = new Set();
+
+        Object.defineProperty(obj, key, {
+            get() {
+                const observer = context[context.length - 1];
+                if (observer) subscribe(observer, subscriptions);
+                return value;
+            },
+            set(newValue) {
+                value = newValue;
+                for (const observer of [...subscriptions]) {
+                    observer.execute();
+                }
+            },
+        });
+    }
 }
 
 /** @type {WeakMap<EventTarget, Array<() => void>>} */
@@ -213,9 +254,6 @@ class FormFieldBase extends HTMLElement {
     subscribers;
 
     /** @type {HTMLElement} */
-    input;
-
-    /** @type {HTMLElement} */
     label;
 
     /** @type {HTMLElement} */
@@ -237,28 +275,47 @@ class FormFieldBase extends HTMLElement {
     constructor(data, input) {
         super();
 
+        createReactiveObject(data);
         this.data = data;
         this.className = "m-6 block relative rounded";
+        this.id = this.data.id;
 
-        this.input = input;
         this.label = parseHtml(
             `<div class="flex gap-1 p-1.5 m-px">
-                <label class="font-medium select-none break-all">Label</label>
+                <label for="${this.data.id}" class="font-medium select-none break-all">Label</label>
                 <span class="leading-4 font-semibold text-rose-500">*</span>
             </div>`
         );
+
+        createEffect(() => (this.label.style.display = this.data.label === "" ? "none" : ""));
+        createEffect(() => (this.label.firstElementChild.textContent = this.data.label));
+        //@ts-ignore
+        createEffect(() => (this.label.lastElementChild.style.display = this.data.required));
+
         this.description = parseHtml(
             `<div class="col-span-full break-all">
                 <span></span>
             </div>`
         );
 
-        const inputBlock = parseHtml(`<div class="grid grid-cols-[3fr_4fr] gap-1 w-full items-start" inert></div>`);
-        inputBlock.append(this.label, this.input, this.description);
+        createEffect(() => (this.description.style.display = this.data.description === "" ? "none" : ""));
+        createEffect(() => (this.description.firstElementChild.textContent = this.data.description));
 
-        this.containerHighlight = parseHtml(
+        const inputBlock = parseHtml(`<div class="grid grid-cols-[3fr_4fr] gap-1 w-full items-start" inert></div>`);
+        inputBlock.append(this.label, input, this.description);
+
+        createEffect(() => this.classList.toggle("opacity-50", this.data.hidden));
+        createEffect(() => this.classList.toggle("grid-cols-[3fr_4fr]", this.data.hidden));
+
+        this.highlight = parseHtml(
             `<container-highlight type="${this.data.type}" class="invisible absolute inset-0 cursor-pointer transition border border-sky-500">`
         );
+
+        createEffect(() => {
+            if (this.data.hidden) this.highlight.setAttribute("state", "[Hidden]");
+            else if (this.data.readonly) this.highlight.setAttribute("state", "[Readonly]");
+            else this.highlight.removeAttribute("state");
+        });
 
         this.topDropZone = parseHtml(
             `<container-drop-zone class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
@@ -335,35 +392,42 @@ customElements.define("container-drop-zone", ContainerDropZone);
 customElements.define(
     "text-field",
     class TextFormField extends FormFieldBase {
-        constructor() {
-            const input = parseHtml(`<input type=text />`);
+        /** @type {HTMLInputElement} */
+        input;
 
-            super(
-                {
-                    type: "text",
-                    name: "text",
-                    label: "Text Input",
-                    placeholder: "",
-                    min: 0,
-                    max: 2000,
-                    defaultValue: "",
-                    layout: "inline",
-                    description: "",
-                    includeLabel: true,
-                    required: false,
-                    readonly: false,
-                    disabled: false,
-                    hidden: false,
-                },
-                input
-            );
+        constructor() {
+            const input = /** @type {HTMLInputElement} */ (parseHtml(`<input type=text />`));
+            const data = {
+                type: "text",
+                name: "text",
+                label: "Text Input",
+                placeholder: "",
+                min: 0,
+                max: 2000,
+                defaultValue: "",
+                layout: "inline",
+                description: "",
+                includeLabel: true,
+                required: false,
+                readonly: false,
+                disabled: false,
+                hidden: false,
+            };
+
+            super(data, input);
+
+            this.input = input;
+            this.input.id = this.data.id;
+            this.input.name = this.data.name;
+
+            createEffect(() => (this.input.value = this.data.defaultValue));
+            createEffect(() => (this.input.placeholder = this.data.placeholder));
+            createEffect(() => (this.input.readOnly = this.data.readonly));
+            createEffect(() => (this.input.disabled = this.data.disabled));
         }
 
         connectedCallback() {
-            this.input.id = this.data.id;
-            this.name = this.data.name;
-
-            addEvents(this.input, "", () => {});
+            addEvents(this.input, "change", () => (this.input.value = this.data.defaultValue ? this.data.defaultValue : ""));
             super.connectedCallback();
         }
     }
