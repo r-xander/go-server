@@ -66,8 +66,14 @@ function createMemo(fn) {
     return signal;
 }
 
-/** @param {Object} obj */
+/**
+ * @template T
+ * @param {T} obj
+ * @returns {T}
+ */
 function createReactiveObject(obj) {
+    const newObj = /** @type {T} */ ({});
+
     for (let [key, value] of Object.entries(obj)) {
         if (value instanceof Object) {
             createReactiveObject(value);
@@ -75,7 +81,7 @@ function createReactiveObject(obj) {
 
         const subscriptions = new Set();
 
-        Object.defineProperty(obj, key, {
+        Object.defineProperty(newObj, key, {
             get() {
                 const observer = context[context.length - 1];
                 if (observer) subscribe(observer, subscriptions);
@@ -89,6 +95,8 @@ function createReactiveObject(obj) {
             },
         });
     }
+
+    return newObj;
 }
 
 /** @type {WeakMap<EventTarget, Array<() => void>>} */
@@ -257,11 +265,14 @@ class ContainerDropZone extends HTMLElement {
 }
 
 class FormFieldBase extends HTMLElement {
-    /** @type {import("../types").FormFieldBaseAttributes} */
+    /** @type {import("../types").FormFieldAttributes} */
     data = null;
 
     /** @type {boolean} */
     isActive = false;
+
+    /** @type {HTMLElement} */
+    input;
 
     /** @type {HTMLElement} */
     label;
@@ -278,74 +289,76 @@ class FormFieldBase extends HTMLElement {
     /** @type {HTMLElement} */
     bottomDropZone;
 
-    /**
-     * @param {import("../types").FormFieldBaseAttributes} data
-     * @param {HTMLElement} input
-     */
-    constructor(data, input) {
+    constructor() {
         super();
 
-        createReactiveObject(data);
-        this.data = data;
-        this.className = "m-6 block relative rounded";
-        this.id = this.data.id;
+        queueMicrotask(() => {
+            this.className = "m-6 block relative rounded";
+            this.id = this.data.id;
 
-        this.label = parseHtml(
-            `<div class="flex gap-1 p-1.5 m-px">
-                <label for="${this.data.id}" class="font-medium select-none break-all">Label</label>
-                <span class="leading-4 font-semibold text-rose-500">*</span>
-            </div>`
-        );
+            this.label = parseHtml(
+                `<div class="flex gap-1 p-1.5 m-px">
+                    <label for="${this.data.id}" class="font-medium select-none break-all">Label</label>
+                    <span class="leading-4 font-semibold text-rose-500">*</span>
+                </div>`
+            );
 
-        createEffect(() => (this.label.style.display = this.data.label === "" ? "none" : ""));
-        createEffect(() => (this.label.firstElementChild.textContent = this.data.label));
-        //@ts-ignore
-        createEffect(() => (this.label.lastElementChild.style.display = this.data.required ? "" : "none"));
+            createEffect(() => (this.label.style.display = this.data.label === "" ? "none" : ""));
+            createEffect(() => (this.label.firstElementChild.textContent = this.data.label));
+            //@ts-ignore
+            createEffect(() => (this.label.lastElementChild.style.display = this.data.required ? "" : "none"));
 
-        this.description = parseHtml(
-            `<div class="col-span-full break-all">
-                <span></span>
-            </div>`
-        );
+            this.description = parseHtml(
+                `<div class="col-span-full break-all">
+                    <span></span>
+                </div>`
+            );
 
-        createEffect(() => (this.description.style.display = this.data.description === "" ? "none" : ""));
-        createEffect(() => (this.description.firstElementChild.textContent = this.data.description));
+            createEffect(() => (this.description.style.display = this.data.description === "" ? "none" : ""));
+            createEffect(() => (this.description.firstElementChild.textContent = this.data.description));
 
-        const inputBlock = parseHtml(`<div class="grid grid-cols-[3fr_4fr] gap-1 w-full items-start" inert></div>`);
-        inputBlock.append(this.label, input, this.description);
+            const inputBlock = parseHtml(`<div class="grid grid-cols-[3fr_4fr] gap-1 w-full items-start" inert></div>`);
+            inputBlock.append(this.label, this.input, this.description);
 
-        this.highlight = parseHtml(
-            `<container-highlight field-name="${this.data.type}" class="block invisible absolute inset-0 cursor-pointer transition border border-sky-500"></container-highlight>`
-        );
+            this.highlight = parseHtml(
+                `<container-highlight field-name="${this.data.type}" class="block invisible absolute inset-0 cursor-pointer transition border border-sky-500"></container-highlight>`
+            );
 
-        createEffect(() => {
-            if (this.data.hidden) this.highlight.setAttribute("field-state", "[Hidden]");
-            else if (this.data.readonly) this.highlight.setAttribute("field-state", "[Readonly]");
-            else this.highlight.removeAttribute("state");
+            createEffect(() => {
+                if (this.data.hidden) this.highlight.setAttribute("field-state", "[Hidden]");
+                else if (this.data.readonly) this.highlight.setAttribute("field-state", "[Readonly]");
+                else this.highlight.removeAttribute("state");
+            });
+
+            this.topDropZone = parseHtml(
+                `<container-drop-zone class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
+                    <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
+                        <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
+                    </div>
+                </container-drop-zone>`
+            );
+
+            this.bottomDropZone = parseHtml(
+                `<container-drop-zone class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white" data-insert-location="afterend">
+                    <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
+                        <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
+                    </div>
+                </container-drop-zone>`
+            );
+
+            createEffect(() => this.classList.toggle("opacity-50", this.data.hidden));
+            createEffect(() => this.classList.toggle("grid-cols-[3fr_4fr]", this.data.layout === "inline" && this.data.label !== ""));
+
+            this.append(inputBlock, this.highlight, this.topDropZone, this.bottomDropZone);
+            this.dispatchEvent(new CustomEvent("addfield", { detail: { data: this.data } }));
+            this.sendEditEvent();
         });
-
-        this.topDropZone = parseHtml(
-            `<container-drop-zone class="absolute -top-2 left-0 right-0 bottom-1/2 text-xs text-white" data-insert-location="beforebegin">
-                <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
-                    <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
-                </div>
-            </container-drop-zone>`
-        );
-
-        this.bottomDropZone = parseHtml(
-            `<container-drop-zone class="absolute top-1/2 left-0 right-0 -bottom-2 text-xs text-white" data-insert-location="afterend">
-                <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
-                    <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
-                </div>
-            </container-drop-zone>`
-        );
-
-        createEffect(() => this.classList.toggle("opacity-50", this.data.hidden));
-        createEffect(() => this.classList.toggle("grid-cols-[3fr_4fr]", this.data.layout === "inline" && this.data.label !== ""));
-        this.append(inputBlock, this.highlight, this.topDropZone, this.bottomDropZone);
     }
 
+    setup() {}
+
     connectedCallback() {
+        this.setup();
         //local events
         addEvents(this.label, "", () => {});
 
@@ -377,8 +390,6 @@ class FormFieldBase extends HTMLElement {
         });
 
         //complete setup
-        this.dispatchEvent(new CustomEvent("addfield", { detail: { data: this.data } }));
-        this.sendEditEvent();
     }
 
     disconnectedCallback() {
@@ -398,12 +409,11 @@ class FormFieldBase extends HTMLElement {
 }
 
 class TextFormField extends FormFieldBase {
-    /** @type {HTMLInputElement} */
-    input;
-
     constructor() {
+        super();
+
         /** @type {import("../types").TextFormFieldAttributes} */
-        const defaultValues = {
+        const data = createReactiveObject({
             id: "",
             type: "text",
             name: "text",
@@ -419,37 +429,35 @@ class TextFormField extends FormFieldBase {
             readonly: false,
             disabled: false,
             hidden: false,
-        };
+        });
 
-        const input = parseHtml(`<input id="${defaultValues.id}" name="${defaultValues.name}" type="text" />`);
-        super(defaultValues, input);
-
-        this.input = /** @type {HTMLInputElement} */ (input);
+        this.data = data;
+        this.input = /** @type {HTMLInputElement} */ (parseHtml(`<input id="${this.data.id}" name="${this.data.name}" type="text" />`));
         createEffect(() => (this.input.value = this.data.defaultValue));
         createEffect(() => (this.input.placeholder = this.data.placeholder));
         createEffect(() => (this.input.readOnly = this.data.readonly));
         createEffect(() => (this.input.disabled = this.data.disabled));
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    setup() {
         addEvents(this.input, "change", () => (this.input.value = this.data.defaultValue ? this.data.defaultValue : ""));
     }
 }
 
 class NumberFormField extends FormFieldBase {
-    /** @type {HTMLInputElement} */
-    input;
-
     constructor() {
-        const defaultValues = {
+        super();
+
+        /** @type {import("../types").NumberInputAttributes} */
+        const data = createReactiveObject({
+            id: "",
             type: "number",
             name: "number",
             label: "Number Input",
             placeholder: "",
             min: 0,
             max: 1000,
-            increment: 1,
+            step: 1,
             decimals: 0,
             defaultValue: "",
             layout: "inline",
@@ -459,20 +467,17 @@ class NumberFormField extends FormFieldBase {
             readonly: false,
             disabled: false,
             hidden: false,
-        };
+        });
 
-        const input = parseHtml(`<input id="${defaultValues.id}" name="${defaultValues.name}" type="number" />`);
-        super(defaultValues, input);
-
-        this.input = /** @type {HTMLInputElement} */ (input);
+        this.data = data;
+        this.input = /** @type {HTMLInputElement} */ (parseHtml(`<input id="${this.data.id}" name="${this.data.name}" type="number" />`));
         createEffect(() => (this.input.value = this.data.defaultValue));
         createEffect(() => (this.input.placeholder = this.data.placeholder));
         createEffect(() => (this.input.readOnly = this.data.readonly));
         createEffect(() => (this.input.disabled = this.data.disabled));
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    setup() {
         addEvents(this.input, "change", () => (this.input.value = this.data.defaultValue ? this.data.defaultValue : ""));
     }
 }
@@ -485,7 +490,11 @@ class SelectFormField extends FormFieldBase {
     optionPanel;
 
     constructor() {
-        const defaultValues = {
+        super();
+
+        /** @type {import("../types").SelectFormFieldAttributes} */
+        const data = createReactiveObject({
+            id: "",
             type: "select",
             name: "select",
             label: "Select Input",
@@ -502,34 +511,34 @@ class SelectFormField extends FormFieldBase {
             readonly: false,
             disabled: false,
             hidden: false,
-        };
+        });
+
+        this.data = data;
+        const parent = document.createElement("div");
 
         const dropdownContainer = parseHtml(`<div class="relative flex items-center"></div>`);
-        const select = parseHtml(`<select class="w-full" id="${defaultValues.id}" name="${defaultValues.name}"></select>`);
+        const select = parseHtml(`<select class="w-full" id="${this.data.id}" name="${this.data.name}"></select>`);
         const prompt = parseHtml(`<span class="absolute left-2 text-neutral-400"></span>`);
         dropdownContainer.append(select, prompt);
-
-        const optionPanel = /** @type {HTMLDivElement} */ (parseHtml(`<div class="grid gap-1.5"></div>`));
-
-        const parent = document.createElement("div");
-        parent.append(dropdownContainer, optionPanel);
-
-        super(defaultValues, parent);
 
         this.dropdown = /** @type {HTMLSelectElement} */ (select);
         createEffect(() => (this.dropdown.value = this.data.defaultValue));
         createEffect(() => (this.dropdown.disabled = this.data.disabled));
         createEffect(() => (this.data.readonly ? this.dropdown.setAttribute("readonly", "") : this.dropdown.removeAttribute("readonly")));
+        createEffect(() => (prompt.textContent = this.data.prompt));
 
-        this.optionPanel = optionPanel;
+        this.optionPanel = /** @type {HTMLDivElement} */ (parseHtml(`<div class="grid gap-1.5"></div>`));
+
+        parent.append(dropdownContainer, this.optionPanel);
+        this.input = parent;
+
         createEffect(() => {
             this.dropdown.style.display = this.data.dropdown ? "" : "none";
             this.optionPanel.style.display = this.data.dropdown ? "none" : "";
         });
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    setup() {
         this.buildOptions();
         addEvents(this.dropdown, "change", () => (this.dropdown.value = this.data.defaultValue ? this.data.defaultValue : ""));
     }

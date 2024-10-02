@@ -187,12 +187,7 @@ export declare class Sortable {
 }
 
 declare namespace Sortable {
-    export interface Options
-        extends SortableOptions,
-            AutoScrollOptions,
-            MultiDragOptions,
-            OnSpillOptions,
-            SwapOptions {}
+    export interface Options extends SortableOptions, AutoScrollOptions, MultiDragOptions, OnSpillOptions, SwapOptions {}
 
     /**
      * A class that all plugins inherit from for the sake of type inference.
@@ -226,7 +221,7 @@ declare namespace Sortable {
          */
         oldIndex: number | undefined;
         /**
-         * the original event 
+         * the original event
          */
         originalEvent: DragEvent;
         target: HTMLElement;
@@ -289,27 +284,16 @@ declare namespace Sortable {
         /**
          * ability to move from the list. clone — copy the item, rather than move.
          */
-        pull?:
-            | PullResult
-            | ((to: Sortable, from: Sortable, dragEl: HTMLElement, event: SortableEvent) => PullResult)
-            | undefined;
+        pull?: PullResult | ((to: Sortable, from: Sortable, dragEl: HTMLElement, event: SortableEvent) => PullResult) | undefined;
         /**
          * whether elements can be added from other lists, or an array of group names from which elements can be taken.
          */
-        put?:
-            | PutResult
-            | ((to: Sortable, from: Sortable, dragEl: HTMLElement, event: SortableEvent) => PutResult)
-            | undefined;
+        put?: PutResult | ((to: Sortable, from: Sortable, dragEl: HTMLElement, event: SortableEvent) => PutResult) | undefined;
         /**
          * a canonical version of pull, created by Sortable
          */
         checkPull?:
-            | ((
-                  sortable: Sortable,
-                  activeSortable: Sortable,
-                  dragEl: HTMLElement,
-                  event: SortableEvent
-              ) => boolean | string | string[])
+            | ((sortable: Sortable, activeSortable: Sortable, dragEl: HTMLElement, event: SortableEvent) => boolean | string | string[])
             | undefined;
         /**
          * a canonical version of put, created by Sortable
@@ -350,10 +334,7 @@ declare namespace Sortable {
          * Direction of Sortable
          * (will be detected automatically if not given)
          */
-        direction?:
-            | ((evt: SortableEvent, target: HTMLElement, dragEl: HTMLElement) => Direction)
-            | Direction
-            | undefined;
+        direction?: ((evt: SortableEvent, target: HTMLElement, dragEl: HTMLElement) => Direction) | Direction | undefined;
         /**
          * Disables the sortable if set to true.
          */
@@ -416,10 +397,7 @@ declare namespace Sortable {
         /**
          * Selectors that do not lead to dragging (String or Function)
          */
-        filter?:
-            | string
-            | ((this: Sortable, event: Event | TouchEvent, target: HTMLElement, sortable: Sortable) => boolean)
-            | undefined;
+        filter?: string | ((this: Sortable, event: Event | TouchEvent, target: HTMLElement, sortable: Sortable) => boolean) | undefined;
         /**
          * ignore the HTML5 DnD behaviour and force the fallback to kick in
          */
@@ -576,11 +554,7 @@ declare namespace Sortable {
          * @param tagName A tag name.
          * @param iterator An iterator.
          */
-        find(
-            context: HTMLElement,
-            tagName: string,
-            iterator?: (value: HTMLElement, index: number) => void
-        ): NodeListOf<HTMLElement>;
+        find(context: HTMLElement, tagName: string, iterator?: (value: HTMLElement, index: number) => void): NodeListOf<HTMLElement>;
 
         /**
          * Check the current matched set of elements against a selector.
@@ -638,12 +612,12 @@ type FormFieldBaseAttributes = {
     includeLabel: boolean;
     description?: string;
     defaultValue?: string;
-    layout: "inline" | "block";
+    layout: string;
     required: boolean;
     readonly: boolean;
     disabled: boolean;
     hidden: boolean;
-}
+};
 
 type TextFormFieldAttributes = FormFieldBaseAttributes & {
     placeholder?: string?;
@@ -656,4 +630,15 @@ type NumberInputAttributes = FormFieldBaseAttributes & {
     max: number;
     min: number;
     step: number;
+    decimals: number;
 };
+
+type SelectFormFieldAttributes = FormFieldBaseAttributes & {
+    prompt: string;
+    options: { value: string; label: string }[];
+    multiselect: boolean;
+    columns: number;
+    dropdown: boolean;
+};
+
+type FormFieldAttributes = TextFormFieldAttributes | NumberInputAttributes | SelectFormFieldAttributes;
