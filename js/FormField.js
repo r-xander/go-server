@@ -146,6 +146,23 @@ function parseHtml(html) {
     return /** @type {T} */ (parseTemplate.content.firstElementChild);
 }
 
+/**
+ * @param {Element} el
+ * @param  {...string} cls
+ */
+function toggleClasses(el, ...cls) {
+    cls.map((cl) => el.classList.toggle(cl));
+}
+
+/**
+ * @param {Element} el
+ * @param {boolean} discriminator
+ * @param  {...string} cls
+ */
+function forceToggleClasses(el, discriminator, ...cls) {
+    cls.map((cl) => el.classList.toggle(cl, discriminator));
+}
+
 class ContainerHighlight extends HTMLElement {
     static observedAttributes = ["active", "field-name", "field-state"];
 
@@ -276,7 +293,7 @@ class ContainerDropZone extends HTMLElement {
 }
 
 class FormFieldBase extends HTMLElement {
-    /** @type {import("../types").FormFieldAttributes} */
+    /** @type {import("../types").FormFieldBaseAttributes} */
     data;
 
     /** @type {boolean} */
@@ -297,11 +314,7 @@ class FormFieldBase extends HTMLElement {
     );
 
     /** @type {HTMLDivElement} */
-    description = parseHtml(
-        `<div class="col-span-full break-all">
-            <span></span>
-        </div>`
-    );
+    description = parseHtml(`<div class="col-span-full break-all"></div>`);
 
     /** @type {ContainerHighlight} */
     highlight = parseHtml(
@@ -332,16 +345,16 @@ class FormFieldBase extends HTMLElement {
         this.id = this.data.id;
 
         //@ts-ignore
-        this.label.firstElementChild.htmlFor = this.data.id;
+        this.label.children[0].htmlFor = this.data.id;
         this.highlight.setAttribute("field-name", this.data.type);
 
         createEffect(() => (this.label.style.display = this.data.label === "" ? "none" : ""));
-        createEffect(() => (this.label.firstElementChild.textContent = this.data.label));
+        createEffect(() => (this.label.children[0].textContent = this.data.label));
         //@ts-ignore
-        createEffect(() => (this.label.lastElementChild.style.display = this.data.required ? "" : "none"));
+        createEffect(() => (this.label.children[1].style.display = this.data.required ? "" : "none"));
 
         createEffect(() => (this.description.style.display = this.data.description === "" ? "none" : ""));
-        createEffect(() => (this.description.firstElementChild.textContent = this.data.description));
+        createEffect(() => (this.description.textContent = this.data.description));
 
         createEffect(() => {
             if (this.data.hidden) this.highlight.setAttribute("field-state", "[Hidden]");
@@ -579,12 +592,18 @@ class SelectFormField extends FormFieldBase {
             this.optionPanel.append(optionElement);
         });
     }
+
+    /** @param {import("../types").Option} option */
+    addOption(option) {
+        this.data.options.push(option);
+        this.buildOptions();
+    }
 }
 
 class MapModal extends HTMLElement {
     /** @type {import("../types").MapAttributes} */
     data = createReactiveObject({
-        address: "6801 Industrial Rd, Springfield, VA, 22151",
+        hasLocation: true,
         streetNumber: "6801",
         street: "Industrial Rd",
         city: "Springfield",
@@ -656,7 +675,7 @@ class MapModal extends HTMLElement {
         const statePart = locationDisplay.children[1];
         const latLong = locationDisplay.children[3];
 
-        createEffect(() => (this.locationPanel.style.display = this.data.address == null ? "none" : ""));
+        createEffect(() => (this.locationPanel.style.display = this.data.hasLocation ? "" : "none"));
         createEffect(() => (streetAddress.textContent = `${this.data.streetNumber} ${this.data.street}`));
         createEffect(() => (statePart.textContent = `${this.data.city}, ${this.data.state} ${this.data.zip}`));
         createEffect(() => (latLong.textContent = `${this.data.lat.toFixed(8)}, ${this.data.long.toFixed(8)}`));
@@ -670,9 +689,8 @@ class MapModal extends HTMLElement {
             this.mapModal.close();
         });
         addEvents(this.locationPanel.children[2], "click", () => {
-            Object.keys(this.data).forEach((key) => (this.data[key] = null));
-            this.data.lat = 0;
-            this.data.long = 0;
+            Object.keys(this.data).forEach((key) => (this.data[key] = typeof this.data[key] === "string" ? null : 0));
+            this.data.hasLocation = false;
             this.marker.remove();
         });
     }
@@ -686,7 +704,7 @@ class MapModal extends HTMLElement {
 
     dragEnd() {
         var position = this.marker.getLatLng();
-        this.data.address = "6801 Industrial Rd, Springfield, VA 22151";
+        this.data.hasLocation = true;
         this.data.streetNumber = "6801";
         this.data.street = "Industrial Rd";
         this.data.city = "Springfield";
@@ -698,7 +716,7 @@ class MapModal extends HTMLElement {
 
     /** @param {import("../types").LeafletMouseEvent} e */
     setMarker(e) {
-        this.data.address = "6801 Industrial Rd, Springfield, VA 22151";
+        this.data.hasLocation = true;
         this.data.streetNumber = "6801";
         this.data.street = "Industrial Rd";
         this.data.city = "Springfield";
@@ -724,8 +742,8 @@ class LocationFormField extends FormFieldBase {
         city: "",
         state: "",
         zip: "",
-        lat: "",
-        long: "",
+        lat: 0,
+        long: 0,
         defaultCurrent: false,
         layout: "inline",
         description: "",
@@ -763,8 +781,9 @@ class LocationFormField extends FormFieldBase {
         addEvents(this.input.children[0], "click", () => this.mapModal.open(this));
     }
 
+    /** @param {import("../types").MapAttributes} data */
     setLocationData(data) {
-        this.data.address = data.address;
+        this.data.address = `${data.streetNumber} ${data.street}, ${data.city}, ${data.state} ${data.zip}`;
         this.data.streetNumber = data.streetNumber;
         this.data.street = data.street;
         this.data.city = data.city;
@@ -775,6 +794,502 @@ class LocationFormField extends FormFieldBase {
     }
 }
 
+class CalculationFormField extends FormFieldBase {
+    /** @type {import("../types").CalculationFormFieldAttributes} */
+    data = createReactiveObject({
+        id: "",
+        type: "calculation",
+        name: "calculation",
+        label: "Calculation",
+        calculationType: null,
+        calculation: "",
+        fields: [],
+        layout: "inline",
+        description: "",
+        includeLabel: true,
+        required: false,
+        readonly: false,
+        disabled: true,
+        hidden: false,
+    });
+
+    input = /** @type {HTMLInputElement} */ (parseHtml(`<input id="${this.data.id}" name="${this.data.name}" type="text" disabled />`));
+
+    constructor() {
+        super();
+
+        createEffect(() => (this.input.value = this.data.calculation));
+    }
+
+    setup() {}
+
+    /** @param {string} field */
+    addCalculationField(field) {
+        this.data.fields.push(field);
+    }
+
+    runCalculation() {}
+}
+
+class CalendarModal extends HTMLElement {
+    days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    monthStrings = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ];
+    months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+
+    /** @type {HTMLButtonElement[]} */
+    dateElements = [];
+
+    /** @type {HTMLButtonElement[]} */
+    yearElements = [];
+
+    showCalendar = false;
+    showMonthYearPanel = false;
+    showHours = false;
+    showMinutes = false;
+    dates = null;
+    years = null;
+
+    internalDate = new Date();
+    year = null;
+    month = null;
+    day = null;
+    hour = null;
+    minute = null;
+
+    value = "";
+    hourTemp = null;
+    minuteTemp = null;
+
+    /** @type {HTMLDivElement} */
+    header = parseHtml(
+        `<div class="flex w-full items-center justify-between p-3 border-b border-neutral-200 text-neutral-500 dark:border-[#5e5e5e] dark:text-white/75">
+            <button class="flex items-center gap-1 font-bold hover:text-neutral-800 dark:hover:text-white">
+                <span></span>
+                <svg class="w-4 h-4 fill-current"><use href="#downcaret-icon" /></svg>
+            </button>
+            <div class="flex gap-1">
+                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
+                    <svg class="w-4 h-4 fill-current"><use href="#leftcaret-icon" /></svg>
+                </button>
+                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
+                    <svg class="w-4 h-4 fill-current"><use href="#rightcaret-icon" /></svg>
+                </button>
+            </div>
+        </div>`
+    );
+
+    /** @type {HTMLDivElement} */
+    datePanel = parseHtml(
+        `<div class="p-3">
+            <div class="grid grid-cols-7 gap-0.5 w-60 mb-1 items-center justify-items-center font-mono"></div>
+            <div class="flex relative items-center justify-center mt-3">
+                <span class="font-semibold mr-2">Time:</span>
+                <div class="flex">
+                    <input type="number" class="w-10 hide-arrows text-center" readonly />
+                    <div class="grid gap-y-1 ml-1">
+                        <button><svg class="w-4 h-4 fill-current rotate-180"><use href="#downcaret-icon" /></svg></button>
+                        <button><svg class="w-4 h-4 fill-current"><use href="#downcaret-icon" /></svg></button>
+                    </div>
+                    <div class="absolute bottom-[calc(100%+0.25rem)] left-0 grid w-max grid-cols-4 justify-items-center gap-2 p-4 rounded shadow-lg bg-white dark:bg-neutral-600"></div>
+                </div>
+                <span class="mx-2">:</span>
+                <div class="flex">
+                    <input type="number" class="w-10 hide-arrows text-center" readonly />
+                    <div class="grid gap-y-1 ml-1">
+                        <button><svg class="w-4 h-4 fill-current rotate-180"><use href="#downcaret-icon" /></svg></button>
+                        <button><svg class="w-4 h-4 fill-current"><use href="#downcaret-icon" /></svg></button>
+                    </div>
+                    <div class="absolute bottom-[calc(100%+0.25rem)] right-0 grid w-max grid-cols-4 justify-items-center gap-2 p-4 rounded shadow-lg bg-white dark:bg-neutral-600"></div>
+                </div>
+            </div>
+        </div>`
+    );
+
+    /** @type {HTMLDivElement} */
+    footer = parseHtml(
+        `<div class="flex justify-around w-full border-t border-neutral-200 dark:border-[#5e5e5e]">
+            <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white">Clear</button>
+                @click="clearValue()"
+            <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white">Today</button>
+                @click="setToday()"
+            <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white">Close</button>
+                @click="showCalendar = false"
+        </div>`
+    );
+
+    /** @type {HTMLDivElement} */
+    monthYearPanel = parseHtml(
+        `<div class="absolute z-[100] flex inset-0 flex-col rounded bg-white dark:bg-neutral-800">
+            x-show="showMonthYearPanel"
+            <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4 border-b dark:border-neutral-700"></div>
+            <div class="flex justify-center gap-1 mt-4">
+                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
+                    <svg class="w-4 h-4 fill-current"><use href="#caretleft-icon</svg>
+                </button>
+                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
+                    <svg class="w-4 h-4 fill-current"><use href="#caretright-icon</svg>
+                </button>
+            </div>
+            <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4"></div>
+            <div class="mt-auto flex h-12 w-full divide-x border-t dark:divide-neutral-700 dark:border-neutral-700">
+                <button class="flex-1 font-bold">OK</button>
+                    @click="showMonthYearPanel = false; handleDateChange(new Date(year, month, day, hour, minute));"
+                <button class="flex-1 font-bold">Cancel</button>
+                    @click="showMonthYearPanel = false"
+            </div>
+        </div>`
+    );
+
+    /** @type {HTMLDivElement} */
+    calendar = parseHtml(
+        `<div class="absolute right-0 z-50 w-max flex flex-col text-sm items-center rounded shadow-lg border bg-white dark:bg-[#434343]"></div>`
+    );
+
+    constructor() {
+        super();
+
+        for (const day of this.days) {
+            const dayElement = parseHtml(`<span class="w-full text-center font-bold">${day}</span>`);
+            this.datePanel.children[0].append(dayElement);
+        }
+
+        for (var i = 0; i < 42; ++i) {
+            const dateElement = parseHtml(`<button class="w-full aspect-square rounded-md"></button>`);
+            this.dateElements.push(dateElement);
+            this.datePanel.children[0].append(dateElement);
+        }
+
+        for (const month of this.monthStrings) {
+            const monthElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center">${month.slice(0, 3)}</button>`);
+            this.monthYearPanel.children[0].append(monthElement);
+        }
+
+        for (var i = 0; i < 8; ++i) {
+            const yearElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center"></button>`);
+            this.yearElements.push(yearElement);
+            this.monthYearPanel.children[1].children[1].append(yearElement);
+        }
+
+        for (var i = 0; i < 24; ++i) {
+            const hourElement = parseHtml(
+                `<button class="w-8 aspect-square rounded-md hover:bg-neutral-200 dark:hover:bg-[#5e5e5e] dark:hover:text-white">
+                    ${i + 1}
+                </button>`
+            );
+            this.datePanel.children[1].children[1].children[2].append(hourElement);
+        }
+
+        for (var i = 0; i < 60; i + 5) {
+            const minuteElement = parseHtml(
+                `<button class="w-8 aspect-square rounded-md hover:bg-neutral-200 dark:hover:bg-[#5e5e5e] dark:hover:text-white">
+                    ${i.toString().padStart(2, "0")}
+                </button>`
+            );
+            this.datePanel.children[1].children[3].children[2].append(minuteElement);
+        }
+
+        createEffect(() => {
+            const month = this.internalDate.getMonth();
+            this.header.children[0].children[0].textContent = `${this.monthStrings[month]} ${this.internalDate.getFullYear()}`;
+        });
+
+        createEffect(() => {
+            this.datePanel.children[1].children[1].children[0].textContent = this.hour.toString().padStart(2, "0");
+        });
+
+        createEffect(() => {
+            this.datePanel.children[1].children[3].children[0].textContent = this.minute.toString().padStart(2, "0");
+        });
+
+        const type = this.getAttribute("type");
+        if (type === "date") {
+            this.datePanel.children[1].remove();
+        } else if (type === "time") {
+            this.datePanel.children[0].remove();
+        }
+
+        this.append(this.header, this.datePanel, this.footer, this.monthYearPanel);
+    }
+
+    connectedCallback() {
+        addEvents(this.header.children[0], "click", () => (this.monthYearPanel.style.display = ""));
+        addEvents(this.header.children[1].children[0], "click", this.getPrevMonth);
+        addEvents(this.header.children[1].children[1], "click", this.getNextMonth);
+
+        addEvents(this.datePanel.children[0], "click", this.changeMonthOnWheel);
+
+        addEvents(this.datePanel.children[1].children[1].children[0], "keydown", this.handleHourChange);
+        addEvents(
+            this.datePanel.children[1].children[1].children[0],
+            "focus",
+            //@ts-ignore
+            () => (this.datePanel.children[1].children[1].children[2].style.display = "")
+        );
+        addEvents(this.datePanel.children[1].children[1].children[1].children[0], "click", () => this.hour++);
+        addEvents(this.datePanel.children[1].children[1].children[1].children[1], "click", () => this.hour--);
+
+        addEvents(this.datePanel.children[1].children[3].children[0], "keydown", this.handleHourChange);
+        addEvents(
+            this.datePanel.children[1].children[3].children[0],
+            "focus",
+            //@ts-ignore
+            () => (this.datePanel.children[1].children[3].children[2].style.display = "")
+        );
+        addEvents(this.datePanel.children[1].children[3].children[1].children[0], "click", () => this.minute++);
+        addEvents(this.datePanel.children[1].children[3].children[1].children[1], "click", () => this.minute--);
+
+        this.dateElements.forEach((el) => {
+            addEvents(el, "click", (/** @type {MouseEvent} */ e) => this.onDateChange(new Date(el.dataset.date)));
+        });
+
+        Array.from(this.monthYearPanel.children[0].children).forEach((el, index) => {
+            addEvents(el, ["click", "dblclick"], (/** @type {MouseEvent} */ e) => {
+                this.onDateChange(new Date(this.year, this.months[index], this.day));
+                this.monthYearPanel.style.display = e.type == "dblclick" ? "none" : "";
+            });
+        });
+
+        this.yearElements.forEach((el) => {
+            addEvents(el, ["click", "dblclick"], (/** @type {MouseEvent} */ e) => {
+                this.onDateChange(new Date(+el.dataset.year, this.month, this.day));
+                this.monthYearPanel.style.display = e.type == "dblclick" ? "none" : "";
+            });
+        });
+
+        Array.from(this.datePanel.children[1].children[1].children[2].children).forEach((el) => {
+            addEvents(el, "click", (/** @type {MouseEvent} */ e) => {
+                this.datePanel.children[1].children[1].children[0].textContent = el.textContent;
+            });
+        });
+
+        Array.from(this.datePanel.children[1].children[3].children[2].children).forEach((el) => {
+            addEvents(el, "click", (/** @type {MouseEvent} */ e) => {
+                this.datePanel.children[1].children[1].children[0].textContent = el.textContent;
+            });
+        });
+    }
+
+    clearValue() {
+        this.handleDateChange(new Date());
+        this.showCalendar = false;
+        this.value = "";
+    }
+
+    setToday() {
+        const today = new Date();
+        this.onDateChange(today);
+    }
+
+    populateCalendarDays(/** @type {Date} */ date) {
+        let firstDay = -new Date(this.year, this.month, 1).getDay();
+
+        for (const dateElement of this.dateElements) {
+            let newDate = new Date(this.year, this.month, firstDay + 1);
+            const outsideMonth = this.month !== newDate.getMonth();
+            const today = !outsideMonth && this.day === newDate.getDate();
+            const thisMonth = !outsideMonth && !today;
+
+            forceToggleClasses(dateElement, outsideMonth, "text-[#333]/50", "dark:text-white/40");
+            forceToggleClasses(dateElement, today, "font-semibold", "bg-sky-500/20", "text-sky-500");
+            forceToggleClasses(dateElement, thisMonth, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
+            dateElement.textContent = newDate.getDate().toString();
+            dateElement.dataset.date = newDate.toLocaleDateString();
+        }
+
+        let startYear = this.year - 3;
+        for (const yearElement of this.yearElements) {
+            const thisYear = startYear === this.year;
+
+            forceToggleClasses(yearElement, thisYear, "font-semibold", "bg-sky-500/20", "text-sky-500");
+            forceToggleClasses(yearElement, thisYear, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
+            yearElement.textContent = (startYear++).toString();
+        }
+    }
+
+    handleDateChange(/** @type {Date} */ date) {
+        this.internalDate = date;
+        this.month = date.getMonth();
+        this.year = date.getFullYear();
+        this.day = date.getDate();
+        this.hour = date.getHours();
+        this.minute = date.getMinutes();
+
+        this.populateCalendarDays(date);
+    }
+
+    getNextMonth() {
+        this.handleDateChange(new Date(this.year, this.month + 1, this.day, this.hour, this.minute));
+    }
+
+    getPrevMonth() {
+        this.handleDateChange(new Date(this.year, this.month - 1, this.day, this.hour, this.minute));
+    }
+
+    changeMonthOnWheel(/** @type {WheelEvent} */ e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        if (e.deltaY === 0) {
+            return;
+        }
+
+        const date = new Date(this.year, this.month + (e.deltaY < 0 ? -1 : 1), this.day, this.hour, this.minute);
+        this.handleDateChange(date);
+    }
+
+    onDateChange(/** @type {Date} */ date) {
+        date ??= new Date();
+        this.handleDateChange(date);
+
+        this.value = this.internalDate
+            .toLocaleString("default", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+            })
+            .replace(",", "");
+    }
+
+    handleHourChange(/** @type {KeyboardEvent} */ e) {
+        const key = e.key;
+
+        if (key === "ArrowUp") {
+            e.preventDefault();
+            if (this.hour + 1 > 23) {
+                this.hour = 0;
+            } else {
+                this.hour++;
+            }
+        } else if (key === "ArrowDown") {
+            e.preventDefault();
+            if (this.hour - 1 < 0) {
+                this.hour = 23;
+            } else {
+                this.hour--;
+            }
+        }
+
+        if (!/[0-9]/.test(key)) {
+            return;
+        }
+
+        e.preventDefault();
+        if (/[3-9]/.test(key) || this.hourTemp !== null) {
+            if (!(this.hourTemp === "2" && /[4-9]/.test(key))) {
+                this.hour = +[this.hourTemp, key].join("");
+            }
+            this.hourTemp = null;
+            /** @type {HTMLInputElement} */ (e.target).blur();
+        } else {
+            this.hourTemp = key;
+            this.hour = +key;
+        }
+    }
+
+    handleMinuteChange(/** @type {KeyboardEvent} */ e) {
+        const key = e.key;
+
+        if (key === "ArrowUp") {
+            e.preventDefault();
+            if (this.minute + 1 > 59) {
+                this.minute = 0;
+            } else {
+                this.minute++;
+            }
+        } else if (key === "ArrowDown") {
+            e.preventDefault();
+            if (this.minute - 1 < 0) {
+                this.minute = 59;
+            } else {
+                this.minute--;
+            }
+        }
+
+        if (!/[0-9]/.test(key)) {
+            return;
+        }
+
+        e.preventDefault();
+        if (/[6-9]/.test(key) || this.minuteTemp !== null) {
+            this.minute = +[this.minuteTemp, key].join("");
+            this.minuteTemp = null;
+            this.showCalendar = false;
+        } else {
+            this.minuteTemp = key;
+            this.minute = +key;
+        }
+    }
+
+    setDate() {}
+}
+
+class DateTimeFormField extends FormFieldBase {
+    /** @type {import("../types").DateTimeFormFieldAttributes} */
+    data = createReactiveObject({
+        id: "",
+        type: "calculation",
+        name: "calculation",
+        label: "Calculation",
+        includeLabel: true,
+        description: "",
+        placeholder: "",
+        layout: "inline",
+        required: false,
+        readonly: false,
+        disabled: true,
+        hidden: false,
+    });
+
+    /** @type {HTMLDivElement} */
+    input = parseHtml(
+        `<div class="relative">
+            <input id="${this.data.id}" name="${this.data.name}" type="text" disabled />
+            <button class="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutral-400" tabindex="-1">
+                @click.stop="$refs.dateinput.focus()"
+                <svg class="w-5 min-w-5 fill-current"><use="#calendar-icon /></svg>
+            </button>
+            <calendar-modal></calendar-modal>
+        </div>`
+    );
+
+    internalInput = /** @type {HTMLInputElement} */ (this.input.children[0]);
+    button = /** @type {HTMLButtonElement} */ (this.input.children[1]);
+    calendar = /** @type {HTMLInputElement} */ (this.input.children[2]);
+
+    constructor() {
+        super();
+
+        createEffect(() => (this.internalInput.value = this.data.defaultValue));
+        createEffect(() => (this.internalInput.placeholder = this.data.placeholder));
+        createEffect(() => (this.internalInput.readOnly = this.data.readonly));
+        createEffect(() => (this.internalInput.disabled = this.data.disabled));
+    }
+
+    setup() {
+        addEvents(this.input.children[1], "click", (/** @type {MouseEvent} */ e) => {
+            e.stopPropagation();
+            this.calendar;
+        });
+    }
+}
+
 customElements.define("container-highlight", ContainerHighlight);
 customElements.define("container-drop-zone", ContainerDropZone);
 customElements.define("map-modal", MapModal);
@@ -782,3 +1297,4 @@ customElements.define("text-field", TextFormField);
 customElements.define("number-field", NumberFormField);
 customElements.define("select-field", SelectFormField);
 customElements.define("location-field", LocationFormField);
+customElements.define("calculation-field", CalculationFormField);

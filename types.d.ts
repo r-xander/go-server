@@ -3771,12 +3771,11 @@ export function noConflict(): any;
 
 /**********************************************************/
 /*                                                        */
-/*                  custom element types                  */
+/*             custom element auxilary types              */
 /*                                                        */
 /**********************************************************/
-
 type MapAttributes = {
-    address: string;
+    hasLocation: boolean;
     streetNumber: string;
     street: string;
     city: string;
@@ -3786,6 +3785,16 @@ type MapAttributes = {
     long: number;
 }
 
+type Option = {
+    value: string;
+    label: string;
+}
+
+/**********************************************************/
+/*                                                        */
+/*                  custom element types                  */
+/*                                                        */
+/**********************************************************/
 type FormFieldBaseAttributes = {
     id: string;
     type: string;
@@ -3817,7 +3826,7 @@ type NumberInputAttributes = FormFieldBaseAttributes & {
 
 type SelectFormFieldAttributes = FormFieldBaseAttributes & {
     prompt: string;
-    options: { value: string; label: string }[];
+    options: Option[];
     multiselect: boolean;
     columns: number;
     dropdown: boolean;
@@ -3831,9 +3840,25 @@ type LocationFormFieldAttributes = FormFieldBaseAttributes & {
     city: string;
     state: string;
     zip: string;
-    lat: string;
-    long: string;
+    lat: number;
+    long: number;
     defaultCurrent: boolean;
 }
 
-type FormFieldAttributes = TextFormFieldAttributes | NumberInputAttributes | SelectFormFieldAttributes | LocationFormFieldAttributes;
+type CalculationFormFieldAttributes = FormFieldBaseAttributes & {
+    calculationType: string;
+    calculation: string;
+    fields: string[];
+}
+
+type DateTimeFormFieldAttributes = FormFieldBaseAttributes & {
+    placeholder: string;
+}
+
+type FormFieldAttributes = 
+    TextFormFieldAttributes | 
+    NumberInputAttributes | 
+    SelectFormFieldAttributes | 
+    LocationFormFieldAttributes |
+    CalculationFormFieldAttributes |
+    DateTimeFormFieldAttributes;
