@@ -93,6 +93,7 @@ function createReactiveObject(obj) {
                     observer.execute();
                 }
             },
+            enumerable: true,
         });
     }
 
@@ -593,6 +594,9 @@ class MapModal extends HTMLElement {
         long: 0,
     });
 
+    /** @type {LocationFormField} */
+    activeElement;
+
     /** @type {import("../types").Map} */
     map;
 
@@ -628,13 +632,14 @@ class MapModal extends HTMLElement {
 
     constructor() {
         super();
+        this.append(this.mapModal);
 
         this.map = L.map("map-popup")
             .on("locationerror", () => alert("error finding location"))
             .on("locationfound", this.setMarker.bind(this))
             .on("click", this.setMarker.bind(this));
 
-        this.marker = L.marker([this.lat, this.long], { draggable: true, autoPan: true })
+        this.marker = L.marker([this.data.lat, this.data.long], { draggable: true, autoPan: true })
             .on("dragend", this.dragEnd.bind(this))
             .addTo(this.map);
 
@@ -654,41 +659,54 @@ class MapModal extends HTMLElement {
         createEffect(() => (this.locationPanel.style.display = this.data.address == null ? "none" : ""));
         createEffect(() => (streetAddress.textContent = `${this.data.streetNumber} ${this.data.street}`));
         createEffect(() => (statePart.textContent = `${this.data.city}, ${this.data.state} ${this.data.zip}`));
-        createEffect(() => (latLong.textContent = `${this.data.lat}, ${this.data.long}`));
-
-        this.append(this.mapModal);
+        createEffect(() => (latLong.textContent = `${this.data.lat.toFixed(8)}, ${this.data.long.toFixed(8)}`));
     }
 
-    setup() {
+    connectedCallback() {
         addEvents(this.header.children[1], "click", () => this.mapModal.close());
         addEvents(this.locationPanel.children[1], "click", () => {
-            this.dispatchEvent(new CustomEvent("location-selection", { detail: { data: this.data } }));
+            this.activeElement.setLocationData(this.data);
+            this.activeElement = null;
             this.mapModal.close();
         });
         addEvents(this.locationPanel.children[2], "click", () => {
-            Object.entries(this.data).forEach(([_, value]) => (value = null));
+            Object.keys(this.data).forEach((key) => (this.data[key] = null));
+            this.data.lat = 0;
+            this.data.long = 0;
             this.marker.remove();
         });
     }
 
-    open() {
+    /** @param {LocationFormField} el */
+    open(el) {
+        this.activeElement = el;
         this.mapModal.showModal();
         this.map.invalidateSize().locate({ setView: true, maxZoom: 16 });
     }
 
     dragEnd() {
         var position = this.marker.getLatLng();
-        this.lat = position.lat;
-        this.long = position.lng;
-        this.location = "6801 Industrial Rd, Springfield, VA, 22151";
+        this.data.address = "6801 Industrial Rd, Springfield, VA 22151";
+        this.data.streetNumber = "6801";
+        this.data.street = "Industrial Rd";
+        this.data.city = "Springfield";
+        this.data.state = "VA";
+        this.data.zip = "22151";
+        this.data.lat = position.lat;
+        this.data.long = position.lng;
     }
 
     /** @param {import("../types").LeafletMouseEvent} e */
     setMarker(e) {
-        this.latitude = e.latlng.lat;
-        this.longitude = e.latlng.lng;
+        this.data.address = "6801 Industrial Rd, Springfield, VA 22151";
+        this.data.streetNumber = "6801";
+        this.data.street = "Industrial Rd";
+        this.data.city = "Springfield";
+        this.data.state = "VA";
+        this.data.zip = "22151";
+        this.data.lat = e.latlng.lat;
+        this.data.long = e.latlng.lng;
         this.marker.setLatLng(e.latlng).addTo(this.map);
-        this.data.address = "6801 Industrial Rd, Springfield, VA, 22151";
     }
 }
 
@@ -742,12 +760,18 @@ class LocationFormField extends FormFieldBase {
     }
 
     setup() {
-        addEvents(this, "location-selection", (/** @type {CustomEvent} */ e) => {
-            const addrData = e.detail.data;
-            this.data.address = `${addrData.streetNumber} ${addrData.street}, ${addrData.city}, ${addrData.state} ${addrData.zip}`;
-            Object.apply(this.data, addrData);
-        });
-        addEvents(this.input.children[0], "click", () => this.mapModal.open());
+        addEvents(this.input.children[0], "click", () => this.mapModal.open(this));
+    }
+
+    setLocationData(data) {
+        this.data.address = data.address;
+        this.data.streetNumber = data.streetNumber;
+        this.data.street = data.street;
+        this.data.city = data.city;
+        this.data.state = data.state;
+        this.data.zip = data.zip;
+        this.data.lat = data.lat;
+        this.data.long = data.long;
     }
 }
 

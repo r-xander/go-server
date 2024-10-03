@@ -866,7 +866,6 @@ function createSignal(value) {
 /*                                              */
 /************************************************/
 
-//@ts-ignore
 L.Control.CurrentLocation = L.Control.extend({
     options: { position: "topleft" },
     container: null,
@@ -874,20 +873,13 @@ L.Control.CurrentLocation = L.Control.extend({
     onAdd: function (map) {
         this.map = map;
 
-        /** @type {HTMLDivElement} */
-        //@ts-ignore
         this.container = L.DomUtil.create("div");
         this.container.setAttribute("class", "leaflet-bar");
 
-        //@ts-ignore
         L.DomEvent.on(this.container, "contextmenu", L.DomEvent.preventDefault);
-        //@ts-ignore
         L.DomEvent.disableScrollPropagation(this.container);
-        //@ts-ignore
         L.DomEvent.disableClickPropagation(this.container);
 
-        /** @type {HTMLAnchorElement} */
-        //@ts-ignore
         const anchor = L.DomUtil.create("a");
         anchor.title = "Current Location";
         anchor.href = "#";
@@ -896,18 +888,14 @@ L.Control.CurrentLocation = L.Control.extend({
         anchor.innerHTML =
             '<svg viewBox="0 0 24 24" class="w-5.5 h-5.5 fill-none stroke-current stroke-[2px] [stroke-linecap:round] [stroke-linejoin:round]"><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0" /><path d="M12 2l0 2" /><path d="M12 20l0 2" /><path d="M20 12l2 0" /><path d="M2 12l2 0" /></svg>';
 
-        //@ts-ignore
         L.DomEvent.on(anchor, "click", L.DomEvent.stop);
-        //@ts-ignore
         L.DomEvent.on(anchor, "click", this.getCurrentLocation, this);
-        //@ts-ignore
-        L.DomEvent.on(anchor, "click", this._refocusOnMap, this);
+        // L.DomEvent.on(anchor, "click", this._refocusOnMap, this);
 
         this.container.append(anchor);
         return this.container;
     },
     onRemove: function (map) {
-        //@ts-ignore
         L.DomEvent.off(this.container, "click", this.getCurrentLocation, this);
     },
     getCurrentLocation: function (e) {
@@ -919,7 +907,6 @@ L.control.currentLocation = function (options) {
     return new L.Control.CurrentLocation(options);
 };
 
-//@ts-ignore
 L.Control.Search = L.Control.extend({
     options: { position: "topright" },
     container: null,
@@ -927,8 +914,6 @@ L.Control.Search = L.Control.extend({
     onAdd: function (map) {
         this.map = map;
 
-        /** @type {HTMLDivElement} */
-        //@ts-ignore
         this.container = L.DomUtil.create("div");
         this.container.setAttribute(
             "class",
@@ -936,8 +921,6 @@ L.Control.Search = L.Control.extend({
         );
         this.container.title = "Search";
 
-        /** @type {HTMLInputElement} */
-        //@ts-ignore
         const input = L.DomUtil.create("input");
         input.setAttribute(
             "class",
@@ -946,8 +929,6 @@ L.Control.Search = L.Control.extend({
         input.style.outline = "none";
         input.placeholder = "Search";
 
-        /** @type {HTMLButtonElement} */
-        //@ts-ignore
         const searchBtn = L.DomUtil.create("button");
         searchBtn.setAttribute(
             "class",
@@ -960,19 +941,14 @@ L.Control.Search = L.Control.extend({
         this.container.append(input);
         this.container.append(searchBtn);
 
-        //@ts-ignore
         L.DomEvent.disableScrollPropagation(this.container);
-        //@ts-ignore
         L.DomEvent.disableClickPropagation(this.container);
-        //@ts-ignore
         L.DomEvent.on(this.container, "contextmenu", L.DomEvent.stopPropagation);
-        //@ts-ignore
         L.DomEvent.on(input, "input", this.onInput, this);
 
         return this.container;
     },
     onRemove: function (map) {
-        //@ts-ignore
         L.DomEvent.off(this.container, "click", this.getCurrentLocation, this);
     },
     getCurrentLocation: function (e) {
