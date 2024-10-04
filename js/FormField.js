@@ -855,23 +855,20 @@ class CalendarModal extends HTMLElement {
     /** @type {HTMLButtonElement[]} */
     yearElements = [];
 
-    showCalendar = false;
-    showMonthYearPanel = false;
-    showHours = false;
-    showMinutes = false;
-    dates = null;
-    years = null;
-
-    internalDate = new Date();
-    year = null;
-    month = null;
-    day = null;
-    hour = null;
-    minute = null;
+    data = createReactiveObject({
+        internalDate: new Date(),
+        year: null,
+        month: null,
+        day: null,
+        hour: null,
+        minute: null,
+        activeYear: new Date().getFullYear(),
+        activeMonth: new Date().getMonth(),
+        hourTemp: null,
+        minuteTemp: null,
+    });
 
     value = "";
-    hourTemp = null;
-    minuteTemp = null;
 
     /** @type {HTMLDivElement} */
     header = parseHtml(
@@ -922,18 +919,14 @@ class CalendarModal extends HTMLElement {
     footer = parseHtml(
         `<div class="flex justify-around w-full border-t border-neutral-200 dark:border-[#5e5e5e]">
             <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white">Clear</button>
-                @click="clearValue()"
             <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white">Today</button>
-                @click="setToday()"
             <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white">Close</button>
-                @click="showCalendar = false"
         </div>`
     );
 
     /** @type {HTMLDivElement} */
     monthYearPanel = parseHtml(
         `<div class="absolute z-[100] flex inset-0 flex-col rounded bg-white dark:bg-neutral-800">
-            x-show="showMonthYearPanel"
             <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4 border-b dark:border-neutral-700"></div>
             <div class="flex justify-center gap-1 mt-4">
                 <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
@@ -946,20 +939,16 @@ class CalendarModal extends HTMLElement {
             <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4"></div>
             <div class="mt-auto flex h-12 w-full divide-x border-t dark:divide-neutral-700 dark:border-neutral-700">
                 <button class="flex-1 font-bold">OK</button>
-                    @click="showMonthYearPanel = false; handleDateChange(new Date(year, month, day, hour, minute));"
                 <button class="flex-1 font-bold">Cancel</button>
-                    @click="showMonthYearPanel = false"
             </div>
         </div>`
     );
 
-    /** @type {HTMLDivElement} */
-    calendar = parseHtml(
-        `<div class="absolute right-0 z-50 w-max flex flex-col text-sm items-center rounded shadow-lg border bg-white dark:bg-[#434343]"></div>`
-    );
-
     constructor() {
         super();
+
+        this.className =
+            "absolute right-0 z-50 w-max flex flex-col text-sm items-center rounded shadow-lg border bg-white dark:bg-[#434343]";
 
         for (const day of this.days) {
             const dayElement = parseHtml(`<span class="w-full text-center font-bold">${day}</span>`);
@@ -1002,17 +991,33 @@ class CalendarModal extends HTMLElement {
         }
 
         createEffect(() => {
-            const month = this.internalDate.getMonth();
-            this.header.children[0].children[0].textContent = `${this.monthStrings[month]} ${this.internalDate.getFullYear()}`;
+            const month = this.data.internalDate.getMonth();
+            this.header.children[0].children[0].textContent = `${this.monthStrings[month]} ${this.data.internalDate.getFullYear()}`;
         });
 
         createEffect(() => {
-            this.datePanel.children[1].children[1].children[0].textContent = this.hour.toString().padStart(2, "0");
+            this.datePanel.children[1].children[1].children[0].textContent = this.data.hour.toString().padStart(2, "0");
         });
 
         createEffect(() => {
-            this.datePanel.children[1].children[3].children[0].textContent = this.minute.toString().padStart(2, "0");
+            this.datePanel.children[1].children[3].children[0].textContent = this.data.minute.toString().padStart(2, "0");
         });
+
+        createEffect(() =>
+            Array.from(this.monthYearPanel.children[0].children).forEach((el) => {
+                const isActive = +el.textContent === this.data.activeMonth;
+                forceToggleClasses(el, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
+                forceToggleClasses(el, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
+            })
+        );
+
+        createEffect(() =>
+            this.yearElements.forEach((el) => {
+                const isActive = +el.textContent === this.data.activeYear;
+                forceToggleClasses(el, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
+                forceToggleClasses(el, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
+            })
+        );
 
         const type = this.getAttribute("type");
         if (type === "date") {
@@ -1038,8 +1043,8 @@ class CalendarModal extends HTMLElement {
             //@ts-ignore
             () => (this.datePanel.children[1].children[1].children[2].style.display = "")
         );
-        addEvents(this.datePanel.children[1].children[1].children[1].children[0], "click", () => this.hour++);
-        addEvents(this.datePanel.children[1].children[1].children[1].children[1], "click", () => this.hour--);
+        addEvents(this.datePanel.children[1].children[1].children[1].children[0], "click", () => this.data.hour++);
+        addEvents(this.datePanel.children[1].children[1].children[1].children[1], "click", () => this.data.hour--);
 
         addEvents(this.datePanel.children[1].children[3].children[0], "keydown", this.handleHourChange);
         addEvents(
@@ -1048,37 +1053,41 @@ class CalendarModal extends HTMLElement {
             //@ts-ignore
             () => (this.datePanel.children[1].children[3].children[2].style.display = "")
         );
-        addEvents(this.datePanel.children[1].children[3].children[1].children[0], "click", () => this.minute++);
-        addEvents(this.datePanel.children[1].children[3].children[1].children[1], "click", () => this.minute--);
+        addEvents(this.datePanel.children[1].children[3].children[1].children[0], "click", () => this.data.minute++);
+        addEvents(this.datePanel.children[1].children[3].children[1].children[1], "click", () => this.data.minute--);
+
+        addEvents(this.footer.children[0], "click", this.clearValue);
+        addEvents(this.footer.children[1], "click", this.setToday);
+        addEvents(this.footer.children[2], "click", () => (this.style.display = "none"));
+
+        addEvents(this.monthYearPanel.children[1].children[0], "click", () => this.updateYears(this.data.activeYear + 1));
+        addEvents(this.monthYearPanel.children[1].children[1], "click", () => this.updateYears(this.data.activeYear - 1));
+        addEvents(this.monthYearPanel.children[3].children[0], "click", () => {
+            this.handleDateChange(new Date(this.data.activeYear, this.data.activeMonth, this.data.day, this.data.hour, this.data.minute));
+            this.monthYearPanel.style.display = "none";
+        });
+        addEvents(this.monthYearPanel.children[3].children[0], "click", () => (this.monthYearPanel.style.display = "none"));
 
         this.dateElements.forEach((el) => {
             addEvents(el, "click", (/** @type {MouseEvent} */ e) => this.onDateChange(new Date(el.dataset.date)));
         });
 
-        Array.from(this.monthYearPanel.children[0].children).forEach((el, index) => {
-            addEvents(el, ["click", "dblclick"], (/** @type {MouseEvent} */ e) => {
-                this.onDateChange(new Date(this.year, this.months[index], this.day));
-                this.monthYearPanel.style.display = e.type == "dblclick" ? "none" : "";
-            });
+        Array.from(this.monthYearPanel.children[0].children).forEach((/** @type {HTMLElement} */ el, index) => {
+            addEvents(el, "click", () => (this.data.activeMonth = index));
+            addEvents(el, "dblclick", () => this.onDateChange(new Date(this.data.activeYear, index, this.data.day)));
         });
 
         this.yearElements.forEach((el) => {
-            addEvents(el, ["click", "dblclick"], (/** @type {MouseEvent} */ e) => {
-                this.onDateChange(new Date(+el.dataset.year, this.month, this.day));
-                this.monthYearPanel.style.display = e.type == "dblclick" ? "none" : "";
-            });
+            addEvents(el, "click", () => (this.data.activeYear = +el.dataset.year));
+            addEvents(el, "dblclick", () => this.onDateChange(new Date(+el.dataset.year, this.data.activeMonth, this.data.day)));
         });
 
         Array.from(this.datePanel.children[1].children[1].children[2].children).forEach((el) => {
-            addEvents(el, "click", (/** @type {MouseEvent} */ e) => {
-                this.datePanel.children[1].children[1].children[0].textContent = el.textContent;
-            });
+            addEvents(el, "click", () => (this.datePanel.children[1].children[1].children[0].textContent = el.textContent));
         });
 
         Array.from(this.datePanel.children[1].children[3].children[2].children).forEach((el) => {
-            addEvents(el, "click", (/** @type {MouseEvent} */ e) => {
-                this.datePanel.children[1].children[1].children[0].textContent = el.textContent;
-            });
+            addEvents(el, "click", () => (this.datePanel.children[1].children[3].children[0].textContent = el.textContent));
         });
     }
 
@@ -1094,12 +1103,12 @@ class CalendarModal extends HTMLElement {
     }
 
     populateCalendarDays(/** @type {Date} */ date) {
-        let firstDay = -new Date(this.year, this.month, 1).getDay();
+        let firstDay = -new Date(this.data.year, this.data.month, 1).getDay();
 
         for (const dateElement of this.dateElements) {
-            let newDate = new Date(this.year, this.month, firstDay + 1);
-            const outsideMonth = this.month !== newDate.getMonth();
-            const today = !outsideMonth && this.day === newDate.getDate();
+            let newDate = new Date(this.data.year, this.data.month, firstDay + 1);
+            const outsideMonth = this.data.month !== newDate.getMonth();
+            const today = !outsideMonth && this.data.day === newDate.getDate();
             const thisMonth = !outsideMonth && !today;
 
             forceToggleClasses(dateElement, outsideMonth, "text-[#333]/50", "dark:text-white/40");
@@ -1109,33 +1118,38 @@ class CalendarModal extends HTMLElement {
             dateElement.dataset.date = newDate.toLocaleDateString();
         }
 
-        let startYear = this.year - 3;
-        for (const yearElement of this.yearElements) {
-            const thisYear = startYear === this.year;
+        this.updateYears(this.data.year);
+    }
 
-            forceToggleClasses(yearElement, thisYear, "font-semibold", "bg-sky-500/20", "text-sky-500");
-            forceToggleClasses(yearElement, thisYear, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
+    /** @param {number} year */
+    updateYears(year) {
+        let startYear = year - 3;
+        for (const yearElement of this.yearElements) {
+            const isActive = startYear === this.data.activeYear;
+            forceToggleClasses(yearElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
+            forceToggleClasses(yearElement, isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
+
             yearElement.textContent = (startYear++).toString();
         }
     }
 
     handleDateChange(/** @type {Date} */ date) {
-        this.internalDate = date;
-        this.month = date.getMonth();
-        this.year = date.getFullYear();
-        this.day = date.getDate();
-        this.hour = date.getHours();
-        this.minute = date.getMinutes();
+        this.data.internalDate = date;
+        this.data.month = date.getMonth();
+        this.data.year = date.getFullYear();
+        this.data.day = date.getDate();
+        this.data.hour = date.getHours();
+        this.data.minute = date.getMinutes();
 
         this.populateCalendarDays(date);
     }
 
     getNextMonth() {
-        this.handleDateChange(new Date(this.year, this.month + 1, this.day, this.hour, this.minute));
+        this.handleDateChange(new Date(this.data.year, this.data.month + 1, this.data.day, this.data.hour, this.data.minute));
     }
 
     getPrevMonth() {
-        this.handleDateChange(new Date(this.year, this.month - 1, this.day, this.hour, this.minute));
+        this.handleDateChange(new Date(this.data.year, this.data.month - 1, this.data.day, this.data.hour, this.data.minute));
     }
 
     changeMonthOnWheel(/** @type {WheelEvent} */ e) {
@@ -1147,24 +1161,15 @@ class CalendarModal extends HTMLElement {
             return;
         }
 
-        const date = new Date(this.year, this.month + (e.deltaY < 0 ? -1 : 1), this.day, this.hour, this.minute);
+        const date = new Date(this.data.year, this.data.month + (e.deltaY < 0 ? -1 : 1), this.data.day, this.data.hour, this.data.minute);
         this.handleDateChange(date);
     }
 
     onDateChange(/** @type {Date} */ date) {
         date ??= new Date();
         this.handleDateChange(date);
-
-        this.value = this.internalDate
-            .toLocaleString("default", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-            })
-            .replace(",", "");
+        this.value = this.data.internalDate.toLocaleString("default", { hour12: false }).replace(",", "");
+        this.monthYearPanel.style.display = "none";
     }
 
     handleHourChange(/** @type {KeyboardEvent} */ e) {
@@ -1172,18 +1177,10 @@ class CalendarModal extends HTMLElement {
 
         if (key === "ArrowUp") {
             e.preventDefault();
-            if (this.hour + 1 > 23) {
-                this.hour = 0;
-            } else {
-                this.hour++;
-            }
+            this.data.hour = this.data.hour + 1 > 23 ? 0 : this.data.hour++;
         } else if (key === "ArrowDown") {
             e.preventDefault();
-            if (this.hour - 1 < 0) {
-                this.hour = 23;
-            } else {
-                this.hour--;
-            }
+            this.data.hour = this.data.hour - 1 < 0 ? 23 : this.data.hour--;
         }
 
         if (!/[0-9]/.test(key)) {
@@ -1191,15 +1188,15 @@ class CalendarModal extends HTMLElement {
         }
 
         e.preventDefault();
-        if (/[3-9]/.test(key) || this.hourTemp !== null) {
-            if (!(this.hourTemp === "2" && /[4-9]/.test(key))) {
-                this.hour = +[this.hourTemp, key].join("");
+        if (/[3-9]/.test(key) || this.data.hourTemp !== null) {
+            if (!(this.data.hourTemp === "2" && /[4-9]/.test(key))) {
+                this.data.hour = +[this.data.hourTemp, key].join("");
             }
-            this.hourTemp = null;
+            this.data.hourTemp = null;
             /** @type {HTMLInputElement} */ (e.target).blur();
         } else {
-            this.hourTemp = key;
-            this.hour = +key;
+            this.data.hourTemp = key;
+            this.data.hour = +key;
         }
     }
 
@@ -1208,18 +1205,10 @@ class CalendarModal extends HTMLElement {
 
         if (key === "ArrowUp") {
             e.preventDefault();
-            if (this.minute + 1 > 59) {
-                this.minute = 0;
-            } else {
-                this.minute++;
-            }
+            this.data.minute = this.data.minute + 1 > 59 ? 0 : this.data.minute++;
         } else if (key === "ArrowDown") {
             e.preventDefault();
-            if (this.minute - 1 < 0) {
-                this.minute = 59;
-            } else {
-                this.minute--;
-            }
+            this.data.minute = this.data.minute - 1 > 0 ? 59 : this.data.minute--;
         }
 
         if (!/[0-9]/.test(key)) {
@@ -1227,13 +1216,13 @@ class CalendarModal extends HTMLElement {
         }
 
         e.preventDefault();
-        if (/[6-9]/.test(key) || this.minuteTemp !== null) {
-            this.minute = +[this.minuteTemp, key].join("");
-            this.minuteTemp = null;
+        if (/[6-9]/.test(key) || this.data.minuteTemp !== null) {
+            this.data.minute = +[this.data.minuteTemp, key].join("");
+            this.data.minuteTemp = null;
             this.showCalendar = false;
         } else {
-            this.minuteTemp = key;
-            this.minute = +key;
+            this.data.minuteTemp = key;
+            this.data.minute = +key;
         }
     }
 
@@ -1271,7 +1260,7 @@ class DateTimeFormField extends FormFieldBase {
 
     internalInput = /** @type {HTMLInputElement} */ (this.input.children[0]);
     button = /** @type {HTMLButtonElement} */ (this.input.children[1]);
-    calendar = /** @type {HTMLInputElement} */ (this.input.children[2]);
+    calendar = /** @type {CalendarModal} */ (this.input.children[2]);
 
     constructor() {
         super();
@@ -1285,7 +1274,7 @@ class DateTimeFormField extends FormFieldBase {
     setup() {
         addEvents(this.input.children[1], "click", (/** @type {MouseEvent} */ e) => {
             e.stopPropagation();
-            this.calendar;
+            this.calendar.style.display = "";
         });
     }
 }
