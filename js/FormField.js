@@ -151,7 +151,15 @@ function parseHtml(html) {
  * @param  {...string} cls
  */
 function toggleClasses(el, ...cls) {
-    cls.map((cl) => el.classList.toggle(cl));
+    cls.forEach((cl) => el.classList.toggle(cl));
+}
+
+/** @param {HTMLElement} el */
+function focusNextInput(el) {
+    let next = el.nextElementSibling;
+    while (next.localName != "input") {
+        next = el.nextElementSibling;
+    }
 }
 
 /**
@@ -318,7 +326,7 @@ class FormFieldBase extends HTMLElement {
 
     /** @type {ContainerHighlight} */
     highlight = parseHtml(
-        `<container-highlight class="block invisible absolute inset-0 cursor-pointer transition border border-sky-500"></container-highlight>`
+        `<container-highlight style="display:none; class="block invisible absolute inset-0 cursor-pointer transition border border-sky-500"></container-highlight>`
     );
 
     /** @type {ContainerDropZone} */
@@ -365,7 +373,7 @@ class FormFieldBase extends HTMLElement {
         createEffect(() => this.classList.toggle("opacity-50", this.data.hidden));
         createEffect(() => this.classList.toggle("grid-cols-[3fr_4fr]", this.data.layout === "inline" && this.data.label !== ""));
 
-        const inputBlock = parseHtml(`<div class="grid grid-cols-[3fr_4fr] gap-1 w-full items-start" inert></div>`);
+        const inputBlock = parseHtml(`<div class="grid grid-cols-[3fr_4fr] gap-1 w-full items-start"></div>`);
         inputBlock.append(this.label, this.input, this.description);
 
         this.append(inputBlock, this.highlight, this.topDropZone, this.bottomDropZone);
@@ -855,15 +863,18 @@ class CalendarModal extends HTMLElement {
     /** @type {HTMLButtonElement[]} */
     yearElements = [];
 
+    today = new Date();
+
+    /** @type {import("../types").CalendarAttributes} */
     data = createReactiveObject({
-        internalDate: new Date(),
-        year: null,
-        month: null,
-        day: null,
-        hour: null,
-        minute: null,
-        activeYear: new Date().getFullYear(),
-        activeMonth: new Date().getMonth(),
+        internalDate: this.today,
+        year: this.today.getFullYear(),
+        month: this.today.getMonth(),
+        day: this.today.getDate(),
+        hour: this.today.getHours(),
+        minute: this.today.getMinutes(),
+        activeYear: this.today.getFullYear(),
+        activeMonth: this.today.getMonth(),
         hourTemp: null,
         minuteTemp: null,
     });
@@ -875,14 +886,14 @@ class CalendarModal extends HTMLElement {
         `<div class="flex w-full items-center justify-between p-3 border-b border-neutral-200 text-neutral-500 dark:border-[#5e5e5e] dark:text-white/75">
             <button class="flex items-center gap-1 font-bold hover:text-neutral-800 dark:hover:text-white">
                 <span></span>
-                <svg class="w-4 h-4 fill-current"><use href="#downcaret-icon" /></svg>
+                <svg class="w-4 h-4 fill-current"><use href="#caretdown-icon" /></svg>
             </button>
             <div class="flex gap-1">
                 <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
-                    <svg class="w-4 h-4 fill-current"><use href="#leftcaret-icon" /></svg>
+                    <svg class="w-4 h-4 fill-current"><use href="#caretleft-icon" /></svg>
                 </button>
                 <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
-                    <svg class="w-4 h-4 fill-current"><use href="#rightcaret-icon" /></svg>
+                    <svg class="w-4 h-4 fill-current"><use href="#caretright-icon" /></svg>
                 </button>
             </div>
         </div>`
@@ -894,23 +905,19 @@ class CalendarModal extends HTMLElement {
             <div class="grid grid-cols-7 gap-0.5 w-60 mb-1 items-center justify-items-center font-mono"></div>
             <div class="flex relative items-center justify-center mt-3">
                 <span class="font-semibold mr-2">Time:</span>
-                <div class="flex">
-                    <input type="number" class="w-10 hide-arrows text-center" readonly />
-                    <div class="grid gap-y-1 ml-1">
-                        <button><svg class="w-4 h-4 fill-current rotate-180"><use href="#downcaret-icon" /></svg></button>
-                        <button><svg class="w-4 h-4 fill-current"><use href="#downcaret-icon" /></svg></button>
-                    </div>
-                    <div class="absolute bottom-[calc(100%+0.25rem)] left-0 grid w-max grid-cols-4 justify-items-center gap-2 p-4 rounded shadow-lg bg-white dark:bg-neutral-600"></div>
+                <input type="number" class="w-10 hide-arrows text-center" readonly />
+                <div class="grid gap-y-1 ml-1">
+                    <button><svg class="w-4 h-4 fill-current rotate-180"><use href="#caretup-icon" /></svg></button>
+                    <button><svg class="w-4 h-4 fill-current"><use href="#caretdown-icon" /></svg></button>
                 </div>
+                <div style="display: none;" class="absolute bottom-[calc(100%+0.25rem)] left-0 grid w-max grid-cols-4 justify-items-center gap-2 p-4 rounded shadow-lg bg-white dark:bg-neutral-600"></div>
                 <span class="mx-2">:</span>
-                <div class="flex">
-                    <input type="number" class="w-10 hide-arrows text-center" readonly />
-                    <div class="grid gap-y-1 ml-1">
-                        <button><svg class="w-4 h-4 fill-current rotate-180"><use href="#downcaret-icon" /></svg></button>
-                        <button><svg class="w-4 h-4 fill-current"><use href="#downcaret-icon" /></svg></button>
-                    </div>
-                    <div class="absolute bottom-[calc(100%+0.25rem)] right-0 grid w-max grid-cols-4 justify-items-center gap-2 p-4 rounded shadow-lg bg-white dark:bg-neutral-600"></div>
+                <input type="number" class="w-10 hide-arrows text-center" readonly />
+                <div class="grid gap-y-1 ml-1">
+                    <button><svg class="w-4 h-4 fill-current rotate-180"><use href="#caretup-icon" /></svg></button>
+                    <button><svg class="w-4 h-4 fill-current"><use href="#caretdown-icon" /></svg></button>
                 </div>
+                <div style="display: none;" class="absolute bottom-[calc(100%+0.25rem)] right-0 grid w-max grid-cols-4 justify-items-center gap-2 p-4 rounded shadow-lg bg-white dark:bg-neutral-600"></div>
             </div>
         </div>`
     );
@@ -926,14 +933,14 @@ class CalendarModal extends HTMLElement {
 
     /** @type {HTMLDivElement} */
     monthYearPanel = parseHtml(
-        `<div class="absolute z-[100] flex inset-0 flex-col rounded bg-white dark:bg-neutral-800">
+        `<div style="display: none;" class="absolute z-[100] flex inset-0 flex-col rounded bg-white dark:bg-neutral-800">
             <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4 border-b dark:border-neutral-700"></div>
             <div class="flex justify-center gap-1 mt-4">
                 <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
-                    <svg class="w-4 h-4 fill-current"><use href="#caretleft-icon</svg>
+                    <svg class="w-4 h-4 fill-current"><use href="#caretleft-icon" /></svg>
                 </button>
                 <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
-                    <svg class="w-4 h-4 fill-current"><use href="#caretright-icon</svg>
+                    <svg class="w-4 h-4 fill-current"><use href="#caretright-icon" /></svg>
                 </button>
             </div>
             <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4"></div>
@@ -947,8 +954,9 @@ class CalendarModal extends HTMLElement {
     constructor() {
         super();
 
+        this.style.display = "none";
         this.className =
-            "absolute right-0 z-50 w-max flex flex-col text-sm items-center rounded shadow-lg border bg-white dark:bg-[#434343]";
+            "absolute right-0 z-50 w-max flex flex-col text-sm items-center rounded select-none shadow-lg border bg-white dark:bg-[#434343]";
 
         for (const day of this.days) {
             const dayElement = parseHtml(`<span class="w-full text-center font-bold">${day}</span>`);
@@ -961,6 +969,24 @@ class CalendarModal extends HTMLElement {
             this.datePanel.children[0].append(dateElement);
         }
 
+        for (var i = 0; i < 24; ++i) {
+            const hourElement = parseHtml(
+                `<button class="w-8 aspect-square rounded-md hover:bg-neutral-200 dark:hover:bg-[#5e5e5e] dark:hover:text-white">
+                    ${i.toString().padStart(2, "0")}
+                </button>`
+            );
+            this.datePanel.children[1].children[3].append(hourElement);
+        }
+
+        for (var i = 0; i < 60; i += 5) {
+            const minuteElement = parseHtml(
+                `<button class="w-8 aspect-square rounded-md hover:bg-neutral-200 dark:hover:bg-[#5e5e5e] dark:hover:text-white">
+                    ${i.toString().padStart(2, "0")}
+                </button>`
+            );
+            this.datePanel.children[1].children[7].append(minuteElement);
+        }
+
         for (const month of this.monthStrings) {
             const monthElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center">${month.slice(0, 3)}</button>`);
             this.monthYearPanel.children[0].append(monthElement);
@@ -969,25 +995,7 @@ class CalendarModal extends HTMLElement {
         for (var i = 0; i < 8; ++i) {
             const yearElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center"></button>`);
             this.yearElements.push(yearElement);
-            this.monthYearPanel.children[1].children[1].append(yearElement);
-        }
-
-        for (var i = 0; i < 24; ++i) {
-            const hourElement = parseHtml(
-                `<button class="w-8 aspect-square rounded-md hover:bg-neutral-200 dark:hover:bg-[#5e5e5e] dark:hover:text-white">
-                    ${i + 1}
-                </button>`
-            );
-            this.datePanel.children[1].children[1].children[2].append(hourElement);
-        }
-
-        for (var i = 0; i < 60; i + 5) {
-            const minuteElement = parseHtml(
-                `<button class="w-8 aspect-square rounded-md hover:bg-neutral-200 dark:hover:bg-[#5e5e5e] dark:hover:text-white">
-                    ${i.toString().padStart(2, "0")}
-                </button>`
-            );
-            this.datePanel.children[1].children[3].children[2].append(minuteElement);
+            this.monthYearPanel.children[2].append(yearElement);
         }
 
         createEffect(() => {
@@ -995,13 +1003,10 @@ class CalendarModal extends HTMLElement {
             this.header.children[0].children[0].textContent = `${this.monthStrings[month]} ${this.data.internalDate.getFullYear()}`;
         });
 
-        createEffect(() => {
-            this.datePanel.children[1].children[1].children[0].textContent = this.data.hour.toString().padStart(2, "0");
-        });
-
-        createEffect(() => {
-            this.datePanel.children[1].children[3].children[0].textContent = this.data.minute.toString().padStart(2, "0");
-        });
+        const hourInput = /** @type {HTMLInputElement} */ (this.datePanel.children[1].children[1]);
+        const minuteInput = /** @type {HTMLInputElement} */ (this.datePanel.children[1].children[5]);
+        createEffect(() => (hourInput.value = this.data.hour.toString().padStart(2, "0")));
+        createEffect(() => (minuteInput.value = this.data.minute.toString().padStart(2, "0")));
 
         createEffect(() =>
             Array.from(this.monthYearPanel.children[0].children).forEach((el) => {
@@ -1019,76 +1024,93 @@ class CalendarModal extends HTMLElement {
             })
         );
 
-        const type = this.getAttribute("type");
-        if (type === "date") {
-            this.datePanel.children[1].remove();
-        } else if (type === "time") {
-            this.datePanel.children[0].remove();
-        }
-
         this.append(this.header, this.datePanel, this.footer, this.monthYearPanel);
     }
 
     connectedCallback() {
         addEvents(this.header.children[0], "click", () => (this.monthYearPanel.style.display = ""));
-        addEvents(this.header.children[1].children[0], "click", this.getPrevMonth);
-        addEvents(this.header.children[1].children[1], "click", this.getNextMonth);
+        addEvents(this.header.children[1].children[0], "click", () => this.getPrevMonth());
+        addEvents(this.header.children[1].children[1], "click", () => this.getNextMonth());
 
-        addEvents(this.datePanel.children[0], "click", this.changeMonthOnWheel);
+        addEvents(this.datePanel.children[0], "wheel", (/** @type {WheelEvent} */ e) => this.changeMonthOnWheel(e));
+        addEvents(this.datePanel.children[1].children[1], "keydown", (/** @type {KeyboardEvent} */ e) => this.handleHourChange(e));
+        //@ts-ignore
+        addEvents(this.datePanel.children[1].children[1], "focus", () => (this.datePanel.children[1].children[3].style.display = ""));
+        addEvents(this.datePanel.children[1].children[2].children[0], "click", () => this.data.hour++);
+        addEvents(this.datePanel.children[1].children[2].children[1], "click", () => this.data.hour--);
+        addEvents(this.datePanel.children[1].children[5], "keydown", () => this.handleHourChange());
+        //@ts-ignore
+        addEvents(this.datePanel.children[1].children[5], "focus", () => (this.datePanel.children[1].children[7].style.display = ""));
+        addEvents(this.datePanel.children[1].children[6].children[0], "click", () => this.data.minute++);
+        addEvents(this.datePanel.children[1].children[6].children[1], "click", () => this.data.minute--);
 
-        addEvents(this.datePanel.children[1].children[1].children[0], "keydown", this.handleHourChange);
-        addEvents(
-            this.datePanel.children[1].children[1].children[0],
-            "focus",
-            //@ts-ignore
-            () => (this.datePanel.children[1].children[1].children[2].style.display = "")
-        );
-        addEvents(this.datePanel.children[1].children[1].children[1].children[0], "click", () => this.data.hour++);
-        addEvents(this.datePanel.children[1].children[1].children[1].children[1], "click", () => this.data.hour--);
+        this.dateElements.forEach((el) => addEvents(el, "click", () => this.onDateChange(new Date(el.dataset.date))));
+        this.yearElements.forEach((el) => {
+            addEvents(el, "click", () => (this.data.activeYear = +el.textContent));
+            addEvents(el, "dblclick", () => this.onDateChange(new Date(+el.textContent, this.data.activeMonth, this.data.day)));
+        });
 
-        addEvents(this.datePanel.children[1].children[3].children[0], "keydown", this.handleHourChange);
-        addEvents(
-            this.datePanel.children[1].children[3].children[0],
-            "focus",
-            //@ts-ignore
-            () => (this.datePanel.children[1].children[3].children[2].style.display = "")
-        );
-        addEvents(this.datePanel.children[1].children[3].children[1].children[0], "click", () => this.data.minute++);
-        addEvents(this.datePanel.children[1].children[3].children[1].children[1], "click", () => this.data.minute--);
+        Array.from(this.datePanel.children[1].children[3].children).forEach((el) => {
+            addEvents(el, "click", () => (this.datePanel.children[1].children[1].textContent = el.textContent));
+        });
 
-        addEvents(this.footer.children[0], "click", this.clearValue);
-        addEvents(this.footer.children[1], "click", this.setToday);
+        Array.from(this.datePanel.children[1].children[7].children).forEach((el) => {
+            addEvents(el, "click", () => (this.datePanel.children[1].children[5].textContent = el.textContent));
+        });
+
+        addEvents(this.footer.children[0], "click", () => this.clearValue());
+        addEvents(this.footer.children[1], "click", () => this.setToday());
         addEvents(this.footer.children[2], "click", () => (this.style.display = "none"));
 
         addEvents(this.monthYearPanel.children[1].children[0], "click", () => this.updateYears(this.data.activeYear + 1));
         addEvents(this.monthYearPanel.children[1].children[1], "click", () => this.updateYears(this.data.activeYear - 1));
-        addEvents(this.monthYearPanel.children[3].children[0], "click", () => {
-            this.handleDateChange(new Date(this.data.activeYear, this.data.activeMonth, this.data.day, this.data.hour, this.data.minute));
-            this.monthYearPanel.style.display = "none";
-        });
-        addEvents(this.monthYearPanel.children[3].children[0], "click", () => (this.monthYearPanel.style.display = "none"));
-
-        this.dateElements.forEach((el) => {
-            addEvents(el, "click", (/** @type {MouseEvent} */ e) => this.onDateChange(new Date(el.dataset.date)));
-        });
+        addEvents(this.monthYearPanel.children[3].children[0], "click", () => this.handleDateChange());
+        addEvents(this.monthYearPanel.children[3].children[1], "click", () => (this.monthYearPanel.style.display = "none"));
 
         Array.from(this.monthYearPanel.children[0].children).forEach((/** @type {HTMLElement} */ el, index) => {
             addEvents(el, "click", () => (this.data.activeMonth = index));
             addEvents(el, "dblclick", () => this.onDateChange(new Date(this.data.activeYear, index, this.data.day)));
         });
 
-        this.yearElements.forEach((el) => {
-            addEvents(el, "click", () => (this.data.activeYear = +el.dataset.year));
-            addEvents(el, "dblclick", () => this.onDateChange(new Date(+el.dataset.year, this.data.activeMonth, this.data.day)));
+        addEvents(window, "click", (/** @type {MouseEvent} */ e) => {
+            if (!this.contains(/** @type {Node} */ (e.target))) {
+                this.style.display = "none";
+            }
+
+            if (!this.monthYearPanel.contains(/** @type {Node} */ (e.target))) {
+                this.monthYearPanel.style.display = "none";
+            }
+
+            if (!this.datePanel.children[1].children[3].contains(/** @type {Node} */ (e.target))) {
+                /** @type {HTMLElement} */ (this.datePanel.children[1].children[3]).style.display = "none";
+            }
+
+            if (!this.datePanel.children[1].children[7].contains(/** @type {Node} */ (e.target))) {
+                /** @type {HTMLElement} */ (this.datePanel.children[1].children[7]).style.display = "none";
+            }
         });
 
-        Array.from(this.datePanel.children[1].children[1].children[2].children).forEach((el) => {
-            addEvents(el, "click", () => (this.datePanel.children[1].children[1].children[0].textContent = el.textContent));
-        });
+        this.populateCalendarDays();
+    }
 
-        Array.from(this.datePanel.children[1].children[3].children[2].children).forEach((el) => {
-            addEvents(el, "click", () => (this.datePanel.children[1].children[3].children[0].textContent = el.textContent));
-        });
+    /**
+     * @param {string} attribute
+     * @param {string} oldValue
+     * @param {string} newValue
+     */
+    attributeChangedCallback(attribute, oldValue, newValue) {
+        if (attribute === "type") {
+            if (newValue === "date") {
+                /** @type {HTMLElement} */ (this.datePanel.children[0]).style.display = "";
+                /** @type {HTMLElement} */ (this.datePanel.children[1]).style.display = "none";
+            } else if (newValue == "time") {
+                /** @type {HTMLElement} */ (this.datePanel.children[0]).style.display = "none";
+                /** @type {HTMLElement} */ (this.datePanel.children[1]).style.display = "";
+            } else {
+                /** @type {HTMLElement} */ (this.datePanel.children[0]).style.display = "";
+                /** @type {HTMLElement} */ (this.datePanel.children[1]).style.display = "";
+            }
+        }
     }
 
     clearValue() {
@@ -1106,7 +1128,7 @@ class CalendarModal extends HTMLElement {
         let firstDay = -new Date(this.data.year, this.data.month, 1).getDay();
 
         for (const dateElement of this.dateElements) {
-            let newDate = new Date(this.data.year, this.data.month, firstDay + 1);
+            let newDate = new Date(this.data.year, this.data.month, ++firstDay);
             const outsideMonth = this.data.month !== newDate.getMonth();
             const today = !outsideMonth && this.data.day === newDate.getDate();
             const thisMonth = !outsideMonth && !today;
@@ -1181,9 +1203,7 @@ class CalendarModal extends HTMLElement {
         } else if (key === "ArrowDown") {
             e.preventDefault();
             this.data.hour = this.data.hour - 1 < 0 ? 23 : this.data.hour--;
-        }
-
-        if (!/[0-9]/.test(key)) {
+        } else if (!/[0-9]/.test(key)) {
             return;
         }
 
@@ -1209,50 +1229,53 @@ class CalendarModal extends HTMLElement {
         } else if (key === "ArrowDown") {
             e.preventDefault();
             this.data.minute = this.data.minute - 1 > 0 ? 59 : this.data.minute--;
-        }
-
-        if (!/[0-9]/.test(key)) {
+        } else if (!/[0-9]/.test(key)) {
             return;
         }
 
         e.preventDefault();
-        if (/[6-9]/.test(key) || this.data.minuteTemp !== null) {
-            this.data.minute = +[this.data.minuteTemp, key].join("");
-            this.data.minuteTemp = null;
-            this.showCalendar = false;
-        } else {
-            this.data.minuteTemp = key;
-            this.data.minute = +key;
-        }
+        const isFinalKey = /[6-9]/.test(key) || this.data.minuteTemp !== null;
+        this.data.minute = isFinalKey ? +[this.data.minuteTemp, key].join("") : +key;
+        this.data.minuteTemp = isFinalKey ? null : key;
     }
 
-    setDate() {}
+    open() {
+        this.style.display = "";
+    }
+
+    close() {
+        this.style.display = "none";
+    }
 }
 
 class DateTimeFormField extends FormFieldBase {
     /** @type {import("../types").DateTimeFormFieldAttributes} */
     data = createReactiveObject({
         id: "",
-        type: "calculation",
-        name: "calculation",
-        label: "Calculation",
+        type: "datetime",
+        name: "datetime",
+        label: "Date/Time Input",
         includeLabel: true,
         description: "",
-        placeholder: "",
+        defaultValue: "",
+        placeholder: "Date",
+        min: null,
+        max: null,
+        includeDate: true,
+        incudeTime: true,
         layout: "inline",
         required: false,
         readonly: false,
-        disabled: true,
+        disabled: false,
         hidden: false,
     });
 
     /** @type {HTMLDivElement} */
     input = parseHtml(
         `<div class="relative">
-            <input id="${this.data.id}" name="${this.data.name}" type="text" disabled />
+            <input id="${this.data.id}" name="${this.data.name}" type="text" class="w-full" disabled />
             <button class="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutral-400" tabindex="-1">
-                @click.stop="$refs.dateinput.focus()"
-                <svg class="w-5 min-w-5 fill-current"><use="#calendar-icon /></svg>
+                <svg class="w-5 min-w-5 fill-current"><use href="#calendar-icon" /></svg>
             </button>
             <calendar-modal></calendar-modal>
         </div>`
@@ -1269,12 +1292,18 @@ class DateTimeFormField extends FormFieldBase {
         createEffect(() => (this.internalInput.placeholder = this.data.placeholder));
         createEffect(() => (this.internalInput.readOnly = this.data.readonly));
         createEffect(() => (this.internalInput.disabled = this.data.disabled));
+
+        createEffect(() => {
+            if (!this.data.incudeTime) {
+                this.calendar.setAttribute("type", "date");
+            }
+        });
     }
 
     setup() {
         addEvents(this.input.children[1], "click", (/** @type {MouseEvent} */ e) => {
             e.stopPropagation();
-            this.calendar.style.display = "";
+            this.calendar.open();
         });
     }
 }
@@ -1282,8 +1311,10 @@ class DateTimeFormField extends FormFieldBase {
 customElements.define("container-highlight", ContainerHighlight);
 customElements.define("container-drop-zone", ContainerDropZone);
 customElements.define("map-modal", MapModal);
+customElements.define("calendar-modal", CalendarModal);
 customElements.define("text-field", TextFormField);
 customElements.define("number-field", NumberFormField);
 customElements.define("select-field", SelectFormField);
 customElements.define("location-field", LocationFormField);
 customElements.define("calculation-field", CalculationFormField);
+customElements.define("datetime-field", DateTimeFormField);

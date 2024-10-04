@@ -674,7 +674,7 @@ document.addEventListener("alpine:init", function (e) {
         },
         handleHourChange(/** @type {KeyboardEvent} */ e) {
             const key = e.key;
-
+            console.log(e);
             if (key === "ArrowUp") {
                 e.preventDefault();
                 if (this.hour + 1 > 23) {

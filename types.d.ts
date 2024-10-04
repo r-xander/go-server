@@ -3785,6 +3785,19 @@ type MapAttributes = {
     long: number;
 }
 
+type CalendarAttributes = {
+    internalDate: Date;
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+    activeYear: number;
+    activeMonth: number;
+    hourTemp: string;
+    minuteTemp: string;
+}
+
 type Option = {
     value: string;
     label: string;
@@ -3853,6 +3866,10 @@ type CalculationFormFieldAttributes = FormFieldBaseAttributes & {
 
 type DateTimeFormFieldAttributes = FormFieldBaseAttributes & {
     placeholder: string;
+    max: number;
+    min: number;
+    includeDate: boolean,
+    incudeTime: boolean,
 }
 
 type FormFieldAttributes = 
