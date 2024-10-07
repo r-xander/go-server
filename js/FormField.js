@@ -125,6 +125,18 @@ function addEvents(el, event, fn, useCapture = false) {
     });
 }
 
+/** @param {HTMLElement[]} elements */
+function addClickOutsideEvent(elements) {
+    window.addEventListener("pointerdown", (/** @type {MouseEvent} */ e) => {
+        const target = /** @type {HTMLElement} */ (e.target);
+        for (const element of elements) {
+            if (!element.contains(target)) {
+                element.style.display = "none";
+            }
+        }
+    });
+}
+
 /** @param {Element} el */
 function cleanupElement(el) {
     cleanupMap.get(el)?.forEach((fn) => fn());
@@ -152,14 +164,6 @@ function parseHtml(html) {
  */
 function toggleClasses(el, ...cls) {
     cls.forEach((cl) => el.classList.toggle(cl));
-}
-
-/** @param {HTMLElement} el */
-function focusNextInput(el) {
-    let next = el.nextElementSibling;
-    while (next.localName != "input") {
-        next = el.nextElementSibling;
-    }
 }
 
 /**
@@ -840,6 +844,9 @@ class CalculationFormField extends FormFieldBase {
 }
 
 class CalendarModal extends HTMLElement {
+    today = new Date();
+    value = "";
+
     days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     monthStrings = [
         "January",
@@ -856,14 +863,11 @@ class CalendarModal extends HTMLElement {
         "December",
     ];
     months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    dateElements = /** @type {HTMLButtonElement[]} */ ([]);
+    yearElements = /** @type {HTMLButtonElement[]} */ ([]);
 
-    /** @type {HTMLButtonElement[]} */
-    dateElements = [];
-
-    /** @type {HTMLButtonElement[]} */
-    yearElements = [];
-
-    today = new Date();
+    /** @type {HTMLInputElement} */
+    refElement;
 
     /** @type {import("../types").CalendarAttributes} */
     data = createReactiveObject({
@@ -878,8 +882,6 @@ class CalendarModal extends HTMLElement {
         hourTemp: null,
         minuteTemp: null,
     });
-
-    value = "";
 
     /** @type {HTMLDivElement} */
     header = parseHtml(
@@ -900,8 +902,8 @@ class CalendarModal extends HTMLElement {
     );
 
     monthYearButton = /** @type {HTMLButtonElement} */ (this.header.children[0]);
-    previousMonthButton = /** @type {HTMLButtonElement} */ (this.header.children[0]);
-    nextMonthButton = /** @type {HTMLButtonElement} */ (this.header.children[0]);
+    previousMonthButton = /** @type {HTMLButtonElement} */ (this.header.children[1].children[0]);
+    nextMonthButton = /** @type {HTMLButtonElement} */ (this.header.children[0].children[1]);
 
     /** @type {HTMLDivElement} */
     mainPanel = parseHtml(
@@ -985,60 +987,65 @@ class CalendarModal extends HTMLElement {
             const dateElement = parseHtml(`<button class="w-full aspect-square rounded-md"></button>`);
             this.dateElements.push(dateElement);
             this.dateContainer.append(dateElement);
+            createEffect(() => {
+                const isActive = i === this.data.minute;
+                forceToggleClasses(dateElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
+                forceToggleClasses(dateElement, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
+            });
         }
 
         for (var i = 0; i < 24; ++i) {
-            const hourElement = parseHtml(
-                `<button class="w-8 aspect-square rounded-md hover:bg-neutral-200 dark:hover:bg-[#5e5e5e] dark:hover:text-white">
-                    ${i.toString().padStart(2, "0")}
-                </button>`
-            );
+            const hourElement = parseHtml(`<button class="w-8 aspect-square rounded-md">${i.toString().padStart(2, "0")}</button>`);
             this.hourOptionContainer.append(hourElement);
+            createEffect(() => {
+                const isActive = i === this.data.minute;
+                forceToggleClasses(hourElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
+                forceToggleClasses(hourElement, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
+            });
         }
 
         for (var i = 0; i < 60; i += 5) {
-            const minuteElement = parseHtml(
-                `<button class="w-8 aspect-square rounded-md hover:bg-neutral-200 dark:hover:bg-[#5e5e5e] dark:hover:text-white">
-                    ${i.toString().padStart(2, "0")}
-                </button>`
-            );
+            const minuteElement = parseHtml(`<button class="w-8 aspect-square rounded-md">${i.toString().padStart(2, "0")}</button>`);
             this.minuteOptionContainer.append(minuteElement);
+            createEffect(() => {
+                const isActive = i === this.data.minute;
+                forceToggleClasses(minuteElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
+                forceToggleClasses(minuteElement, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
+            });
         }
 
-        for (const month of this.monthStrings) {
+        for (const [index, month] of this.monthStrings.entries()) {
             const monthElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center">${month.slice(0, 3)}</button>`);
             this.monthOptionContainer.append(monthElement);
+            createEffect(() => {
+                const isActive = index === this.data.activeMonth;
+                forceToggleClasses(monthElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
+                forceToggleClasses(monthElement, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
+            });
         }
 
         for (var i = 0; i < 8; ++i) {
             const yearElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center"></button>`);
             this.yearElements.push(yearElement);
             this.yearOptionContainer.append(yearElement);
+            createEffect(() => {
+                const isActive = +yearElement.textContent === this.data.activeYear;
+                forceToggleClasses(yearElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
+                forceToggleClasses(yearElement, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
+            });
         }
 
         createEffect(() => {
-            const month = this.data.internalDate.getMonth();
-            this.monthYearButton.children[0].textContent = `${this.monthStrings[month]} ${this.data.internalDate.getFullYear()}`;
+            this.data.year = this.data.internalDate.getFullYear();
+            this.data.month = this.data.internalDate.getMonth();
+            this.data.day = this.data.internalDate.getDate();
+            this.data.hour = this.data.internalDate.getHours();
+            this.data.minute = this.data.internalDate.getMinutes();
+            this.monthYearButton.children[0].textContent = `${this.monthStrings[this.data.month]} ${this.data.year}`;
         });
 
         createEffect(() => (this.hourInput.value = this.data.hour.toString().padStart(2, "0")));
         createEffect(() => (this.minuteInput.value = this.data.minute.toString().padStart(2, "0")));
-
-        createEffect(() =>
-            Array.from(this.monthOptionContainer.children).forEach((el, index) => {
-                const isActive = index === this.data.activeMonth;
-                forceToggleClasses(el, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
-                forceToggleClasses(el, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
-            })
-        );
-
-        createEffect(() =>
-            this.yearElements.forEach((el) => {
-                const isActive = +el.textContent === this.data.activeYear;
-                forceToggleClasses(el, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
-                forceToggleClasses(el, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
-            })
-        );
 
         this.append(this.header, this.mainPanel, this.footer, this.monthYearPanel);
     }
@@ -1053,18 +1060,18 @@ class CalendarModal extends HTMLElement {
 
         addEvents(this.hourInput, "keydown", (/** @type {KeyboardEvent} */ e) => this.handleHourChange(e));
         addEvents(this.hourInput, "focus", () => (this.hourOptionContainer.style.display = ""));
-        addEvents(this.hourButtonContainer.children[0], "click", () => this.data.hour++);
-        addEvents(this.hourButtonContainer.children[1], "click", () => this.data.hour--);
+        addEvents(this.hourButtonContainer.children[0], "click", () => (this.data.hour++ === 23 ? (this.data.hour = 0) : null));
+        addEvents(this.hourButtonContainer.children[1], "click", () => (this.data.hour-- === 0 ? (this.data.hour = 23) : null));
         Array.from(this.hourOptionContainer.children).forEach((el) => {
-            addEvents(el, "click", () => (this.hourInput.value = el.textContent));
+            addEvents(el, "click", () => (this.data.hour = +el.textContent));
         });
 
         addEvents(this.minuteInput, "keydown", () => this.handleHourChange());
         addEvents(this.minuteInput, "focus", () => (this.minuteOptionContainer.style.display = ""));
-        addEvents(this.minuteButtonContainer.children[0], "click", () => this.data.minute++);
-        addEvents(this.minuteButtonContainer.children[1], "click", () => this.data.minute--);
+        addEvents(this.minuteButtonContainer.children[0], "click", () => (this.data.minute++ === 59 ? (this.data.minute = 0) : null));
+        addEvents(this.minuteButtonContainer.children[1], "click", () => (this.data.minute-- === 0 ? (this.data.minute = 59) : null));
         Array.from(this.minuteOptionContainer.children).forEach((el) => {
-            addEvents(el, "click", () => (this.minuteInput.value = el.textContent));
+            addEvents(el, "click", () => (this.data.minute = +el.textContent));
         });
 
         addEvents(this.footer.children[0], "click", () => this.clearValue());
@@ -1086,25 +1093,7 @@ class CalendarModal extends HTMLElement {
         addEvents(this.monthYearFooter.children[0], "click", () => this.handleDateChange());
         addEvents(this.monthYearFooter.children[1], "click", () => (this.monthYearPanel.style.display = "none"));
 
-        addEvents(window, "pointerdown", (/** @type {MouseEvent} */ e) => {
-            const target = /** @type {Node} */ (e.target);
-            if (!this.contains(target)) {
-                this.style.display = "none";
-            }
-
-            if (!this.monthYearPanel.contains(target)) {
-                this.monthYearPanel.style.display = "none";
-            }
-
-            if (!this.hourOptionContainer.contains(target)) {
-                this.hourOptionContainer.style.display = "none";
-            }
-
-            if (!this.minuteOptionContainer.contains(target)) {
-                this.minuteOptionContainer.style.display = "none";
-            }
-        });
-
+        addClickOutsideEvent([this, this.monthYearPanel, this.hourOptionContainer, this.minuteOptionContainer]);
         this.populateCalendarDays();
     }
 
@@ -1123,43 +1112,12 @@ class CalendarModal extends HTMLElement {
     clearValue() {
         this.handleDateChange(new Date());
         this.showCalendar = false;
-        this.value = "";
+        this.refElement.value = "";
     }
 
     setToday() {
         const today = new Date();
         this.onDateChange(today);
-    }
-
-    populateCalendarDays(/** @type {Date} */ date) {
-        let firstDay = -new Date(this.data.year, this.data.month, 1).getDay();
-
-        for (const dateElement of this.dateElements) {
-            let newDate = new Date(this.data.year, this.data.month, ++firstDay);
-            const outsideMonth = this.data.month !== newDate.getMonth();
-            const today = !outsideMonth && this.data.day === newDate.getDate();
-            const thisMonth = !outsideMonth && !today;
-
-            forceToggleClasses(dateElement, outsideMonth, "text-[#333]/50", "dark:text-white/40");
-            forceToggleClasses(dateElement, today, "font-semibold", "bg-sky-500/20", "text-sky-500");
-            forceToggleClasses(dateElement, thisMonth, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
-            dateElement.textContent = newDate.getDate().toString();
-            dateElement.dataset.date = newDate.toLocaleDateString();
-        }
-
-        this.updateYears(this.data.year);
-    }
-
-    /** @param {number} year */
-    updateYears(year) {
-        let startYear = year - 3;
-        for (const yearElement of this.yearElements) {
-            const isActive = startYear === this.data.activeYear;
-            forceToggleClasses(yearElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
-            forceToggleClasses(yearElement, isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
-
-            yearElement.textContent = (startYear++).toString();
-        }
     }
 
     handleDateChange(/** @type {Date} */ date) {
@@ -1171,6 +1129,26 @@ class CalendarModal extends HTMLElement {
         this.data.minute = date.getMinutes();
 
         this.populateCalendarDays(date);
+    }
+
+    populateCalendarDays(/** @type {Date} */ date) {
+        let firstDay = -new Date(this.data.year, this.data.month, 1).getDay();
+
+        for (const dateElement of this.dateElements) {
+            let newDate = new Date(this.data.year, this.data.month, ++firstDay);
+            dateElement.textContent = newDate.getDate().toString();
+            dateElement.dataset.date = newDate.toLocaleDateString();
+        }
+
+        this.updateYears(this.data.year);
+    }
+
+    /** @param {number} year */
+    updateYears(year) {
+        let startYear = year - 3;
+        for (const yearElement of this.yearElements) {
+            yearElement.textContent = (startYear++).toString();
+        }
     }
 
     getNextMonth() {
@@ -1186,7 +1164,7 @@ class CalendarModal extends HTMLElement {
         e.stopPropagation();
         e.stopImmediatePropagation();
 
-        if (e.deltaY === 0) {
+        if (e.deltaY < 60) {
             return;
         }
 
@@ -1308,10 +1286,36 @@ class DateTimeFormField extends FormFieldBase {
     }
 
     setup() {
-        addEvents(this.input.children[1], "click", (/** @type {MouseEvent} */ e) => {
+        addEvents(this.internalInput, "change", () => this.parseDate(this.internalInput.value));
+        addEvents(this.button, "click", (/** @type {MouseEvent} */ e) => {
             e.stopPropagation();
             this.calendar.open();
         });
+    }
+
+    /** @param {string} dateStr */
+    parseDate(dateStr) {
+        let date = new Date();
+        let matches;
+
+        if ((matches = dateStr.match(/^(1[0-2]|0?[1-9])([\/\-. ])?(3[01]|[12][0-9]|0?[1-9])\2(19[0-9]{2}|2[0-9]{3}|[0-9]{2})/))) {
+            let [_1, month, _2, day, year] = matches;
+            if (matches[4].length === 2) {
+                const currentYear = date.getFullYear().toString();
+                year = (currentYear.slice(2) < matches[4] ? (date.getFullYear() - 100).toString() : currentYear).slice(0, 2) + matches[4];
+            }
+            date.setFullYear(year ? +year : date.getFullYear());
+            date.setMonth(month ? +month - 1 : date.getMonth());
+            date.setDate(day ? +day : date.getDate());
+        }
+
+        if ((matches = dateStr.match(/,? +(2[0-3]|1[0-9]|0?[0-9]):?([0-5][0-9])/))) {
+            const [_, hours, minutes] = matches;
+            date.setHours(hours ? +hours : date.getHours());
+            date.setMinutes(minutes ? +minutes : date.getMinutes());
+        }
+
+        return date.toString() !== "Invalid Date" ? date : null;
     }
 }
 
