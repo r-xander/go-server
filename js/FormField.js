@@ -899,8 +899,12 @@ class CalendarModal extends HTMLElement {
         </div>`
     );
 
+    monthYearButton = /** @type {HTMLButtonElement} */ (this.header.children[0]);
+    previousMonthButton = /** @type {HTMLButtonElement} */ (this.header.children[0]);
+    nextMonthButton = /** @type {HTMLButtonElement} */ (this.header.children[0]);
+
     /** @type {HTMLDivElement} */
-    datePanel = parseHtml(
+    mainPanel = parseHtml(
         `<div class="p-3">
             <div class="grid grid-cols-7 gap-0.5 w-60 mb-1 items-center justify-items-center font-mono"></div>
             <div class="flex relative items-center justify-center mt-3">
@@ -921,6 +925,15 @@ class CalendarModal extends HTMLElement {
             </div>
         </div>`
     );
+
+    dateContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[0]);
+    timeContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[1]);
+    hourInput = /** @type {HTMLInputElement} */ (this.mainPanel.children[1].children[1]);
+    hourButtonContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[1].children[2]);
+    hourOptionContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[1].children[3]);
+    minuteInput = /** @type {HTMLInputElement} */ (this.mainPanel.children[1].children[5]);
+    minuteButtonContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[1].children[6]);
+    minuteOptionContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[1].children[7]);
 
     /** @type {HTMLDivElement} */
     footer = parseHtml(
@@ -951,6 +964,11 @@ class CalendarModal extends HTMLElement {
         </div>`
     );
 
+    monthOptionContainer = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[0]);
+    yearButtonContainer = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[1]);
+    yearOptionContainer = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[2]);
+    monthYearFooter = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[3]);
+
     constructor() {
         super();
 
@@ -960,13 +978,13 @@ class CalendarModal extends HTMLElement {
 
         for (const day of this.days) {
             const dayElement = parseHtml(`<span class="w-full text-center font-bold">${day}</span>`);
-            this.datePanel.children[0].append(dayElement);
+            this.dateContainer.append(dayElement);
         }
 
         for (var i = 0; i < 42; ++i) {
             const dateElement = parseHtml(`<button class="w-full aspect-square rounded-md"></button>`);
             this.dateElements.push(dateElement);
-            this.datePanel.children[0].append(dateElement);
+            this.dateContainer.append(dateElement);
         }
 
         for (var i = 0; i < 24; ++i) {
@@ -975,7 +993,7 @@ class CalendarModal extends HTMLElement {
                     ${i.toString().padStart(2, "0")}
                 </button>`
             );
-            this.datePanel.children[1].children[3].append(hourElement);
+            this.hourOptionContainer.append(hourElement);
         }
 
         for (var i = 0; i < 60; i += 5) {
@@ -984,33 +1002,31 @@ class CalendarModal extends HTMLElement {
                     ${i.toString().padStart(2, "0")}
                 </button>`
             );
-            this.datePanel.children[1].children[7].append(minuteElement);
+            this.minuteOptionContainer.append(minuteElement);
         }
 
         for (const month of this.monthStrings) {
             const monthElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center">${month.slice(0, 3)}</button>`);
-            this.monthYearPanel.children[0].append(monthElement);
+            this.monthOptionContainer.append(monthElement);
         }
 
         for (var i = 0; i < 8; ++i) {
             const yearElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center"></button>`);
             this.yearElements.push(yearElement);
-            this.monthYearPanel.children[2].append(yearElement);
+            this.yearOptionContainer.append(yearElement);
         }
 
         createEffect(() => {
             const month = this.data.internalDate.getMonth();
-            this.header.children[0].children[0].textContent = `${this.monthStrings[month]} ${this.data.internalDate.getFullYear()}`;
+            this.monthYearButton.children[0].textContent = `${this.monthStrings[month]} ${this.data.internalDate.getFullYear()}`;
         });
 
-        const hourInput = /** @type {HTMLInputElement} */ (this.datePanel.children[1].children[1]);
-        const minuteInput = /** @type {HTMLInputElement} */ (this.datePanel.children[1].children[5]);
-        createEffect(() => (hourInput.value = this.data.hour.toString().padStart(2, "0")));
-        createEffect(() => (minuteInput.value = this.data.minute.toString().padStart(2, "0")));
+        createEffect(() => (this.hourInput.value = this.data.hour.toString().padStart(2, "0")));
+        createEffect(() => (this.minuteInput.value = this.data.minute.toString().padStart(2, "0")));
 
         createEffect(() =>
-            Array.from(this.monthYearPanel.children[0].children).forEach((el) => {
-                const isActive = +el.textContent === this.data.activeMonth;
+            Array.from(this.monthOptionContainer.children).forEach((el, index) => {
+                const isActive = index === this.data.activeMonth;
                 forceToggleClasses(el, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
                 forceToggleClasses(el, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
             })
@@ -1024,69 +1040,68 @@ class CalendarModal extends HTMLElement {
             })
         );
 
-        this.append(this.header, this.datePanel, this.footer, this.monthYearPanel);
+        this.append(this.header, this.mainPanel, this.footer, this.monthYearPanel);
     }
 
     connectedCallback() {
-        addEvents(this.header.children[0], "click", () => (this.monthYearPanel.style.display = ""));
-        addEvents(this.header.children[1].children[0], "click", () => this.getPrevMonth());
-        addEvents(this.header.children[1].children[1], "click", () => this.getNextMonth());
+        addEvents(this.monthYearButton, "click", () => (this.monthYearPanel.style.display = ""));
+        addEvents(this.previousMonthButton, "click", () => this.getPrevMonth());
+        addEvents(this.nextMonthButton, "click", () => this.getNextMonth());
 
-        addEvents(this.datePanel.children[0], "wheel", (/** @type {WheelEvent} */ e) => this.changeMonthOnWheel(e));
-        addEvents(this.datePanel.children[1].children[1], "keydown", (/** @type {KeyboardEvent} */ e) => this.handleHourChange(e));
-        //@ts-ignore
-        addEvents(this.datePanel.children[1].children[1], "focus", () => (this.datePanel.children[1].children[3].style.display = ""));
-        addEvents(this.datePanel.children[1].children[2].children[0], "click", () => this.data.hour++);
-        addEvents(this.datePanel.children[1].children[2].children[1], "click", () => this.data.hour--);
-        addEvents(this.datePanel.children[1].children[5], "keydown", () => this.handleHourChange());
-        //@ts-ignore
-        addEvents(this.datePanel.children[1].children[5], "focus", () => (this.datePanel.children[1].children[7].style.display = ""));
-        addEvents(this.datePanel.children[1].children[6].children[0], "click", () => this.data.minute++);
-        addEvents(this.datePanel.children[1].children[6].children[1], "click", () => this.data.minute--);
-
+        addEvents(this.dateContainer, "wheel", (/** @type {WheelEvent} */ e) => this.changeMonthOnWheel(e));
         this.dateElements.forEach((el) => addEvents(el, "click", () => this.onDateChange(new Date(el.dataset.date))));
-        this.yearElements.forEach((el) => {
-            addEvents(el, "click", () => (this.data.activeYear = +el.textContent));
-            addEvents(el, "dblclick", () => this.onDateChange(new Date(+el.textContent, this.data.activeMonth, this.data.day)));
+
+        addEvents(this.hourInput, "keydown", (/** @type {KeyboardEvent} */ e) => this.handleHourChange(e));
+        addEvents(this.hourInput, "focus", () => (this.hourOptionContainer.style.display = ""));
+        addEvents(this.hourButtonContainer.children[0], "click", () => this.data.hour++);
+        addEvents(this.hourButtonContainer.children[1], "click", () => this.data.hour--);
+        Array.from(this.hourOptionContainer.children).forEach((el) => {
+            addEvents(el, "click", () => (this.hourInput.value = el.textContent));
         });
 
-        Array.from(this.datePanel.children[1].children[3].children).forEach((el) => {
-            addEvents(el, "click", () => (this.datePanel.children[1].children[1].textContent = el.textContent));
-        });
-
-        Array.from(this.datePanel.children[1].children[7].children).forEach((el) => {
-            addEvents(el, "click", () => (this.datePanel.children[1].children[5].textContent = el.textContent));
+        addEvents(this.minuteInput, "keydown", () => this.handleHourChange());
+        addEvents(this.minuteInput, "focus", () => (this.minuteOptionContainer.style.display = ""));
+        addEvents(this.minuteButtonContainer.children[0], "click", () => this.data.minute++);
+        addEvents(this.minuteButtonContainer.children[1], "click", () => this.data.minute--);
+        Array.from(this.minuteOptionContainer.children).forEach((el) => {
+            addEvents(el, "click", () => (this.minuteInput.value = el.textContent));
         });
 
         addEvents(this.footer.children[0], "click", () => this.clearValue());
         addEvents(this.footer.children[1], "click", () => this.setToday());
         addEvents(this.footer.children[2], "click", () => (this.style.display = "none"));
 
-        addEvents(this.monthYearPanel.children[1].children[0], "click", () => this.updateYears(this.data.activeYear + 1));
-        addEvents(this.monthYearPanel.children[1].children[1], "click", () => this.updateYears(this.data.activeYear - 1));
-        addEvents(this.monthYearPanel.children[3].children[0], "click", () => this.handleDateChange());
-        addEvents(this.monthYearPanel.children[3].children[1], "click", () => (this.monthYearPanel.style.display = "none"));
-
-        Array.from(this.monthYearPanel.children[0].children).forEach((/** @type {HTMLElement} */ el, index) => {
+        Array.from(this.monthOptionContainer.children).forEach((/** @type {HTMLElement} */ el, index) => {
             addEvents(el, "click", () => (this.data.activeMonth = index));
             addEvents(el, "dblclick", () => this.onDateChange(new Date(this.data.activeYear, index, this.data.day)));
         });
 
-        addEvents(window, "click", (/** @type {MouseEvent} */ e) => {
-            if (!this.contains(/** @type {Node} */ (e.target))) {
+        addEvents(this.yearButtonContainer.children[0], "click", () => this.updateYears(this.data.activeYear + 1));
+        addEvents(this.yearButtonContainer.children[1], "click", () => this.updateYears(this.data.activeYear - 1));
+        this.yearElements.forEach((el) => {
+            addEvents(el, "click", () => (this.data.activeYear = +el.textContent));
+            addEvents(el, "dblclick", () => this.onDateChange(new Date(+el.textContent, this.data.activeMonth, this.data.day)));
+        });
+
+        addEvents(this.monthYearFooter.children[0], "click", () => this.handleDateChange());
+        addEvents(this.monthYearFooter.children[1], "click", () => (this.monthYearPanel.style.display = "none"));
+
+        addEvents(window, "pointerdown", (/** @type {MouseEvent} */ e) => {
+            const target = /** @type {Node} */ (e.target);
+            if (!this.contains(target)) {
                 this.style.display = "none";
             }
 
-            if (!this.monthYearPanel.contains(/** @type {Node} */ (e.target))) {
+            if (!this.monthYearPanel.contains(target)) {
                 this.monthYearPanel.style.display = "none";
             }
 
-            if (!this.datePanel.children[1].children[3].contains(/** @type {Node} */ (e.target))) {
-                /** @type {HTMLElement} */ (this.datePanel.children[1].children[3]).style.display = "none";
+            if (!this.hourOptionContainer.contains(target)) {
+                this.hourOptionContainer.style.display = "none";
             }
 
-            if (!this.datePanel.children[1].children[7].contains(/** @type {Node} */ (e.target))) {
-                /** @type {HTMLElement} */ (this.datePanel.children[1].children[7]).style.display = "none";
+            if (!this.minuteOptionContainer.contains(target)) {
+                this.minuteOptionContainer.style.display = "none";
             }
         });
 
@@ -1100,16 +1115,8 @@ class CalendarModal extends HTMLElement {
      */
     attributeChangedCallback(attribute, oldValue, newValue) {
         if (attribute === "type") {
-            if (newValue === "date") {
-                /** @type {HTMLElement} */ (this.datePanel.children[0]).style.display = "";
-                /** @type {HTMLElement} */ (this.datePanel.children[1]).style.display = "none";
-            } else if (newValue == "time") {
-                /** @type {HTMLElement} */ (this.datePanel.children[0]).style.display = "none";
-                /** @type {HTMLElement} */ (this.datePanel.children[1]).style.display = "";
-            } else {
-                /** @type {HTMLElement} */ (this.datePanel.children[0]).style.display = "";
-                /** @type {HTMLElement} */ (this.datePanel.children[1]).style.display = "";
-            }
+            this.dateContainer.style.display = newValue == "time" ? "none" : "";
+            this.timeContainer.style.display = newValue === "date" ? "none" : "";
         }
     }
 
