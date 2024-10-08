@@ -277,6 +277,7 @@ input::placeholder,
 textarea::placeholder {
     color: #bebebe;
     font-weight: 400;
+    user-select: none;
 }
 
 ::-webkit-datetime-edit-fields-wrapper {
