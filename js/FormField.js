@@ -845,8 +845,6 @@ class CalculationFormField extends FormFieldBase {
 
 class CalendarModal extends HTMLElement {
     today = new Date();
-    value = "";
-
     days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     monthStrings = [
         "January",
@@ -866,7 +864,7 @@ class CalendarModal extends HTMLElement {
     dateElements = /** @type {HTMLButtonElement[]} */ ([]);
     yearElements = /** @type {HTMLButtonElement[]} */ ([]);
 
-    /** @type {HTMLInputElement} */
+    /** @type {DateTimeFormField} */
     refElement;
 
     /** @type {import("../types").CalendarAttributes} */
@@ -975,8 +973,7 @@ class CalendarModal extends HTMLElement {
         super();
 
         this.style.display = "none";
-        this.className =
-            "absolute right-0 z-50 w-max flex flex-col text-sm items-center rounded select-none shadow-lg border bg-white dark:bg-[#434343]";
+        this.className = "absolute z-50 w-max text-sm rounded select-none shadow-lg border bg-white dark:bg-[#434343]";
 
         for (const day of this.days) {
             const dayElement = parseHtml(`<span class="w-full text-center font-bold">${day}</span>`);
@@ -988,7 +985,8 @@ class CalendarModal extends HTMLElement {
             this.dateElements.push(dateElement);
             this.dateContainer.append(dateElement);
             createEffect(() => {
-                const isActive = i === this.data.minute;
+                const date = new Date(/** @type {HTMLButtonElement} */ (dateElement).dataset.date);
+                const isActive = date.getDate() === this.data.day && date.getMonth() === this.data.month;
                 forceToggleClasses(dateElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
                 forceToggleClasses(dateElement, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
             });
@@ -998,7 +996,7 @@ class CalendarModal extends HTMLElement {
             const hourElement = parseHtml(`<button class="w-8 aspect-square rounded-md">${i.toString().padStart(2, "0")}</button>`);
             this.hourOptionContainer.append(hourElement);
             createEffect(() => {
-                const isActive = i === this.data.minute;
+                const isActive = i === this.data.hour;
                 forceToggleClasses(hourElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
                 forceToggleClasses(hourElement, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
             });
@@ -1042,6 +1040,7 @@ class CalendarModal extends HTMLElement {
             this.data.hour = this.data.internalDate.getHours();
             this.data.minute = this.data.internalDate.getMinutes();
             this.monthYearButton.children[0].textContent = `${this.monthStrings[this.data.month]} ${this.data.year}`;
+            this.populateCalendarDays();
         });
 
         createEffect(() => (this.hourInput.value = this.data.hour.toString().padStart(2, "0")));
@@ -1056,7 +1055,7 @@ class CalendarModal extends HTMLElement {
         addEvents(this.nextMonthButton, "click", () => this.getNextMonth());
 
         addEvents(this.dateContainer, "wheel", (/** @type {WheelEvent} */ e) => this.changeMonthOnWheel(e));
-        this.dateElements.forEach((el) => addEvents(el, "click", () => this.onDateChange(new Date(el.dataset.date))));
+        this.dateElements.forEach((el) => addEvents(el, "click", () => this.handleDateSelection(new Date(el.dataset.date))));
 
         addEvents(this.hourInput, "keydown", (/** @type {KeyboardEvent} */ e) => this.handleHourChange(e));
         addEvents(this.hourInput, "focus", () => (this.hourOptionContainer.style.display = ""));
@@ -1066,7 +1065,7 @@ class CalendarModal extends HTMLElement {
             addEvents(el, "click", () => (this.data.hour = +el.textContent));
         });
 
-        addEvents(this.minuteInput, "keydown", () => this.handleHourChange());
+        addEvents(this.minuteInput, "keydown", () => this.handleMinuteChange());
         addEvents(this.minuteInput, "focus", () => (this.minuteOptionContainer.style.display = ""));
         addEvents(this.minuteButtonContainer.children[0], "click", () => (this.data.minute++ === 59 ? (this.data.minute = 0) : null));
         addEvents(this.minuteButtonContainer.children[1], "click", () => (this.data.minute-- === 0 ? (this.data.minute = 59) : null));
@@ -1076,24 +1075,35 @@ class CalendarModal extends HTMLElement {
 
         addEvents(this.footer.children[0], "click", () => this.clearValue());
         addEvents(this.footer.children[1], "click", () => this.setToday());
-        addEvents(this.footer.children[2], "click", () => (this.style.display = "none"));
+        addEvents(this.footer.children[2], "click", () => this.close());
 
         Array.from(this.monthOptionContainer.children).forEach((/** @type {HTMLElement} */ el, index) => {
             addEvents(el, "click", () => (this.data.activeMonth = index));
-            addEvents(el, "dblclick", () => this.onDateChange(new Date(this.data.activeYear, index, this.data.day)));
+            addEvents(el, "dblclick", () => this.handleDateSelection(new Date(this.data.activeYear, index, this.data.day)));
         });
 
         addEvents(this.yearButtonContainer.children[0], "click", () => this.updateYears(this.data.activeYear + 1));
         addEvents(this.yearButtonContainer.children[1], "click", () => this.updateYears(this.data.activeYear - 1));
         this.yearElements.forEach((el) => {
             addEvents(el, "click", () => (this.data.activeYear = +el.textContent));
-            addEvents(el, "dblclick", () => this.onDateChange(new Date(+el.textContent, this.data.activeMonth, this.data.day)));
+            addEvents(el, "dblclick", () => this.handleDateSelection(new Date(+el.textContent, this.data.activeMonth, this.data.day)));
         });
 
         addEvents(this.monthYearFooter.children[0], "click", () => this.handleDateChange());
         addEvents(this.monthYearFooter.children[1], "click", () => (this.monthYearPanel.style.display = "none"));
 
-        addClickOutsideEvent([this, this.monthYearPanel, this.hourOptionContainer, this.minuteOptionContainer]);
+        addEvents(window, "pointerdown", (e) => {
+            const target = /** @type {HTMLElement} */ (e.target);
+            if (!this.contains(target)) {
+                this.close();
+            }
+
+            for (const element of [this.monthYearPanel, this.hourOptionContainer, this.minuteOptionContainer]) {
+                if (!element.contains(target)) {
+                    element.style.display = "none";
+                }
+            }
+        });
         this.populateCalendarDays();
     }
 
@@ -1111,13 +1121,20 @@ class CalendarModal extends HTMLElement {
 
     clearValue() {
         this.handleDateChange(new Date());
-        this.showCalendar = false;
-        this.refElement.value = "";
+        this.refElement.setDate(null);
     }
 
     setToday() {
         const today = new Date();
-        this.onDateChange(today);
+        this.refElement.setDate(today);
+        this.handleDateChange(today);
+        this.close();
+    }
+
+    handleDateSelection(/** @type {Date} */ date) {
+        this.refElement.setDate(date);
+        this.handleDateChange(date ?? new Date());
+        this.monthYearPanel.style.display = "none";
     }
 
     handleDateChange(/** @type {Date} */ date) {
@@ -1127,6 +1144,8 @@ class CalendarModal extends HTMLElement {
         this.data.day = date.getDate();
         this.data.hour = date.getHours();
         this.data.minute = date.getMinutes();
+        this.data.activeYear = date.getFullYear();
+        this.data.activeMonth = date.getMonth();
 
         this.populateCalendarDays(date);
     }
@@ -1170,13 +1189,6 @@ class CalendarModal extends HTMLElement {
 
         const date = new Date(this.data.year, this.data.month + (e.deltaY < 0 ? -1 : 1), this.data.day, this.data.hour, this.data.minute);
         this.handleDateChange(date);
-    }
-
-    onDateChange(/** @type {Date} */ date) {
-        date ??= new Date();
-        this.handleDateChange(date);
-        this.value = this.data.internalDate.toLocaleString("default", { hour12: false }).replace(",", "");
-        this.monthYearPanel.style.display = "none";
     }
 
     handleHourChange(/** @type {KeyboardEvent} */ e) {
@@ -1224,16 +1236,45 @@ class CalendarModal extends HTMLElement {
         this.data.minuteTemp = isFinalKey ? null : key;
     }
 
-    open() {
+    /** @param {DateTimeFormField} el */
+    setActiveElement(el) {
+        this.refElement = el;
+        const rect = el.getBoundingClientRect();
+        const right = Math.max(
+            document.documentElement["clientWidth"],
+            document.body["scrollWidth"],
+            document.documentElement["scrollWidth"],
+            document.body["offsetWidth"],
+            document.documentElement["offsetWidth"]
+        );
+
+        this.style.top = rect.bottom + 8 + "px";
+        this.style.right = right - rect.right + "px";
+    }
+
+    /** @param {Date} date */
+    open(date) {
         this.style.display = "";
+        this.handleDateChange(date ?? new Date());
+        this.refElement.button.inert = true;
+        this.refElement.button.style.visibility = "hidden";
     }
 
     close() {
+        if (!this.refElement) {
+            return;
+        }
+
         this.style.display = "none";
+        this.refElement.button.inert = false;
+        this.refElement.button.style.visibility = "";
+        this.refElement = null;
     }
 }
 
 class DateTimeFormField extends FormFieldBase {
+    static observedAttributes = ["type"];
+
     /** @type {import("../types").DateTimeFormFieldAttributes} */
     data = createReactiveObject({
         id: "",
@@ -1262,13 +1303,17 @@ class DateTimeFormField extends FormFieldBase {
             <button class="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutral-400" tabindex="-1">
                 <svg class="w-5 min-w-5 fill-current"><use href="#calendar-icon" /></svg>
             </button>
-            <calendar-modal></calendar-modal>
         </div>`
     );
 
     internalInput = /** @type {HTMLInputElement} */ (this.input.children[0]);
     button = /** @type {HTMLButtonElement} */ (this.input.children[1]);
-    calendar = /** @type {CalendarModal} */ (this.input.children[2]);
+    calendar = /** @type {CalendarModal} */ (document.querySelector("calendar-modal"));
+
+    date;
+
+    /** @type {Intl.DateTimeFormatOptions} */
+    dateStringOptions;
 
     constructor() {
         super();
@@ -1277,11 +1322,14 @@ class DateTimeFormField extends FormFieldBase {
         createEffect(() => (this.internalInput.placeholder = this.data.placeholder));
         createEffect(() => (this.internalInput.readOnly = this.data.readonly));
         createEffect(() => (this.internalInput.disabled = this.data.disabled));
-
         createEffect(() => {
-            if (!this.data.incudeTime) {
-                this.calendar.setAttribute("type", "date");
-            }
+            const isDateOrDateTime = this.data.type === "date" || this.data.type == "datetime";
+            const isTimeOrDateTime = this.data.type === "time" || this.data.type == "datetime";
+            const dateOptions = isDateOrDateTime ? { year: "numeric", month: "2-digit", day: "2-digit" } : {};
+            const timeOptions = isTimeOrDateTime ? { hour: "2-digit", minute: "2-digit", hour12: false } : {};
+
+            this.dateStringOptions = /** @type {Intl.DateTimeFormatOptions} */ ({ ...dateOptions, ...timeOptions });
+            this.calendar.setAttribute("type", this.data.type);
         });
     }
 
@@ -1289,7 +1337,8 @@ class DateTimeFormField extends FormFieldBase {
         addEvents(this.internalInput, "change", () => this.parseDate(this.internalInput.value));
         addEvents(this.button, "click", (/** @type {MouseEvent} */ e) => {
             e.stopPropagation();
-            this.calendar.open();
+            this.calendar.setActiveElement(this);
+            this.calendar.open(this.date);
         });
     }
 
@@ -1301,8 +1350,7 @@ class DateTimeFormField extends FormFieldBase {
         if ((matches = dateStr.match(/^(1[0-2]|0?[1-9])([\/\-. ])?(3[01]|[12][0-9]|0?[1-9])\2(19[0-9]{2}|2[0-9]{3}|[0-9]{2})/))) {
             let [_1, month, _2, day, year] = matches;
             if (matches[4].length === 2) {
-                const currentYear = date.getFullYear().toString();
-                year = (currentYear.slice(2) < matches[4] ? (date.getFullYear() - 100).toString() : currentYear).slice(0, 2) + matches[4];
+                year = date.getFullYear().toString().slice(0, 2) + matches[4];
             }
             date.setFullYear(year ? +year : date.getFullYear());
             date.setMonth(month ? +month - 1 : date.getMonth());
@@ -1315,7 +1363,14 @@ class DateTimeFormField extends FormFieldBase {
             date.setMinutes(minutes ? +minutes : date.getMinutes());
         }
 
-        return date.toString() !== "Invalid Date" ? date : null;
+        this.date = date.toString() !== "Invalid Date" ? date : null;
+        this.internalInput.value = this.date ? date.toLocaleString("default", this.dateStringOptions).replace(",", "") : "";
+    }
+
+    /** @param {Date} date */
+    setDate(date) {
+        this.date = date;
+        this.internalInput.value = this.date ? date.toLocaleString("default", this.dateStringOptions).replace(",", "") : "";
     }
 }
 
