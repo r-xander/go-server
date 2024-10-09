@@ -3786,7 +3786,6 @@ type MapAttributes = {
 }
 
 type CalendarAttributes = {
-    internalDate: Date;
     year: number;
     month: number;
     day: number;

@@ -192,11 +192,11 @@ class ContainerHighlight extends HTMLElement {
     /** @type {HTMLElement} */
     buttonBlock = parseHtml(
         `<div class="absolute -right-px bottom-full flex gap-1">
-            <button class="w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
-                <svg class="aspect-square fill-current [fill-rule:evenodd] [clip-rule:evenodd]"><use href="#copy-icon" /></svg>
+            <button class="p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
+                <svg class="w-5 h-5 fill-current [fill-rule:evenodd] [clip-rule:evenodd]"><use href="#copy-icon" /></svg>
             </button>
-            <button class="w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
-                <svg class="aspect-square fill-current"><use href="#delete-icon" /></svg>
+            <button class="p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
+                <svg class="w-5 h-5 fill-current"><use href="#delete-icon" /></svg>
             </button>
         </div>`
     );
@@ -638,7 +638,7 @@ class MapModal extends HTMLElement {
             <div class="relative flex px-4 py-2 -mx-4 -mt-4">
                 <h2>Select a Location</h2>
                 <button class="absolute right-4 p-1 rounded hover:bg-gray-100 dark:hover:bg-accent-dark dark:hover:text-white">
-                    <svg viewBox="0 0 1024 1024" class="w-4 h-4 fill-current [fill-rule:evenodd]"><use href="#close-icon" /></svg>
+                    <svg class="w-4 h-4 fill-current [fill-rule:evenodd]"><use href="#close-icon" /></svg>
                 </button>
             </div>
             <div id="map-popup" class="flex-1 h-full rounded border-2 border-black/20 dark:border-[#73737366] dark:!bg-[#121212]"></div>
@@ -767,8 +767,8 @@ class LocationFormField extends FormFieldBase {
     /** @type {HTMLDivElement} */
     input = parseHtml(
         `<div class="relative grid grid-cols-3 gap-1.5">
-            <button class="absolute w-5 h-5 top-1.5 right-2.5 mt-px text-neutral-400 hover:text-neutral-400 dark:text-neutral-400/80" tabindex="-1">
-                <svg class="aspect-square fill-current [fill-rule:evenodd] [clip-rule:evenodd]"><use href="#location-icon" /></svg>
+            <button class="absolute top-1.5 right-2.5 mt-px text-neutral-400 hover:text-neutral-400 dark:text-neutral-400/80" tabindex="-1">
+                <svg class="w-5 h-5 fill-none stroke-current stroke-[3rem]"><use href="#location-icon" /></svg>
             </button>
             <input type="text" class="col-span-full" style="padding-right: 3.25rem" />
         </div>`
@@ -842,6 +842,8 @@ class CalculationFormField extends FormFieldBase {
 }
 
 class CalendarModal extends HTMLElement {
+    static observedAttributes = ["type"];
+
     today = new Date();
     days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     monthStrings = [
@@ -867,7 +869,6 @@ class CalendarModal extends HTMLElement {
 
     /** @type {import("../types").CalendarAttributes} */
     data = createReactiveObject({
-        internalDate: this.today,
         year: this.today.getFullYear(),
         month: this.today.getMonth(),
         day: this.today.getDate(),
@@ -875,22 +876,26 @@ class CalendarModal extends HTMLElement {
         minute: this.today.getMinutes(),
         activeYear: this.today.getFullYear(),
         activeMonth: this.today.getMonth(),
-        hourTemp: null,
-        minuteTemp: null,
+        hourTemp: "",
+        minuteTemp: "",
     });
+
+    get internalDate() {
+        return new Date(this.data.year, this.data.month, this.data.day, this.data.hour, this.data.minute);
+    }
 
     /** @type {HTMLDivElement} */
     header = parseHtml(
         `<div class="flex w-full items-center justify-between p-3 border-b border-neutral-200 text-neutral-500 dark:border-[#5e5e5e] dark:text-white/75">
-            <button class="flex items-center gap-1 font-bold hover:text-neutral-800 dark:hover:text-white">
+            <button class="flex items-center gap-1 font-bold hover:text-neutral-800 dark:hover:text-white" tabindex="-1">
                 <span></span>
                 <svg class="w-4 h-4 fill-current"><use href="#caretdown-icon" /></svg>
             </button>
             <div class="flex gap-1">
-                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
+                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" tabindex="-1">
                     <svg class="w-4 h-4 fill-current"><use href="#caretleft-icon" /></svg>
                 </button>
-                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
+                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" tabindex="-1">
                     <svg class="w-4 h-4 fill-current"><use href="#caretright-icon" /></svg>
                 </button>
             </div>
@@ -899,7 +904,7 @@ class CalendarModal extends HTMLElement {
 
     monthYearButton = /** @type {HTMLButtonElement} */ (this.header.children[0]);
     previousMonthButton = /** @type {HTMLButtonElement} */ (this.header.children[1].children[0]);
-    nextMonthButton = /** @type {HTMLButtonElement} */ (this.header.children[0].children[1]);
+    nextMonthButton = /** @type {HTMLButtonElement} */ (this.header.children[1].children[1]);
 
     /** @type {HTMLDivElement} */
     mainPanel = parseHtml(
@@ -912,14 +917,12 @@ class CalendarModal extends HTMLElement {
                     <button tabindex="-1"><svg class="w-4 h-4 fill-current rotate-180"><use href="#caretup-icon" /></svg></button>
                     <button tabindex="-1"><svg class="w-4 h-4 fill-current"><use href="#caretdown-icon" /></svg></button>
                 </div>
-                <div style="display: none;" class="invisible absolute bottom-[calc(100%+0.25rem)] left-0 grid w-max grid-cols-4 justify-items-center gap-2 p-4 rounded shadow-lg bg-white dark:bg-neutral-600"></div>
                 <span class="mx-2">:</span>
                 <input type="text" class="w-10 hide-arrows text-center" />
                 <div class="grid gap-y-1 ml-1">
                     <button tabindex="-1"><svg class="w-4 h-4 fill-current rotate-180"><use href="#caretup-icon" /></svg></button>
                     <button tabindex="-1"><svg class="w-4 h-4 fill-current"><use href="#caretdown-icon" /></svg></button>
                 </div>
-                <div style="display: none;" class="invisible absolute bottom-[calc(100%+0.25rem)] right-0 grid w-max grid-cols-4 justify-items-center gap-2 p-4 rounded shadow-lg bg-white dark:bg-neutral-600"></div>
             </div>
         </div>`
     );
@@ -928,17 +931,15 @@ class CalendarModal extends HTMLElement {
     timeContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[1]);
     hourInput = /** @type {HTMLInputElement} */ (this.mainPanel.children[1].children[1]);
     hourButtonContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[1].children[2]);
-    hourOptionContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[1].children[3]);
-    minuteInput = /** @type {HTMLInputElement} */ (this.mainPanel.children[1].children[5]);
-    minuteButtonContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[1].children[6]);
-    minuteOptionContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[1].children[7]);
+    minuteInput = /** @type {HTMLInputElement} */ (this.mainPanel.children[1].children[4]);
+    minuteButtonContainer = /** @type {HTMLDivElement} */ (this.mainPanel.children[1].children[5]);
 
     /** @type {HTMLDivElement} */
     footer = parseHtml(
         `<div class="flex justify-around w-full border-t border-neutral-200 dark:border-[#5e5e5e]">
-            <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white">Clear</button>
-            <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white">Today</button>
-            <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white">Close</button>
+            <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white" tabindex="-1">Clear</button>
+            <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white" tabindex="-1">Today</button>
+            <button class="w-full p-3 hover:bg-neutral-200 hover:text-neutral-800 dark:hover:bg-[#5e5e5e] hover:dark:text-white" tabindex="-1">Accept</button>
         </div>`
     );
 
@@ -947,17 +948,17 @@ class CalendarModal extends HTMLElement {
         `<div style="display: none;" class="absolute z-[100] flex inset-0 flex-col rounded bg-white dark:bg-neutral-800">
             <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4 border-b dark:border-neutral-700"></div>
             <div class="flex justify-center gap-1 mt-4">
-                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
+                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" tabindex="-1">
                     <svg class="w-4 h-4 fill-current"><use href="#caretleft-icon" /></svg>
                 </button>
-                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white">
+                <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" tabindex="-1">
                     <svg class="w-4 h-4 fill-current"><use href="#caretright-icon" /></svg>
                 </button>
             </div>
             <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4"></div>
             <div class="mt-auto flex h-12 w-full divide-x border-t dark:divide-neutral-700 dark:border-neutral-700">
-                <button class="flex-1 font-bold">OK</button>
-                <button class="flex-1 font-bold">Cancel</button>
+                <button class="flex-1 font-bold" tabindex="-1">OK</button>
+                <button class="flex-1 font-bold" tabindex="-1">Cancel</button>
             </div>
         </div>`
     );
@@ -972,7 +973,8 @@ class CalendarModal extends HTMLElement {
 
         this.tabIndex = 0;
         this.style.display = "none";
-        this.className = "absolute z-50 w-max text-sm rounded select-none outline-none shadow-lg border bg-white dark:bg-[#434343]";
+        this.className =
+            "absolute z-50 w-max p-0 text-sm rounded select-none outline-none shadow-lg border bg-white dark:bg-[#434343] dark:border-transparent";
         this.append(this.header, this.mainPanel, this.footer, this.monthYearPanel);
 
         for (const day of this.days) {
@@ -981,7 +983,9 @@ class CalendarModal extends HTMLElement {
         }
 
         for (var i = 0; i < 42; ++i) {
-            const dateElement = /** @type {HTMLButtonElement} */ (parseHtml(`<button class="w-full aspect-square rounded-md"></button>`));
+            const dateElement = /** @type {HTMLButtonElement} */ (
+                parseHtml(`<button class="w-full aspect-square rounded-md" tabindex="-1"></button>`)
+            );
             this.dateElements.push(dateElement);
             this.dateContainer.append(dateElement);
             createEffect(() => {
@@ -993,28 +997,10 @@ class CalendarModal extends HTMLElement {
             });
         }
 
-        for (var i = 0; i < 24; ++i) {
-            const hourElement = parseHtml(`<button class="w-8 aspect-square rounded-md">${i.toString().padStart(2, "0")}</button>`);
-            this.hourOptionContainer.append(hourElement);
-            createEffect(() => {
-                const isActive = +hourElement.textContent === this.data.hour;
-                forceToggleClasses(hourElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
-                forceToggleClasses(hourElement, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
-            });
-        }
-
-        for (var i = 0; i < 60; i += 5) {
-            const minuteElement = parseHtml(`<button class="w-8 aspect-square rounded-md">${i.toString().padStart(2, "0")}</button>`);
-            this.minuteOptionContainer.append(minuteElement);
-            createEffect(() => {
-                const isActive = +minuteElement.textContent === this.data.minute;
-                forceToggleClasses(minuteElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
-                forceToggleClasses(minuteElement, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
-            });
-        }
-
         for (const [index, month] of this.monthStrings.entries()) {
-            const monthElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center">${month.slice(0, 3)}</button>`);
+            const monthElement = parseHtml(
+                `<button class="aspect-[2/1] w-full py-1.5 rounded text-center" tabindex="-1">${month.slice(0, 3)}</button>`
+            );
             this.monthContainer.append(monthElement);
             createEffect(() => {
                 const isActive = index === this.data.activeMonth;
@@ -1024,7 +1010,7 @@ class CalendarModal extends HTMLElement {
         }
 
         for (var i = 0; i < 8; ++i) {
-            const yearElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center"></button>`);
+            const yearElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center" tabindex="-1"></button>`);
             this.yearElements.push(yearElement);
             this.yearContainer.append(yearElement);
             createEffect(() => {
@@ -1035,7 +1021,6 @@ class CalendarModal extends HTMLElement {
         }
 
         createEffect(() => this.updateCalendar(new Date(this.data.year, this.data.month, this.data.day, this.data.hour, this.data.minute)));
-        createEffect(() => this.updateCalendar(this.data.internalDate));
         createEffect(() => (this.hourInput.value = this.data.hour.toString().padStart(2, "0")));
         createEffect(() => (this.minuteInput.value = this.data.minute.toString().padStart(2, "0")));
     }
@@ -1047,30 +1032,29 @@ class CalendarModal extends HTMLElement {
 
         addEvents(this.dateContainer, "wheel", (/** @type {WheelEvent} */ e) => this.changeMonthOnWheel(e));
         this.dateElements.forEach((el) =>
-            addEvents(el, "click", () =>
-                this.handleDateSelection(new Date(+el.dataset.year, +el.dataset.month, +el.dataset.day, this.data.hour, this.data.minute))
-            )
+            addEvents(el, "click", () => {
+                this.data.year = +el.dataset.year;
+                this.data.month = +el.dataset.month;
+                this.data.day = +el.dataset.day;
+                this.updateDateTimeInput(this.internalDate);
+            })
         );
 
-        addEvents(this.hourInput, "keydown", (/** @type {KeyboardEvent} */ e) => this.handleHourChange(e));
-        addEvents(this.hourInput, "focus", () => (this.hourOptionContainer.style.display = ""));
+        addEvents(this.hourInput, "focus", () => this.hourInput.select());
+        addEvents(this.hourInput, "keydown", (e) => this.handleHourChange(e));
+        addEvents(this.hourInput, ["input", "change"], (e) => this.handleHourInputEvents(e));
         addEvents(this.hourButtonContainer.children[0], "click", () => (this.data.hour++ === 23 ? (this.data.hour = 0) : null));
         addEvents(this.hourButtonContainer.children[1], "click", () => (this.data.hour-- === 0 ? (this.data.hour = 23) : null));
-        Array.from(this.hourOptionContainer.children).forEach((el) => {
-            addEvents(el, "click", () => (this.data.hour = +el.textContent));
-        });
 
-        addEvents(this.minuteInput, "keydown", (/** @type {KeyboardEvent} */ e) => this.handleMinuteChange(e));
-        addEvents(this.minuteInput, "focus", () => (this.minuteOptionContainer.style.display = ""));
+        addEvents(this.minuteInput, "focus", () => this.minuteInput.select());
+        addEvents(this.minuteInput, "keydown", (e) => this.handleMinuteChange(e));
+        addEvents(this.minuteInput, ["input", "change"], (e) => this.handleMinuteInputEvents(e));
         addEvents(this.minuteButtonContainer.children[0], "click", () => (this.data.minute++ === 59 ? (this.data.minute = 0) : null));
         addEvents(this.minuteButtonContainer.children[1], "click", () => (this.data.minute-- === 0 ? (this.data.minute = 59) : null));
-        Array.from(this.minuteOptionContainer.children).forEach((el) => {
-            addEvents(el, "click", () => (this.data.minute = +el.textContent));
-        });
 
-        addEvents(this.footer.children[0], "click", () => this.clearValue());
-        addEvents(this.footer.children[1], "click", () => this.handleDateSelection(new Date()));
-        addEvents(this.footer.children[2], "click", () => this.close());
+        addEvents(this.footer.children[0], "click", () => this.updateDateTimeInput(null));
+        addEvents(this.footer.children[1], "click", () => this.updateDateTimeInput(new Date()));
+        addEvents(this.footer.children[2], "click", () => this.updateDateTimeInput(this.internalDate));
 
         Array.from(this.monthContainer.children).forEach((/** @type {HTMLElement} */ el, index) => {
             addEvents(el, "click", () => (this.data.activeMonth = index));
@@ -1087,47 +1071,42 @@ class CalendarModal extends HTMLElement {
         addEvents(this.monthYearFooter.children[0], "click", () => this.handleDateChange());
         addEvents(this.monthYearFooter.children[1], "click", () => (this.monthYearPanel.style.display = "none"));
 
-        addEvents(this.dateContainer, "keydown", (/** @type {KeyboardEvent} */ e) => this.handleCalendarKeydown(e));
+        addEvents(this, "keypress", (/** @type {KeyboardEvent} */ e) => this.handleCalendarKeydown(e));
         addEvents(window, "pointerdown", (e) => {
             const target = /** @type {HTMLElement} */ (e.target);
             if (!this.contains(target)) {
                 this.close();
             }
 
-            for (const element of [this.monthYearPanel, this.hourOptionContainer, this.minuteOptionContainer]) {
-                if (!element.contains(target)) {
-                    element.style.display = "none";
-                }
+            if (!this.monthYearPanel.contains(target)) {
+                this.monthYearPanel.style.display = "none";
             }
         });
     }
 
     /**
      * @param {string} attribute
-     * @param {string} oldValue
+     * @param {string} _
      * @param {string} newValue
      */
-    attributeChangedCallback(attribute, oldValue, newValue) {
+    attributeChangedCallback(attribute, _, newValue) {
         if (attribute === "type") {
-            this.dateContainer.style.display = newValue == "time" ? "none" : "";
+            this.dateContainer.style.display = newValue === "time" ? "none" : "";
+            this.header.style.display = newValue === "time" ? "none" : "";
+            this.footer.children[1].textContent = newValue === "time" ? "Now" : "Today";
+
             this.timeContainer.style.display = newValue === "date" ? "none" : "";
         }
     }
 
-    clearValue() {
-        this.handleDateChange(new Date());
-        this.refElement.setDate(null);
-    }
-
-    handleDateSelection(/** @type {Date} */ date) {
+    updateDateTimeInput(/** @type {Date} */ date) {
+        this.handleDateChange(date ?? new Date());
         this.refElement.setDate(date);
-        this.handleDateChange(date);
         this.close();
     }
 
     handleDateChange(/** @type {Date} */ date) {
         date ??= new Date(this.data.activeYear, this.data.activeMonth, this.data.day, this.data.hour, this.data.minute);
-        this.data.internalDate = date;
         this.data.year = date.getFullYear();
         this.data.month = date.getMonth();
         this.data.day = date.getDate();
@@ -1195,18 +1174,18 @@ class CalendarModal extends HTMLElement {
     handleCalendarKeydown(/** @type {KeyboardEvent} */ e) {
         const key = e.key;
 
-        if (key === "Enter") {
-            this.handleDateSelection(this.data.internalDate);
+        if (key === "Enter" || key === "Tab") {
+            this.updateDateTimeInput(this.internalDate);
         } else if (key === "Escape") {
             this.close();
         }
 
-        if (key.indexOf("Arrow") === -1) {
+        if (key.slice(0, 5) !== "Arrow") {
             return;
         }
 
         e.preventDefault();
-        const date = new Date(this.data.internalDate);
+        const date = new Date(this.data.year, this.data.month, this.data.day, this.data.hour, this.data.minute);
         if (key === "ArrowUp") {
             date.setDate(this.data.day - 7);
         } else if (key === "ArrowDown") {
@@ -1224,28 +1203,22 @@ class CalendarModal extends HTMLElement {
         e.stopImmediatePropagation();
 
         const key = e.key;
-        if (key.length === 1 && /[ -~]/.test(key)) {
+        if (key.length === 1 && !e.ctrlKey && /[ -\/:-~]/.test(key)) {
             e.preventDefault();
         } else if (key === "ArrowUp") {
             this.data.hour = this.data.hour + 1 > 23 ? 0 : this.data.hour + 1;
         } else if (key === "ArrowDown") {
             this.data.hour = this.data.hour - 1 < 0 ? 23 : this.data.hour - 1;
         }
+    }
 
-        if (!/[0-9]/.test(key)) {
-            return;
-        }
-
-        if (/[3-9]/.test(key) || this.data.hourTemp !== null) {
-            if (!(this.data.hourTemp === "2" && /[4-9]/.test(key))) {
-                this.data.hour = +[this.data.hourTemp, key].join("");
-            }
-            this.data.hourTemp = null;
-            this.hourInput.blur();
+    handleHourInputEvents(/** @type {InputEvent} */ e) {
+        const value = this.hourInput.value;
+        if (/[ -\/:-~]/.test(value) || +value > 23) {
+            this.hourInput.value = "";
+        } else if (/[3-9]/.test(value) || value.length === 2 || e.type === "change") {
+            this.data.hour = +value;
             this.minuteInput.focus();
-        } else {
-            this.data.hourTemp = key;
-            this.data.hour = +key;
         }
     }
 
@@ -1254,25 +1227,22 @@ class CalendarModal extends HTMLElement {
         e.stopImmediatePropagation();
 
         const key = e.key;
-        if (key.length === 1 && /[ -~]/.test(key)) {
+        if (key.length === 1 && !e.ctrlKey && /[ -\/:-~]/.test(key)) {
             e.preventDefault();
         } else if (key === "ArrowUp") {
             this.data.minute = this.data.minute + 1 > 59 ? 0 : this.data.minute + 1;
         } else if (key === "ArrowDown") {
             this.data.minute = this.data.minute - 1 < 0 ? 59 : this.data.minute - 1;
         }
+    }
 
-        if (!/[0-9]/.test(key)) {
-            return;
-        }
-
-        if (/[6-9]/.test(key) || this.data.minuteTemp !== null) {
-            this.data.minute = +[this.data.minuteTemp, key].join("");
-            this.data.minuteTemp = null;
+    handleMinuteInputEvents(/** @type {InputEvent} */ e) {
+        const value = this.minuteInput.value;
+        if (/[ -\/:-~]/.test(value) || +value > 59) {
+            this.minuteInput.value = "";
+        } else if (/[6-9]/.test(value) || value.length === 2 || e.type === "change") {
+            this.data.minute = +value;
             this.minuteInput.blur();
-        } else {
-            this.data.minuteTemp = key;
-            this.data.minute = +key;
         }
     }
 
@@ -1295,10 +1265,11 @@ class CalendarModal extends HTMLElement {
     /** @param {Date} date */
     open(date) {
         this.style.display = "";
-        this.focus();
-        this.handleDateChange(date ?? new Date());
         this.refElement.button.inert = true;
         this.refElement.button.style.visibility = "hidden";
+        this.refElement.focus();
+        this.focus();
+        this.handleDateChange(date ?? new Date());
     }
 
     close() {
@@ -1308,9 +1279,6 @@ class CalendarModal extends HTMLElement {
 
         this.style.display = "none";
         this.monthYearPanel.style.display = "none";
-        this.hourOptionContainer.style.display = "none";
-        this.minuteOptionContainer.style.display = "none";
-
         this.refElement.returnFocus();
         this.refElement = null;
     }
@@ -1343,7 +1311,7 @@ class DateTimeFormField extends FormFieldBase {
         `<div class="relative">
             <input id="${this.data.id}" name="${this.data.name}" type="text" class="w-full" disabled />
             <button class="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutral-400" tabindex="-1">
-                <svg class="w-5 min-w-5 fill-current"><use href="#calendar-icon" /></svg>
+                <svg class="w-5 h-5 fill-current"><use href="#calendar-icon" /></svg>
             </button>
         </div>`
     );
@@ -1351,9 +1319,6 @@ class DateTimeFormField extends FormFieldBase {
     internalInput = /** @type {HTMLInputElement} */ (this.input.children[0]);
     button = /** @type {HTMLButtonElement} */ (this.input.children[1]);
     calendar = /** @type {CalendarModal} */ (document.querySelector("calendar-modal"));
-
-    /** @type {Date} */
-    date;
 
     /** @type {Intl.DateTimeFormatOptions} */
     dateStringOptions;
@@ -1384,12 +1349,18 @@ class DateTimeFormField extends FormFieldBase {
             this.button.inert = true;
             this.button.style.visibility = "hidden";
             this.calendar.setActiveElement(this);
-            this.calendar.open(this.date);
+
+            const date = new Date(this.internalInput.value);
+            this.calendar.open(date.toString() !== "Invalid Date" ? date : new Date());
         });
     }
 
     /** @param {string} dateStr */
     parseDate(dateStr) {
+        if (dateStr === "") {
+            return;
+        }
+
         let date = new Date();
         let matches;
 
@@ -1409,14 +1380,14 @@ class DateTimeFormField extends FormFieldBase {
             date.setMinutes(minutes ? +minutes : date.getMinutes());
         }
 
-        this.date = date.toString() !== "Invalid Date" ? date : null;
-        this.internalInput.value = this.date ? date.toLocaleString("default", this.dateStringOptions).replace(",", "") : "";
+        console.log(date);
+        const isValidDate = date.toString() !== "Invalid Date";
+        this.internalInput.value = isValidDate ? date.toLocaleString("default", this.dateStringOptions).replace(",", "") : "";
     }
 
     /** @param {Date} date */
     setDate(date) {
-        this.date = date;
-        this.internalInput.value = this.date ? date.toLocaleString("default", this.dateStringOptions).replace(",", "") : "";
+        this.internalInput.value = date ? date.toLocaleString("default", this.dateStringOptions).replace(",", "") : "";
     }
 
     returnFocus() {
