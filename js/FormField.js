@@ -962,9 +962,9 @@ class CalendarModal extends HTMLElement {
         </div>`
     );
 
-    monthOptionContainer = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[0]);
-    yearButtonContainer = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[1]);
-    yearOptionContainer = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[2]);
+    monthContainer = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[0]);
+    yearButtons = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[1]);
+    yearContainer = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[2]);
     monthYearFooter = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[3]);
 
     constructor() {
@@ -1015,7 +1015,7 @@ class CalendarModal extends HTMLElement {
 
         for (const [index, month] of this.monthStrings.entries()) {
             const monthElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center">${month.slice(0, 3)}</button>`);
-            this.monthOptionContainer.append(monthElement);
+            this.monthContainer.append(monthElement);
             createEffect(() => {
                 const isActive = index === this.data.activeMonth;
                 forceToggleClasses(monthElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
@@ -1026,7 +1026,7 @@ class CalendarModal extends HTMLElement {
         for (var i = 0; i < 8; ++i) {
             const yearElement = parseHtml(`<button class="aspect-[2/1] w-full py-1.5 rounded text-center"></button>`);
             this.yearElements.push(yearElement);
-            this.yearOptionContainer.append(yearElement);
+            this.yearContainer.append(yearElement);
             createEffect(() => {
                 const isActive = +yearElement.textContent === this.data.activeYear;
                 forceToggleClasses(yearElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
@@ -1038,7 +1038,6 @@ class CalendarModal extends HTMLElement {
         createEffect(() => this.updateCalendar(this.data.internalDate));
         createEffect(() => (this.hourInput.value = this.data.hour.toString().padStart(2, "0")));
         createEffect(() => (this.minuteInput.value = this.data.minute.toString().padStart(2, "0")));
-        // createEffect(() => this.updateYears(this.data.activeYear));
     }
 
     connectedCallback() {
@@ -1073,13 +1072,13 @@ class CalendarModal extends HTMLElement {
         addEvents(this.footer.children[1], "click", () => this.handleDateSelection(new Date()));
         addEvents(this.footer.children[2], "click", () => this.close());
 
-        Array.from(this.monthOptionContainer.children).forEach((/** @type {HTMLElement} */ el, index) => {
+        Array.from(this.monthContainer.children).forEach((/** @type {HTMLElement} */ el, index) => {
             addEvents(el, "click", () => (this.data.activeMonth = index));
             addEvents(el, "dblclick", () => this.handleDateChange());
         });
 
-        addEvents(this.yearButtonContainer.children[0], "click", () => this.updateYears(+this.yearElements[2].textContent));
-        addEvents(this.yearButtonContainer.children[1], "click", () => this.updateYears(+this.yearElements[4].textContent));
+        addEvents(this.yearButtons.children[0], "click", () => untrack(() => this.updateYears(-1)));
+        addEvents(this.yearButtons.children[1], "click", () => untrack(() => this.updateYears(1)));
         this.yearElements.forEach((el) => {
             addEvents(el, "click", () => (this.data.activeYear = +el.textContent));
             addEvents(el, "dblclick", () => this.handleDateChange());
@@ -1088,7 +1087,7 @@ class CalendarModal extends HTMLElement {
         addEvents(this.monthYearFooter.children[0], "click", () => this.handleDateChange());
         addEvents(this.monthYearFooter.children[1], "click", () => (this.monthYearPanel.style.display = "none"));
 
-        addEvents(this, "keydown", (/** @type {KeyboardEvent} */ e) => this.handleCalendarKeydown(e));
+        addEvents(this.dateContainer, "keydown", (/** @type {KeyboardEvent} */ e) => this.handleCalendarKeydown(e));
         addEvents(window, "pointerdown", (e) => {
             const target = /** @type {HTMLElement} */ (e.target);
             if (!this.contains(target)) {
@@ -1156,14 +1155,16 @@ class CalendarModal extends HTMLElement {
             dateElement.dataset.day = newDate.getDate().toString();
         }
 
-        this.updateYears(year);
-    }
-
-    /** @param {number} [year] */
-    updateYears(year) {
         let startYear = year - 3;
         for (const yearElement of this.yearElements) {
             yearElement.textContent = (startYear++).toString();
+        }
+    }
+
+    /** @param {number} [increment] */
+    updateYears(increment) {
+        for (const yearElement of this.yearElements) {
+            yearElement.textContent = (+yearElement.textContent + increment).toString();
             const isActive = +yearElement.textContent === this.data.activeYear;
             forceToggleClasses(yearElement, isActive, "font-semibold", "bg-sky-500/20", "text-sky-500");
             forceToggleClasses(yearElement, !isActive, "hover:bg-neutral-200", "dark:hover:bg-[#5e5e5e]", "dark:hover:text-white");
