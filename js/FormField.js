@@ -1,5 +1,11 @@
 //@ts-check
 
+const navigationKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "k", "j", "h", "l", "w", "s", "a", "d"];
+const upKeys = ["ArrowUp", "k", "w"];
+const downKeys = ["ArrowDown", "j", "s"];
+const lefttKeys = ["ArrowLeft", "h", "a"];
+const rightKeys = ["ArrowRight", "l", "d"];
+
 /**
  * @typedef Effect
  * @property {() => void} execute
@@ -1071,7 +1077,7 @@ class CalendarModal extends HTMLElement {
         addEvents(this.monthYearFooter.children[0], "click", () => this.handleDateChange());
         addEvents(this.monthYearFooter.children[1], "click", () => (this.monthYearPanel.style.display = "none"));
 
-        addEvents(this, "keypress", (/** @type {KeyboardEvent} */ e) => this.handleCalendarKeydown(e));
+        addEvents(this, "keydown", (/** @type {KeyboardEvent} */ e) => this.handleCalendarKeydown(e));
         addEvents(window, "pointerdown", (e) => {
             const target = /** @type {HTMLElement} */ (e.target);
             if (!this.contains(target)) {
@@ -1173,26 +1179,26 @@ class CalendarModal extends HTMLElement {
 
     handleCalendarKeydown(/** @type {KeyboardEvent} */ e) {
         const key = e.key;
-
         if (key === "Enter" || key === "Tab") {
             this.updateDateTimeInput(this.internalDate);
         } else if (key === "Escape") {
             this.close();
         }
 
-        if (key.slice(0, 5) !== "Arrow") {
+        if (navigationKeys.indexOf(key) === -1) {
             return;
         }
 
         e.preventDefault();
+        console.log(e);
         const date = new Date(this.data.year, this.data.month, this.data.day, this.data.hour, this.data.minute);
-        if (key === "ArrowUp") {
+        if (upKeys.indexOf(key) > -1) {
             date.setDate(this.data.day - 7);
-        } else if (key === "ArrowDown") {
+        } else if (downKeys.indexOf(key) > -1) {
             date.setDate(this.data.day + 7);
-        } else if (key === "ArrowLeft") {
+        } else if (lefttKeys.indexOf(key) > -1) {
             date.setDate(this.data.day - 1);
-        } else if (key === "ArrowRight") {
+        } else if (rightKeys.indexOf(key) > -1) {
             date.setDate(this.data.day + 1);
         }
         this.handleDateChange(date);

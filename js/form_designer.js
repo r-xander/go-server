@@ -418,14 +418,17 @@ const newOptionSortableOptions = {
  * @param {HTMLElement} el
  */
 function getElementTopOnPage(el) {
-    let location = 0;
+    let top = 0;
+    let bottom = 0;
     if (el.offsetParent) {
         do {
-            location += el.offsetTop;
+            top += el.offsetTop;
+            bottom += el.offsetHeight + el.offsetTop;
             el = /** @type {HTMLElement} */ (el.offsetParent);
         } while (el);
     }
-    return location >= 0 ? location : 0;
+
+    return { top, bottom };
 }
 
 document.addEventListener("alpine:init", function (e) {
@@ -770,8 +773,8 @@ document.addEventListener("alpine:init", function (e) {
             }
 
             el.style.display = "";
-            const location = getElementTopOnPage(el);
-            const elementBottom = location + el.offsetHeight;
+            const offset = getElementTopOnPage(el);
+            const elementBottom = offset.top + el.offsetHeight;
             const pageBottom = window.scrollY + window.innerHeight;
 
             if (elementBottom + 10 > pageBottom) {
