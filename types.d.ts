@@ -3871,10 +3871,29 @@ type DateTimeFormFieldAttributes = FormFieldBaseAttributes & {
     incudeTime: boolean,
 }
 
+type HeadingFormFieldAttributes = FormFieldBaseAttributes & {
+    heading: string;
+    align: "left" | "center" | "right";
+    color: string;
+}
+
+type ParagraphFormFieldAttributes = FormFieldBaseAttributes & {
+    text: string;
+    align: "left" | "center" | "right";
+    color: string;
+}
+
+type HtmlFormFieldAttributes = FormFieldBaseAttributes & {
+    html: string;
+}
+
 type FormFieldAttributes = 
     TextFormFieldAttributes | 
     NumberInputAttributes | 
     SelectFormFieldAttributes | 
     LocationFormFieldAttributes |
     CalculationFormFieldAttributes |
-    DateTimeFormFieldAttributes;
+    DateTimeFormFieldAttributes |
+    HeadingFormFieldAttributes | 
+    ParagraphFormFieldAttributes | 
+    HtmlFormFieldAttributes;
