@@ -195,6 +195,8 @@ function forceToggleClasses(el, discriminator, ...cls) {
 class NewFieldItem extends HTMLElement {
     static observedAttributes = ["type"];
 
+    initialized = false;
+
     /** @type {HTMLSpanElement} */
     iconPanel = parseHtml(
         `<span class="flex items-center justify-center w-8 h-8 p-1.5 rounded-md bg-[#f1f5f9] text-neutral-500 dark:bg-neutral-600 dark:text-neutral-300"></span>`
@@ -208,12 +210,16 @@ class NewFieldItem extends HTMLElement {
         </div>`
     );
 
-    constructor() {
-        super();
+    initialize() {
         this.append(this.iconPanel, this.labelPanel);
     }
 
     connectedCallback() {
+        if (!this.initialized) {
+            this.initialize();
+            this.initialized = true;
+        }
+
         this.draggable = true;
         this.className =
             "flex gap-4 p-3 items-center rounded-md origin-center transition-all duration-100 bg-white border border-neutral-200/50 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white";
@@ -225,7 +231,7 @@ class NewFieldItem extends HTMLElement {
         addEvents(this, "dragend", () => window.dispatchEvent(createCustomEvent("creating-field")));
 
         const icon = parseHtml(
-            `<svg viewBox="${this.getAttribute("icon-viewbox")}" class="fill-current"><use href="${this.getAttribute("icon-id")}" /></svg>`
+            `<svg class="w-5 h-5 ${this.getAttribute("icon-class") ?? ""}"><use href="${this.getAttribute("icon-id")}" /></svg>`
         );
         this.iconPanel.append(icon);
         this.labelPanel.children[0].textContent = this.getAttribute("label");
@@ -235,6 +241,8 @@ class NewFieldItem extends HTMLElement {
 
 class ContainerHighlight extends HTMLElement {
     static observedAttributes = ["active", "field-name", "field-state"];
+
+    initialized = false;
 
     /** @type {HTMLDivElement} */
     nameBlock = parseHtml(
@@ -250,11 +258,11 @@ class ContainerHighlight extends HTMLElement {
     /** @type {HTMLElement} */
     buttonBlock = parseHtml(
         `<div class="absolute -right-px bottom-full flex gap-1">
-            <button class="w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
-                <svg viewBox="0 0 15 15" class="fill-current [fill-rule:evenodd] [clip-rule:evenodd]"><use href="#copy-icon" /></svg>
+            <button class="p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
+                <svg class="w-3 h-3"><use href="#copy-icon" /></svg>
             </button>
-            <button class="w-5 h-5 p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
-                <svg viewBox="0 0 15 15" class="fill-current"><use href="#delete-icon" /></svg>
+            <button class="p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
+                <svg class="w-3 h-3"><use href="#delete-icon" /></svg>
             </button>
         </div>`
     );
@@ -281,14 +289,17 @@ class ContainerHighlight extends HTMLElement {
         </div>`
     );
 
-    constructor() {
-        super();
-
+    initialize() {
         this.stateSpan.style.display = this.getAttribute("field-state") ? "" : "none";
         this.append(this.nameBlock, this.buttonBlock, this.copyModal, this.deleteModal);
     }
 
     connectedCallback() {
+        if (!this.initialized) {
+            this.initialize();
+            this.initialized = true;
+        }
+
         const actionButtons = this.buttonBlock.getElementsByTagName("button");
         addEvents(actionButtons[0], "click", () => (this.copyModal.style.display = ""));
         addEvents(actionButtons[1], "click", () => (this.deleteModal.style.display = ""));
@@ -334,8 +345,9 @@ class ContainerHighlight extends HTMLElement {
 class ContainerDropZone extends HTMLElement {
     static observedAttributes = ["visible"];
 
-    constructor() {
-        super();
+    initialized = false;
+
+    initialize() {
         this.style.display = "none";
 
         this.indicatorSlot = document.createElement("slot");
@@ -344,6 +356,11 @@ class ContainerDropZone extends HTMLElement {
     }
 
     connectedCallback() {
+        if (!this.initialized) {
+            this.initialize();
+            this.initialized = true;
+        }
+
         addEvents(this, "dragover", () => this.indicatorSlot.assign(this.firstElementChild));
         addEvents(this, "dragleave", () => this.indicatorSlot.assign());
         addEvents(this, "drop", () => this.indicatorSlot.assign());
@@ -370,7 +387,7 @@ class FormFieldBase extends HTMLElement {
     data;
 
     /** @type {boolean} */
-    initialized = false;
+    finalized = false;
 
     /** @type {boolean} */
     isActive = false;
@@ -413,8 +430,8 @@ class FormFieldBase extends HTMLElement {
         </container-drop-zone>`
     );
 
-    initialize() {
-        this.initialized = true;
+    finalize() {
+        this.initialize();
 
         this.id = this.data.id;
         this.className = "m-4 block relative rounded";
@@ -448,15 +465,25 @@ class FormFieldBase extends HTMLElement {
         this.dispatchEvent(createCustomEvent("add-field", { data: this.data }));
         this.sendEditEvent();
         transition(this);
+
+        this.finalized = true;
+    }
+
+    initialize() {
+        const proto = this.constructor.name;
+        console.warn(
+            `[${proto}]: use initialize() function in subclasses to initialize the element, add effects, and insert dom nodes. You should not use the constructor is derived classes.`
+        );
     }
 
     setup() {
-        console.log("setup function is used in subclasses to setup event listeners and other tasks.");
+        const proto = this.constructor.name;
+        console.warn(`[${proto}]: setup() function is used in subclasses to setup event listeners and other tasks.`);
     }
 
     connectedCallback() {
-        if (!this.initialized) {
-            this.initialize();
+        if (!this.finalized) {
+            this.finalize();
         }
 
         this.setup();
@@ -535,9 +562,7 @@ class TextFormField extends FormFieldBase {
 
     input = /** @type {HTMLInputElement} */ (parseHtml(`<input id="${this.data.id}" name="${this.data.name}" type="text" />`));
 
-    constructor() {
-        super();
-
+    initialize() {
         createEffect(() => (this.input.value = this.data.defaultValue));
         createEffect(() => (this.input.placeholder = this.data.placeholder));
         createEffect(() => (this.input.readOnly = this.data.readonly));
@@ -578,9 +603,7 @@ class NumberFormField extends FormFieldBase {
     /** @type {HTMLInputElement} */
     input = parseHtml(`<input id="${this.data.id}" name="${this.data.name}" type="number" />`);
 
-    constructor() {
-        super();
-
+    initialize() {
         createEffect(() => (this.input.value = this.data.defaultValue));
         createEffect(() => (this.input.placeholder = this.data.placeholder));
         createEffect(() => (this.input.readOnly = this.data.readonly));
@@ -624,9 +647,7 @@ class SelectFormField extends FormFieldBase {
     optionPanel = /** @type {HTMLDivElement} */ parseHtml(`<div class="grid gap-1.5"></div>`);
     select = /** @type {HTMLSelectElement} */ (this.dropdown.firstElementChild);
 
-    constructor() {
-        super();
-
+    initialize() {
         createEffect(() => (this.select.value = this.data.defaultValue));
         createEffect(() => (this.select.disabled = this.data.disabled));
         createEffect(() => (this.data.readonly ? this.select.setAttribute("readonly", "") : this.select.removeAttribute("readonly")));
@@ -694,8 +715,7 @@ class CalculationFormField extends FormFieldBase {
 
     input = /** @type {HTMLInputElement} */ (parseHtml(`<input id="${this.data.id}" name="${this.data.name}" type="text" disabled />`));
 
-    constructor() {
-        super();
+    initialize() {
         createEffect(() => (this.input.value = this.data.calculation));
     }
 
@@ -728,8 +748,7 @@ class HeadingFormField extends FormFieldBase {
         hidden: false,
     });
 
-    constructor() {
-        super();
+    initialize() {
         this.input = parseHtml('<h2 class="text-xl col-span-full py-3 mb-2"></h2>');
         createEffect(() => (this.input.textContent = this.data.heading));
         createEffect(() => (this.input.style.textAlign = this.data.align));
@@ -756,8 +775,7 @@ class ParagraphFormField extends FormFieldBase {
         hidden: false,
     });
 
-    constructor() {
-        super();
+    initialize() {
         this.input = parseHtml('<p class="col-span-full py-2"></p>');
         createEffect(() => (this.input.textContent = this.data.text));
         createEffect(() => (this.input.style.textAlign = this.data.align));
@@ -769,8 +787,8 @@ class HTMLFormField extends FormFieldBase {
     /** @type {import("../types").HtmlFormFieldAttributes} */
     data = createReactiveObject({
         id: "",
-        type: "heading",
-        name: "heading",
+        type: "html",
+        name: "html",
         label: "",
         includeLabel: false,
         html: "",
@@ -782,8 +800,7 @@ class HTMLFormField extends FormFieldBase {
         hidden: false,
     });
 
-    constructor() {
-        super();
+    initialize() {
         this.input = document.createElement("div");
         createEffect(() => {
             this.input.innerHTML = "";
@@ -825,6 +842,40 @@ class HTMLFormField extends FormFieldBase {
     }
 }
 
+class SliderField extends FormFieldBase {
+    /** @type {import("../types").FormFieldBaseAttributes} */
+    data = createReactiveObject({
+        id: "",
+        type: "slider",
+        name: "slider",
+        label: "Slider",
+        includeLabel: true,
+        description: "",
+        defaultValue: "",
+        layout: "inline",
+        required: false,
+        readonly: false,
+        disabled: true,
+        hidden: false,
+    });
+
+    input = parseHtml(
+        `<label for="${this.data.id}" class="flex items-center justify-between cursor-pointer select-none">
+            <span>Read Only</span>
+            <div class="relative">
+                <input type="checkbox" id="${this.data.id}" name="${this.data.name}" class="peer sr-only" />
+                <div class="block w-12 h-5 rounded-full box bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-[var(--primary)] peer-focus:ring-2 peer-focus:ring-[var(--primary)] peer-focus:dark:ring-offset-card-dark"></div>
+                <div class="absolute w-4 h-4 transition bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-[175%]"></div>
+            </div>
+        </label>`
+    );
+
+    initialize() {
+        createEffect(() => (this.input.children[0].textContent = this.data.label));
+        createEffect(() => (this.input.children[1].children[0].name = this.data.name));
+    }
+}
+
 customElements.define("new-field-item", NewFieldItem);
 customElements.define("container-highlight", ContainerHighlight);
 customElements.define("container-drop-zone", ContainerDropZone);
@@ -836,3 +887,4 @@ customElements.define("calculation-field", CalculationFormField);
 customElements.define("heading-field", HeadingFormField);
 customElements.define("paragraph-field", ParagraphFormField);
 customElements.define("html-field", HTMLFormField);
+customElements.define("slider-field", SliderField);

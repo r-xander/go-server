@@ -3814,7 +3814,6 @@ type FormFieldBaseAttributes = {
     label?: string;
     includeLabel: boolean;
     description?: string;
-    defaultValue?: string;
     layout: string;
     required: boolean;
     readonly: boolean;
@@ -3824,12 +3823,14 @@ type FormFieldBaseAttributes = {
 
 type TextFormFieldAttributes = FormFieldBaseAttributes & {
     placeholder?: string?;
+    defaultValue?: string;
     max: number;
     min: number;
 };
 
 type NumberInputAttributes = FormFieldBaseAttributes & {
     placeholder: string;
+    defaultValue?: string;
     max: number;
     min: number;
     step: number;
@@ -3838,6 +3839,7 @@ type NumberInputAttributes = FormFieldBaseAttributes & {
 
 type SelectFormFieldAttributes = FormFieldBaseAttributes & {
     prompt: string;
+    defaultValue?: string;
     options: Option[];
     multiselect: boolean;
     columns: number;
@@ -3865,6 +3867,7 @@ type CalculationFormFieldAttributes = FormFieldBaseAttributes & {
 
 type DateTimeFormFieldAttributes = FormFieldBaseAttributes & {
     placeholder: string;
+    defaultValue?: string;
     max: number;
     min: number;
     includeDate: boolean,
@@ -3885,6 +3888,13 @@ type ParagraphFormFieldAttributes = FormFieldBaseAttributes & {
 
 type HtmlFormFieldAttributes = FormFieldBaseAttributes & {
     html: string;
+}
+
+type ListComponentAttributes = FormFieldBaseAttributes & {
+    includeColumnHeaders: boolean;
+    columns: string[];
+    fields: string[];
+    listItems: string[];
 }
 
 type FormFieldAttributes = 

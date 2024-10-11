@@ -39,6 +39,8 @@ class CalendarModal extends HTMLElement {
         minuteTemp: "",
     });
 
+    initialized = false;
+
     get internalDate() {
         return new Date(this.data.year, this.data.month, this.data.day, this.data.hour, this.data.minute);
     }
@@ -48,14 +50,14 @@ class CalendarModal extends HTMLElement {
         `<div class="flex w-full items-center justify-between p-3 border-b border-neutral-200 text-neutral-500 dark:border-[#5e5e5e] dark:text-white/75">
             <button class="flex items-center gap-1 font-bold hover:text-neutral-800 dark:hover:text-white" tabindex="-1">
                 <span></span>
-                <svg class="w-4 h-4 fill-current"><use href="#caretdown-icon" /></svg>
+                <svg class="w-4 h-4"><use href="#caretdown-icon" /></svg>
             </button>
             <div class="flex gap-1">
                 <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" tabindex="-1">
-                    <svg class="w-4 h-4 fill-current"><use href="#caretleft-icon" /></svg>
+                    <svg class="w-4 h-4"><use href="#caretleft-icon" /></svg>
                 </button>
                 <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" tabindex="-1">
-                    <svg class="w-4 h-4 fill-current"><use href="#caretright-icon" /></svg>
+                    <svg class="w-4 h-4"><use href="#caretright-icon" /></svg>
                 </button>
             </div>
         </div>`
@@ -73,14 +75,14 @@ class CalendarModal extends HTMLElement {
                 <span class="font-semibold mr-2">Time:</span>
                 <input type="text" class="w-10 hide-arrows text-center" />
                 <div class="grid gap-y-1 ml-1">
-                    <button tabindex="-1"><svg class="w-4 h-4 fill-current rotate-180"><use href="#caretup-icon" /></svg></button>
-                    <button tabindex="-1"><svg class="w-4 h-4 fill-current"><use href="#caretdown-icon" /></svg></button>
+                    <button tabindex="-1"><svg class="w-4 h-4 rotate-180"><use href="#caretdown-icon" /></svg></button>
+                    <button tabindex="-1"><svg class="w-4 h-4"><use href="#caretdown-icon" /></svg></button>
                 </div>
                 <span class="mx-2">:</span>
                 <input type="text" class="w-10 hide-arrows text-center" />
                 <div class="grid gap-y-1 ml-1">
-                    <button tabindex="-1"><svg class="w-4 h-4 fill-current rotate-180"><use href="#caretup-icon" /></svg></button>
-                    <button tabindex="-1"><svg class="w-4 h-4 fill-current"><use href="#caretdown-icon" /></svg></button>
+                    <button tabindex="-1"><svg class="w-4 h-4 rotate-180"><use href="#caretdown-icon" /></svg></button>
+                    <button tabindex="-1"><svg class="w-4 h-4"><use href="#caretdown-icon" /></svg></button>
                 </div>
             </div>
         </div>`
@@ -108,10 +110,10 @@ class CalendarModal extends HTMLElement {
             <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4 border-b dark:border-neutral-700"></div>
             <div class="flex justify-center gap-1 mt-4">
                 <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" tabindex="-1">
-                    <svg class="w-4 h-4 fill-current"><use href="#caretleft-icon" /></svg>
+                    <svg class="w-4 h-4"><use href="#caretleft-icon" /></svg>
                 </button>
                 <button class="rounded-full p-1 hover:text-neutral-800 dark:hover:text-white" tabindex="-1">
-                    <svg class="w-4 h-4 fill-current"><use href="#caretright-icon" /></svg>
+                    <svg class="w-4 h-4"><use href="#caretright-icon" /></svg>
                 </button>
             </div>
             <div class="grid w-full grid-cols-4 justify-items-center gap-2 p-4"></div>
@@ -127,13 +129,12 @@ class CalendarModal extends HTMLElement {
     yearContainer = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[2]);
     monthYearFooter = /** @type {HTMLDivElement} */ (this.monthYearPanel.children[3]);
 
-    constructor() {
-        super();
-
+    initialize() {
         this.tabIndex = 0;
         this.style.display = "none";
         this.className =
             "absolute z-50 w-max p-0 text-sm rounded select-none outline-none shadow-lg border bg-white dark:bg-[#434343] dark:border-transparent";
+
         this.append(this.header, this.mainPanel, this.footer, this.monthYearPanel);
 
         for (const day of this.days) {
@@ -185,6 +186,11 @@ class CalendarModal extends HTMLElement {
     }
 
     connectedCallback() {
+        if (!this.initialized) {
+            this.initialize();
+            this.initialized = true;
+        }
+
         addEvents(this.monthYearButton, "click", () => (this.monthYearPanel.style.display = ""));
         addEvents(this.previousMonthButton, "click", () => this.getPrevMonth());
         addEvents(this.nextMonthButton, "click", () => this.getNextMonth());
@@ -475,7 +481,7 @@ class DateTimeFormField extends FormFieldBase {
         `<div class="relative">
             <input id="${this.data.id}" name="${this.data.name}" type="text" class="w-full" disabled />
             <button class="absolute inset-y-0 right-0 flex items-center px-2.5 text-neutral-400" tabindex="-1">
-                <svg class="w-5 h-5 fill-current"><use href="#calendar-icon" /></svg>
+                <svg class="w-5 h-5"><use href="#calendar-icon" /></svg>
             </button>
         </div>`
     );
@@ -490,9 +496,7 @@ class DateTimeFormField extends FormFieldBase {
         /^(1[0-2]|0?[1-9])([\/\-. ])?(3[01]|[12][0-9]|0?[1-9])\2(19[0-9]{2}|2[0-9]{3}|[0-9]{2}),? +(2[0-3]|1[0-9]|0?[0-9]):?([0-5][0-9])/;
     timeRegex = /(2[0-3]|1[0-9]|0?[0-9]):?([0-5][0-9])/;
 
-    constructor() {
-        super();
-
+    initialize() {
         createEffect(() => (this.internalInput.value = this.data.defaultValue));
         createEffect(() => (this.internalInput.placeholder = this.data.placeholder));
         createEffect(() => (this.internalInput.readOnly = this.data.readonly));

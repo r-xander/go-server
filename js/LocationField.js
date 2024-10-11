@@ -1,3 +1,5 @@
+//@ts-check
+
 L.Control.CurrentLocation = L.Control.extend({
     options: { position: "topleft" },
     container: null,
@@ -91,7 +93,7 @@ L.Control.Search = L.Control.extend({
     },
 });
 
-L.control.search = function (options) {
+L.control.search = function (/** @type {import("../types").ControlOptions} */ options) {
     return new L.Control.Search(options);
 };
 
@@ -108,6 +110,8 @@ class MapModal extends HTMLElement {
         long: 0,
     });
 
+    initialized = false;
+
     /** @type {LocationFormField} */
     activeElement;
 
@@ -123,7 +127,7 @@ class MapModal extends HTMLElement {
             <div class="relative flex px-4 py-2 -mx-4 -mt-4">
                 <h2>Select a Location</h2>
                 <button class="absolute right-4 p-1 rounded hover:bg-gray-100 dark:hover:bg-accent-dark dark:hover:text-white">
-                    <svg class="w-4 h-4 fill-current [fill-rule:evenodd]"><use href="#close-icon" /></svg>
+                    <svg class="w-4 h-4"><use href="#close-icon" /></svg>
                 </button>
             </div>
             <div id="map-popup" class="flex-1 h-full rounded border-2 border-black/20 dark:border-[#73737366] dark:!bg-[#121212]"></div>
@@ -144,8 +148,7 @@ class MapModal extends HTMLElement {
     mapElement = /** @type {HTMLDivElement} */ (this.mapModal.children[1]);
     locationPanel = /** @type {HTMLDivElement} */ (this.mapModal.children[2]);
 
-    constructor() {
-        super();
+    initialize() {
         this.append(this.mapModal);
 
         this.map = L.map("map-popup")
@@ -174,9 +177,16 @@ class MapModal extends HTMLElement {
         createEffect(() => (streetAddress.textContent = `${this.data.streetNumber} ${this.data.street}`));
         createEffect(() => (statePart.textContent = `${this.data.city}, ${this.data.state} ${this.data.zip}`));
         createEffect(() => (latLong.textContent = `${this.data.lat.toFixed(8)}, ${this.data.long.toFixed(8)}`));
+
+        this.initialized = true;
     }
 
     connectedCallback() {
+        if (!this.initialized) {
+            this.initialize();
+            this.initialized = false;
+        }
+
         addEvents(this.header.children[1], "click", () => this.mapModal.close());
         addEvents(this.locationPanel.children[1], "click", () => {
             this.activeElement.setLocationData(this.data);
@@ -262,9 +272,7 @@ class LocationFormField extends FormFieldBase {
     /** @type {MapModal} */
     mapModal = document.querySelector("map-modal");
 
-    constructor() {
-        super();
-
+    initialize() {
         const input = this.input.getElementsByTagName("input")[0];
         input.id = this.data.id + "-address";
         input.name = this.data.id + "-address";

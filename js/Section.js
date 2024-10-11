@@ -9,6 +9,8 @@ class FormSection extends HTMLElement {
         hidden: false,
     });
 
+    initialized = false;
+
     /** @type {import("../types").FormFieldAttributes[]} */
     fields = [];
 
@@ -54,18 +56,12 @@ class FormSection extends HTMLElement {
     /** @type {HTMLDivElement} */
     emptySectionElement = parseHtml(
         `<div class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" inert>
-            <svg class="h-8 w-8 fill-current" viewBox="0 0 494 492"><use href="#section-drag-icon" /></svg>
+            <svg class="h-8 w-8" viewBox="0 0 494 492"><use href="#section-drag-icon" /></svg>
             <div>Drag an element here</div>
         </div>`
     );
 
-    constructor() {
-        super();
-
-        this.id = this.data.id;
-        this.className = "relative grid gap-3 p-6 mb-8 rounded-md shadow-md bg-white dark:bg-card-dark";
-        this.draggable = true;
-
+    initialize() {
         this.fieldContainer.append(this.emptySectionElement);
         this.append(this.highlight, this.header, this.fieldContainer, this.topDropZone, this.bottomDropZone);
 
@@ -88,6 +84,15 @@ class FormSection extends HTMLElement {
     }
 
     connectedCallback() {
+        if (!this.initialized) {
+            this.initialize();
+            this.initialized = true;
+        }
+
+        this.id = this.data.id;
+        this.className = "relative grid gap-3 p-6 mb-8 rounded-md shadow-md bg-white dark:bg-card-dark";
+        this.draggable = true;
+
         // this events
         addEvents(this, "pointerdown", () => this.sendEditEvent());
         addEvents(this, "pointerover", (e) => {

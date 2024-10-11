@@ -1,0 +1,53 @@
+{{ define "new_fields_panel" }}
+<section class="p-4 text-sm">
+    <h3 class="mb-4 text-[#828282] dark:text-[#c3c3c3]">Fields</h3>
+    <div
+        id="action-element-container"
+        class="grid gap-3 text-indigo-900/70 dark:text-white/70"
+        @pointerdown="editFieldData(null)"
+    >
+        <new-field-item
+            type="text"
+            label="Text Input"
+            description="Single line text field"
+            icon-id="#text-icon"
+            icon-class="fill-current"
+        ></new-field-item>
+        <new-field-item
+            type="number"
+            label="Number Input"
+            description="Input field that only allows number"
+            icon-id="#number-icon"
+            icon-class="fill-current"
+        ></new-field-item>
+        <new-field-item
+            type="select"
+            label="Select Input"
+            description="Single select drop down input"
+            icon-id="#options-icon"
+            icon-class="fill-current"
+        ></new-field-item>
+        <new-field-item
+            type="datetime"
+            label="Date/Time Input"
+            description="Date and/or Time input"
+            icon-id="#calendar-icon"
+            icon-class="fill-current"
+        ></new-field-item>
+        <new-field-item
+            type="location"
+            label="Location Input"
+            description="Location component with Map/GPS locating"
+            icon-id="#location-icon"
+            icon-class="fill-none stroke-current stroke-[3rem] [stroke-linecap:round] [stroke-linejoin:round]"
+        ></new-field-item>
+        <new-field-item
+            type="calculation"
+            label="Calculation Input"
+            description="Calculation of text, numbers or dates/times"
+            icon-id="#calculation-icon"
+            icon-class="fill-current stroke-current"
+        ></new-field-item>
+    </div>
+</section>
+{{ end }}
