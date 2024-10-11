@@ -73,6 +73,7 @@ class FormSection extends HTMLElement {
         createEffect(() => (this.description.style.display = this.data.description === "" ? "none" : ""));
         createEffect(() => (this.description.textContent = this.data.description));
 
+        createEffect(() => this.highlight.setAttribute("field-name", this.data.name));
         createEffect(() => {
             if (this.data.hidden) this.highlight.setAttribute("field-state", "[Hidden]");
             else this.highlight.removeAttribute("state");
@@ -88,14 +89,14 @@ class FormSection extends HTMLElement {
 
     connectedCallback() {
         // this events
-        addEvents(this, "pointerdown", this.sendEditEvent);
-        addEvents(this, "pointerover", (/** @type {PointerEvent} */ e) => {
+        addEvents(this, "pointerdown", () => this.sendEditEvent());
+        addEvents(this, "pointerover", (e) => {
             e.stopPropagation();
             if (!this.isActive) this.highlight.classList.remove("invisible");
         });
-        addEvents(this, "pointerout", (/** @type {PointerEvent} */ e) => {
+        addEvents(this, "pointerout", (e) => {
             e.stopPropagation();
-            if (!this.isActive) this.highlight.classList.add(!this.isActive && "invisible");
+            if (!this.isActive) this.highlight.classList.add("invisible");
         });
         addEvents(this, "delete", (/** @type {CustomEvent} */ e) => {
             e.detail.section = this.data.id;
@@ -109,8 +110,8 @@ class FormSection extends HTMLElement {
         addEvents(this.fieldContainer, "dragover", (e) => e.preventDefault());
         addEvents(this.fieldContainer, "drop", (e) => this.drop(e));
 
-        addEvents(this, "dragstart", (e) => window.dispatchEvent(createCustomEvent("moving-section", { section: this })));
-        addEvents(this, "dragend", (e) => window.dispatchEvent(createCustomEvent("moved-section", { section: this })));
+        addEvents(this, "dragstart", () => window.dispatchEvent(createCustomEvent("moving-section", { section: this })));
+        addEvents(this, "dragend", () => window.dispatchEvent(createCustomEvent("moved-section", { section: this })));
         addEvents(this, "add-field", (e) => this.addField(e));
         addEvents(this, "remove-field", (e) => this.removeField(e));
 

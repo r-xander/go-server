@@ -192,6 +192,47 @@ function forceToggleClasses(el, discriminator, ...cls) {
     cls.map((cl) => el.classList.toggle(cl, discriminator));
 }
 
+class NewFieldItem extends HTMLElement {
+    static observedAttributes = ["type"];
+
+    /** @type {HTMLSpanElement} */
+    iconPanel = parseHtml(
+        `<span class="flex items-center justify-center w-8 h-8 p-1.5 rounded-md bg-[#f1f5f9] text-neutral-500 dark:bg-neutral-600 dark:text-neutral-300"></span>`
+    );
+
+    /** @type {HTMLDivElement} */
+    labelPanel = parseHtml(
+        `<div class="grid">
+            <span class="text-base leading-5 text-neutral-700 dark:text-neutral-100"></span>
+            <span class="text-xs font-normal text-neutral-500 dark:text-neutral-400"></span>
+        </div>`
+    );
+
+    constructor() {
+        super();
+        this.append(this.iconPanel, this.labelPanel);
+    }
+
+    connectedCallback() {
+        this.draggable = true;
+        this.className =
+            "flex gap-4 p-3 items-center rounded-md origin-center transition-all duration-100 bg-white border border-neutral-200/50 dark:bg-aux-dark dark:border-none hover:[scale:101%] hover:[translate:0_-2px] hover:[box-shadow:0_2px_#00000026] hover:text-indigo-900 hover:dark:text-white";
+
+        addEvents(this, "dragstart", (/** @type {DragEvent} */ e) => {
+            window.dispatchEvent(createCustomEvent("creating-field"));
+            e.dataTransfer.setData("text/plain", this.getAttribute("type"));
+        });
+        addEvents(this, "dragend", () => window.dispatchEvent(createCustomEvent("creating-field")));
+
+        const icon = parseHtml(
+            `<svg viewBox="${this.getAttribute("icon-viewbox")}" class="fill-current"><use href="${this.getAttribute("icon-id")}" /></svg>`
+        );
+        this.iconPanel.append(icon);
+        this.labelPanel.children[0].textContent = this.getAttribute("label");
+        this.labelPanel.children[1].textContent = this.getAttribute("description");
+    }
+}
+
 class ContainerHighlight extends HTMLElement {
     static observedAttributes = ["active", "field-name", "field-state"];
 
@@ -409,15 +450,6 @@ class FormFieldBase extends HTMLElement {
         transition(this);
     }
 
-    sendEditEvent() {
-        this.isActive = true;
-        this.highlight.setAttribute("active", "");
-        this.highlight.classList.remove("invisible");
-
-        const event = createCustomEvent("edit-field", { element: this });
-        this.dispatchEvent(event);
-    }
-
     setup() {
         console.log("setup function is used in subclasses to setup event listeners and other tasks.");
     }
@@ -430,14 +462,14 @@ class FormFieldBase extends HTMLElement {
         this.setup();
 
         // this events
-        addEvents(this, "pointerdown", this.sendEditEvent);
+        addEvents(this, "pointerdown", () => this.sendEditEvent());
         addEvents(this, "pointerover", (/** @type {PointerEvent} */ e) => {
             e.stopPropagation();
             if (!this.isActive) this.highlight.classList.remove("invisible");
         });
         addEvents(this, "pointerout", (/** @type {PointerEvent} */ e) => {
             e.stopPropagation();
-            if (!this.isActive) this.highlight.classList.add(!this.isActive && "invisible");
+            if (!this.isActive) this.highlight.classList.add("invisible");
         });
         addEvents(this, "delete", (/** @type {CustomEvent} */ e) => {
             this.dispatchEvent(createCustomEvent("remove-field", { fieldId: this.data.id }));
@@ -469,6 +501,15 @@ class FormFieldBase extends HTMLElement {
 
     disconnectedCallback() {
         cleanupElement(this);
+    }
+
+    sendEditEvent() {
+        this.isActive = true;
+        this.highlight.setAttribute("active", "");
+        this.highlight.classList.remove("invisible");
+
+        const event = createCustomEvent("edit-field", { element: this });
+        this.dispatchEvent(event);
     }
 }
 
@@ -784,6 +825,7 @@ class HTMLFormField extends FormFieldBase {
     }
 }
 
+customElements.define("new-field-item", NewFieldItem);
 customElements.define("container-highlight", ContainerHighlight);
 customElements.define("container-drop-zone", ContainerDropZone);
 
