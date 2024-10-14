@@ -166,6 +166,15 @@ function createCustomEvent(name, detail = null, bubbles = true, cancelable = fal
 const parseTemplate = document.createElement("template");
 
 /**
+ * @param {string} html
+ * @returns {DocumentFragment}
+ */
+function get_fragment(html) {
+    parseTemplate.innerHTML = html;
+    return parseTemplate.content;
+}
+
+/**
  * @template T
  * @param {string} html
  * @returns {T}
