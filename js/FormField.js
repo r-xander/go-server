@@ -167,11 +167,25 @@ const parseTemplate = document.createElement("template");
 
 /**
  * @param {string} html
- * @returns {DocumentFragment}
+ * @returns {HTMLTemplateElement}
  */
 function get_fragment(html) {
     parseTemplate.innerHTML = html;
-    return parseTemplate.content;
+    return parseTemplate;
+}
+
+/**
+ * @param {string} tag
+ * @param {CustomElementConstructor} type
+ * @param {string} template
+ */
+function register(tag, type, template) {
+    const t = document.createElement("template");
+    t.id = "template-" + tag;
+    t.innerHTML = template;
+    document.head.append(t);
+
+    customElements.define(tag, type);
 }
 
 /**

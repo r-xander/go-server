@@ -1,29 +1,5 @@
 //@ts-check
 
-const section_template = get_fragment(
-    `<container-highlight class="invisible block absolute inset-0 cursor-pointer transition border border-sky-500"></container-highlight>
-    <div>
-        <h2 class="font-semibold text-2xl mb-1"></h2>
-        <div class="col-span-full break-all"></div>
-    </div>
-    <div class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4">
-        <div class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" inert>
-            <svg class="h-8 w-8" viewBox="0 0 494 492"><use href="#section-drag-icon" /></svg>
-            <div>Drag an element here</div>
-        </div>
-    </div>
-    <container-drop-zone class="absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white" insert-location="beforebegin">
-        <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
-            <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
-        </div>
-    </container-drop-zone>
-    <container-drop-zone class="absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white" data-insert-location="afterend">
-        <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
-            <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
-        </div>
-    </container-drop-zone>`
-);
-
 class FormSection extends HTMLElement {
     data = createReactiveObject({
         id: "",
@@ -39,10 +15,10 @@ class FormSection extends HTMLElement {
     isActive = false;
 
     initialize() {
-        const template = /** @type {DocumentFragment} */ (section_template.cloneNode(true));
-        this.append(template);
+        const template = /** @type {HTMLTemplateElement} */ (document.getElementById("template-form-section"));
+        const content = /** @type {DocumentFragment} */ (template.content.cloneNode(true));
 
-        this.highlight = /** @type {ContainerHighlight} */ (template.firstElementChild);
+        this.highlight = /** @type {ContainerHighlight} */ (content.firstElementChild);
         this.header = /** @type {HTMLDivElement} */ (this.highlight.nextElementSibling);
         this.label = /** @type {HTMLHeadingElement} */ (this.header.firstElementChild);
         this.description = /** @type {HTMLDivElement} */ (this.header.lastElementChild);
@@ -50,6 +26,7 @@ class FormSection extends HTMLElement {
         this.emptySectionElement = /** @type {HTMLDivElement} */ (this.fieldContainer.firstElementChild);
         this.topDropZone = /** @type {ContainerDropZone} */ (this.fieldContainer.nextElementSibling);
         this.bottomDropZone = /** @type {ContainerDropZone} */ (this.topDropZone.nextElementSibling);
+        this.appendChild(content);
 
         createEffect(() => (this.label.textContent = this.data.label));
         createEffect(() => (this.description.style.display = this.data.description === "" ? "none" : ""));
@@ -174,4 +151,29 @@ class FormSection extends HTMLElement {
         }
     }
 }
-customElements.define("form-section", FormSection);
+
+register(
+    "form-section",
+    FormSection,
+    `<container-highlight class="invisible block absolute inset-0 cursor-pointer transition border border-sky-500"></container-highlight>
+    <div>
+        <h2 class="font-semibold text-2xl mb-1"></h2>
+        <div class="col-span-full break-all"></div>
+    </div>
+    <div class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4">
+        <div class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" inert>
+            <svg class="h-8 w-8" viewBox="0 0 494 492"><use href="#section-drag-icon" /></svg>
+            <div>Drag an element here</div>
+        </div>
+    </div>
+    <container-drop-zone class="absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white" insert-location="beforebegin">
+        <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
+            <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
+        </div>
+    </container-drop-zone>
+    <container-drop-zone class="absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white" data-insert-location="afterend">
+        <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
+            <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
+        </div>
+    </container-drop-zone>`
+);
