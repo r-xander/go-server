@@ -1,5 +1,13 @@
 //@ts-check
 
+const ghost = document.createElement("div");
+ghost.style.position = "absolute";
+ghost.style.top = "-1000px";
+ghost.style.backgroundColor = "#121212";
+ghost.style.color = "white";
+ghost.style.padding = "0.75rem 4rem";
+document.body.append(ghost);
+
 const navigationKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "k", "j", "h", "l", "w", "s", "a", "d"];
 const upKeys = ["ArrowUp", "k", "w"];
 const downKeys = ["ArrowDown", "j", "s"];
@@ -372,6 +380,7 @@ class ContainerDropZone extends HTMLElement {
 
     initialize() {
         this.style.display = "none";
+        this.style.zIndex = "50";
 
         this.indicatorSlot = document.createElement("slot");
         const root = this.attachShadow({ mode: "open", slotAssignment: "manual" });
@@ -525,7 +534,11 @@ class FormFieldBase extends HTMLElement {
             this.dispatchEvent(createCustomEvent("remove-field", { fieldId: this.data.id }));
             removeElement(this);
         });
-        addEvents(this, "dragstart", (e) => window.dispatchEvent(createCustomEvent("moving-field", { field: this })));
+        addEvents(this, "dragstart", (e) => {
+            ghost.textContent = this.data.name;
+            e.dataTransfer.setDragImage(ghost, 0, 0);
+            window.dispatchEvent(createCustomEvent("moving-field", { field: this }));
+        });
         addEvents(this, "dragend", (e) => window.dispatchEvent(createCustomEvent("moved-field", { field: this })));
 
         addEvents(this.topDropZone, "dragover", (e) => e.preventDefault());
