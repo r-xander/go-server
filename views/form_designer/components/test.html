@@ -1,6 +1,8 @@
+<script src="../../../js/FormField.js"></script>
+
 <script>
     register("form-section", {
-        data: createReactiveObject({
+        state: createReactiveObject({
             id: "",
             name: "section",
             label: "Section",
@@ -124,28 +126,28 @@
                 this.fieldContainer.appendChild(newEl);
             } else {
                 const insertLocation = /** @type {InsertPosition} */ (target.dataset.insertLocation);
-                target.parentElement.insertAdjacentElement(insertLocation, newEl);
+                target.parentElement?.insertAdjacentElement(insertLocation, newEl);
             }
         }
     })
 </script>
 
 <template id="form-section"
-    on(pointerdown){emit(edit-section)}
-    on(pointerdown).global{emit(active-out)}
-    on(pointerover).stop{emit(hover-over)}
-    on(pointerout).stop{emit(hover-out)}
+    on:pointerdown=emit:edit-section,$.isActive:true
+    on:pointerdown.global=emit:active-out
+    on:pointerover.stop=emit:hover-over
+    on:pointerout.stop=emit:hover-out
 >
     <container-highlight
-        on(name-change){@field-name:$name}
-        on(hidden-change){@field-state:[Readonly]}
-        on(readonly-change){@field-state:[Readonly]}
-        on(active-out|hover-out){style.visible:hidden}
+        on:name-change=@field-name:$.name
+        on:hidden-change=@field-state:[Hidden]
+        on:readonly-change=@field-state:[Readonly]
+        on:active-out|hover-out=this.style.visibility:hidden
         class="invisible block absolute inset-0 cursor-pointer transition border border-sky-500"
     ></container-highlight>
     <div>
-        <h2 &label class="font-semibold text-2xl mb-1"></h2>
-        <div &description class="col-span-full break-all"></div>
+        <h2 class="font-semibold text-2xl mb-1">[[$.label]]</h2>
+        <div class="col-span-full break-all">[[$.description]]</div>
     </div>
     <div class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4">
         <div class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" inert>
