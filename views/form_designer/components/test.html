@@ -1,91 +1,100 @@
 <script>
     //@ts-check
 
-    //@ts-ignore
-    register("form-section", {
-        state: {
-            id: "",
-            name: "section",
-            label: "Section",
-            description: "",
-            hidden: false,
-        },
-        fields: [],
-        initialized: false,
-        active: false,
+$state("form-section", {
+    data: {
+        id: "",
+        name: "section",
+        label: "Section",
+        description: "",
         hidden: false,
-        init() {
-            effect(() => this.active && emit("edit-section", this.state))
-        },
-        /** @param {CustomEvent} e */
-        addField(e) {
-            this.fields.push(e.detail.field.id);
-    
-            if (this.fieldContainer.contains(this.emptySectionElement)) {
-                this.emptySectionElement.remove();
-            }
-        },
-        /** @param {CustomEvent} e */
-        removeField(e) {
-            const id = e.detail.fieldId;
-            this.fields = this.fields.filter((field) => field !== id);
-    
-            if (this.fields.length === 0) {
-                this.fieldContainer.append(this.emptySectionElement);
-            }
-        },
-        /** @param {DragEvent} e */
-        drop(e) {
-            e.preventDefault();
-            e.stopPropagation();
-    
-            const target = /** @type {HTMLElement} */ (e.target);
-            const templateId = /** @type {string} */ (e.dataTransfer?.getData("text/plain"));
-            const elementClass = customElements.get(templateId) ?? HTMLUnknownElement
-            const newEl = new elementClass();
-    
-            if (target === this.fieldContainer) {
-                this.fieldContainer.appendChild(newEl);
-            } else {
-                const insertLocation = /** @type {InsertPosition} */ (target.dataset.insertLocation);
-                target.parentElement?.insertAdjacentElement(insertLocation, newEl);
-            }
-        }
-    })
+    },
+    fields: [],
+    initialized: false,
+    active: false,
+    hidden: false,
+})
+
+function init() {
+    effect(() => this.active && emit("edit-section", this.state))
+}
+        
+/** @param {CustomEvent} e */
+function addField(el, e) {
+    el.fields.push(e.detail.field.id);
+
+    if (this.fieldContainer.contains(this.emptySectionElement)) {
+        this.emptySectionElement.remove();
+    }
+}
+ 
+/** @param {CustomEvent} e */
+function removeField(el, e) {
+    const id = e.detail.fieldId;
+    el.fields = el.fields.filter((field) => field !== id);
+
+    if (this.fields.length === 0) {
+        this.fieldContainer.append(this.emptySectionElement);
+    }
+}
+
+/** @param {DragEvent} e */
+function drop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const target = /** @type {HTMLElement} */ (e.target);
+    const templateId = /** @type {string} */ (e.dataTransfer?.getData("text/plain"));
+    const elementClass = customElements.get(templateId) ?? HTMLUnknownElement
+    const newEl = new elementClass();
+
+    if (target === this.fieldContainer) {
+        this.fieldContainer.appendChild(newEl);
+    } else {
+        const insertLocation = /** @type {InsertPosition} */ (target.dataset.insertLocation);
+        target.parentElement?.insertAdjacentElement(insertLocation, newEl);
+    }
+}
 </script>
 
-<template id="form-section"
-    on:pointerdown="$.active = true"
-    on:pointerdown.global="$.active = false"
-    on:pointerover.stop="$.hovering = true"
-    on:pointerout.stop="$.hovering = false"
-    on:dragstart="emit.global:moving-section"
-    on:dragend="emit.global:moved-section"
-    on:delete="delete"
+<form-section
+    on:pointerdown="emit::active"
+    on:pointerdown.outside="revoke::active"
+    on:pointerover.stop="emit::hovering"
+    on:pointerout.stop="revoke::hovering"
+    on:dragstart="emit::moving-section"
+    on:dragend="revoke::moving-section"
+    on:delete="run::delete"
+    on:add-field="run::addField"
+    on:remove-field="run::removeField"
 >
     <container-highlight
-        $.fieldState="$$.state"
-        $.fieldName="$$.name"
-        $.active="$$.active"
-        $.visible="$$.active|$$.hovering"
+        on:state-change[state]="set::fieldState"
+        on:state-change[name]="set::fieldName"
+        on:active="toggle::active"
+        on:hovering="run::hovering"
         class="block absolute inset-0 cursor-pointer transition border border-sky-500"
     ></container-highlight>
     <div>
         <h2 class="font-semibold text-2xl mb-1">[[$.label]]</h2>
         <div
-            .hidden="$.description==''"
+            .hidden="$.description === ''"
             class="col-span-full break-all"
         >
             [[$.description]]
         </div>
     </div>
     <div
-        on:(pointerdown|pointerover|pointerout).stop
+        on:[pointerdown|pointerover|pointerout].stop
         on:dragover.prevent
-        on:drop="drop"
+        on:drop="run::drop"
         class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4"
     >
-        <div class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" inert>
+        <div
+            on:[add-field|remove-field]="class::toggle(hidden, $.field.length > 0)"
+            class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" 
+            inert
+        >
             <svg class="h-8 w-8" viewBox="0 0 494 492"><use href="#section-drag-icon" /></svg>
             <div>Drag an element here</div>
         </div>
@@ -93,10 +102,16 @@
     <container-drop-zone
         on:move-section[target:this]="$.visible:true"
         on:moved-section="$.visible:false"
-        class="absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white" insert-location="beforebegin"
+        class="absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white"
+        insert-location="beforebegin"
     >
-        <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
-            <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
+        <div
+            class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" 
+            inert
+        >
+            <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">
+                Drop Item Here
+            </div>
         </div>
     </container-drop-zone>
     <container-drop-zone
@@ -104,8 +119,13 @@
         on:moved-section="$.visible = false"
         class="absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white" data-insert-location="afterend"
     >
-        <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
-            <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">Drop Item Here</div>
+        <div 
+            class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" 
+            inert
+        >
+            <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">
+                Drop Item Here
+            </div>
         </div>
     </container-drop-zone>
-</template>
+</form-section>
