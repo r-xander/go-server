@@ -67,21 +67,19 @@ function drop(e) {
     on:delete="run::delete"
     on:add-field="run::addField"
     on:remove-field="run::removeField"
+    on:moving-section[!this]="event::cancel"
 >
     <container-highlight
-        on:state-change[state]="set::fieldState"
-        on:state-change[name]="set::fieldName"
-        on:active="toggle::active"
+        on:state-change[state]="set::$.fieldState"
+        on:state-change[name]="set::$.fieldName"
+        on:active="toggle::$.active"
         on:hovering="run::hovering"
         class="block absolute inset-0 cursor-pointer transition border border-sky-500"
     ></container-highlight>
     <div>
         <h2 class="font-semibold text-2xl mb-1">[[$.label]]</h2>
-        <div
-            .hidden="$.description === ''"
-            class="col-span-full break-all"
-        >
-            [[$.description]]
+        <div class="col-span-full break-all">
+            [[ $.description ?? class::toggle(hidden) ]]
         </div>
     </div>
     <div
@@ -91,7 +89,7 @@ function drop(e) {
         class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4"
     >
         <div
-            on:[add-field|remove-field]="class::toggle(hidden, $.field.length > 0)"
+            on:[add-field|remove-field]="class::toggle(hidden, $.fields.length > 0)"
             class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" 
             inert
         >
