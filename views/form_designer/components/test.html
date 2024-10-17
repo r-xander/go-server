@@ -58,40 +58,37 @@ function drop(e) {
 </script>
 
 <form-section
-    on:pointerdown="emit::active"
-    on:pointerdown.outside="revoke::active"
-    on:pointerover.stop="emit::hovering"
-    on:pointerout.stop="revoke::hovering"
-    on:dragstart="emit::moving-section"
-    on:dragend="revoke::moving-section"
-    on:delete="run::delete"
-    on:add-field="run::addField"
-    on:remove-field="run::removeField"
+    on::pointerdown="emit::edit-field"
+    on::delete="run::delete"
+    on::add-field="run::addField"
+    on::remove-field="run::removeField"
 >
     <container-highlight
-        on:state-change[state]="set::fieldState"
-        on:state-change[name]="set::fieldName"
-        on:active="toggle::active"
-        on:hovering="run::hovering"
+        component::pointerdown="add::active"
+        component::pointerdown.outside="remove::active"
+        component::pointerover.stop="add::hovering"
+        component::pointerout.stop="remove::hovering"
+        component::state-change="fieldState = $.hidden && '[Hidden]'"
+        component:state-change="fieldName = $.name"
         class="block absolute inset-0 cursor-pointer transition border border-sky-500"
     ></container-highlight>
     <div>
         <h2 class="font-semibold text-2xl mb-1">[[$.label]]</h2>
         <div
-            .hidden="$.description === ''"
+            component::state-change="class::toggle(hidden, $.description === '')"
             class="col-span-full break-all"
         >
             [[$.description]]
         </div>
     </div>
     <div
-        on:[pointerdown|pointerover|pointerout].stop
-        on:dragover.prevent
-        on:drop="run::drop"
+        this::[pointerdown|pointerover|pointerout].stop
+        this::dragover.prevent
+        this::drop="run::drop"
         class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4"
     >
         <div
-            on:[add-field|remove-field]="class::toggle(hidden, $.field.length > 0)"
+            component::[add-field|remove-field]="class::toggle(hidden, this.childElementCount > 0)"
             class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" 
             inert
         >
@@ -99,25 +96,23 @@ function drop(e) {
             <div>Drag an element here</div>
         </div>
     </div>
-    <container-drop-zone
-        on:move-section[target:this]="$.visible:true"
-        on:moved-section="$.visible:false"
+    <div
+        component::dragstart="class::add[hidden]"
+        component::dragend="class::remove[hidden]"
         class="absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white"
         insert-location="beforebegin"
     >
-        <div
-            class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" 
-            inert
-        >
+        <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
             <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">
                 Drop Item Here
             </div>
         </div>
-    </container-drop-zone>
-    <container-drop-zone
-        on:move-section[target:this]="$.visible = true"
-        on:moved-section="$.visible = false"
-        class="absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white" data-insert-location="afterend"
+    </div>
+    <div
+        component::dragstart="class::add[hidden]"
+        component::dragend="class::remove[hidden]"
+        class="absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white"
+        data-insert-location="afterend"
     >
         <div 
             class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" 
@@ -127,5 +122,5 @@ function drop(e) {
                 Drop Item Here
             </div>
         </div>
-    </container-drop-zone>
+    </div>
 </form-section>

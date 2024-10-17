@@ -289,10 +289,10 @@ class ContainerHighlight extends HTMLElement {
     /** @type {HTMLElement} */
     buttonBlock = parseHtml(
         `<div class="absolute -right-px bottom-full flex gap-1">
-            <button class="p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
+            <button class="p-1 transition bg-sky-500 text-white hover:bg-sky-600">
                 <svg class="w-3 h-3"><use href="#copy-icon" /></svg>
             </button>
-            <button class="p-1 cursor-pointer transition bg-sky-500 text-white hover:bg-sky-600">
+            <button class="p-1 transition bg-sky-500 text-white hover:bg-sky-600">
                 <svg class="w-3 h-3"><use href="#delete-icon" /></svg>
             </button>
         </div>`
