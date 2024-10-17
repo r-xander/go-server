@@ -60,21 +60,22 @@ function drop(e) {
     &::remove-field::run(removeField)
 >
     <container-highlight
-        $::pointerdown::attribute.add(active)
-        $::pointerdown.outside::attribute.remove(active)
-        $::pointerover.stop::attribute.add(hovering)
-        $::pointerout.stop::attribute.remove(hovering)
-        $::state-change[hidden]::attribute.toggle(field-state|value::equals(true))="[Hidden]"
-        $::state-change[name]::attribute.set(field-name)="#value"
+        $::pointerdown::@active.add
+        $::pointerdown.outside::@active.remove
+        $::pointerover.stop::@hovering.add
+        $::pointerout.stop::@hovering.remove
+        $::state-change[hidden]::@field-state.toggle(#value::equals(true))="[Hidden]"
+        $::state-change[name]::@field-name.set(#value)
         class="block absolute inset-0 cursor-pointer transition border border-sky-500"
     ></container-highlight>
     <div>
-        <h2 class="font-semibold text-2xl mb-1">[[ $::state-change[label]::&.textContent="#value" ]]</h2>
+        <h2 class="font-semibold text-2xl mb-1">[[ $::state-change[label]::set(#value) ]]</h2>
         <div
-            $::state-change[description]::class.toggle(hidden|value::empty)
+            $::state-change[description]::class[hidden].toggle(#value::empty)
+            $::state-change[description]::textContent.set(#value)
             class="col-span-full break-all"
         >
-            [[ $::state-change[description]::&.textContent="#value" ]]
+            [[ $::state-change[description]::set(#value) ]]
         </div>
     </div>
     <div
@@ -84,7 +85,7 @@ function drop(e) {
         class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4"
     >
         <div
-            $::[add-field|remove-field]::class.toggle(hidden|&.children.length::equals(0))
+            $::[add-field|remove-field]::class[hidden].toggle(children.length::greater(0))
             class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" 
             inert
         >
@@ -93,8 +94,8 @@ function drop(e) {
         </div>
     </div>
     <div
-        $::dragstart::target.not-equals($)::class.remove(hidden)
-        $::dragend::target.not-equals($)::class.add(hidden)
+        $::dragstart::class[hidden].remove(target::not-equals($))
+        $::dragend::class[hidden].add
         class="hidden absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white"
         insert-location="beforebegin"
     >
@@ -105,8 +106,8 @@ function drop(e) {
         </div>
     </div>
     <div
-        $::dragstart::target.not-equals($)::class.remove(hidden)
-        $::dragend::target.not-equals($)::class.add(hidden)
+        $::dragstart::{target::not-equals($)}::class.remove(hidden)
+        $::dragend::{target::not-equals($)}::class.add(hidden)
         class="hidden absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white"
         data-insert-location="afterend"
     >
