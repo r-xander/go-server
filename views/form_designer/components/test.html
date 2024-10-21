@@ -3,7 +3,7 @@
 
 const formSection = {
     data: {
-        id: "",
+        id: nextSectionId(),
         name: "section",
         label: "Section",
         description: "",
@@ -13,6 +13,10 @@ const formSection = {
     initialized: false,
     active: false,
     hidden: false,
+}
+
+function init() {
+    
 }
         
 /** @param {CustomEvent} e */
@@ -51,33 +55,92 @@ function drop(e) {
         target.parentElement?.insertAdjacentElement(insertLocation, newEl);
     }
 }
+
+const events = {
+    "pointerdown": () => emit("edit-field", true),
+    "dragstart": () => emit("moving-section", true),
+    "dragend": () => emit("moved-section", true),
+    "delete": (el, e) => deleteSection(el, e),
+    "add-field": (el, e) => addField(el, e),
+    "remove-field": (el, e) => removeField(el, e)
+}
+
+const configuredEvents = {}
+const eventMap = new WeakMap();
+const eventBoundries = new WeakSet();
+
+function registerEvent(eventType, listenerEl, handlerEl, callback, modifiers) {
+    if (!configuredEvents[eventType]) {
+        document.addEventListener(eventType, (event) => runEvent(event, eventType))
+        configuredEvents[eventType] = true
+    }
+
+    let elEvents = eventMap.get(listenerEl)
+    if (elEvents === undefined) {
+        elEvents = {}
+        eventMap.set(listenerEl, elEvents)
+    }
+
+    const callbacks = elEvents[eventType] ?? (elEvents[eventType] = [])
+    callbacks.push(callback)
+}
+
+function runEvent(event, eventType) {
+    let target = event.target;
+
+    while(!eventBoundries.has(Object.getPrototypeOf(target)))
+
+    // while (!eventBoundries.has(target) && target !== document.body) {
+    //     const targetData = eventMap.get(target);
+    //     const handlerData = targetData?.get(eventType)
+
+    //     if (handlerData !== undefined) {
+    //         handlerData.execute(target, event)
+    //         if (handlerData.modifiers.stop) {
+    //             event.stopPropagation();
+    //             break;
+    //         }
+    //     }
+
+    //     target = target.parentElement;
+    // }
+}
+
+function emit(el, eventType, data, modifiers) {
+    const event = new CustomEvent(eventType, { detail : data, bubbles: true, cancelable: true })
+    
+    if (modifiers.global) {
+        el = window
+    }
+
+    el.dispatchEvent(event)
+}
 </script>
 
 <form-section
-    &::pointerdown::emit.global(edit-field)
-    &::dragstart::emit.global(moving-section)
-    &::dragend::emit.global(moved-section)
-    &::delete::run(delete)
-    &::add-field::run(addField)
-    &::remove-field::run(removeField)
+    &::pointerdown::emit.global[edit-field($)]
+    &::dragstart::emit.global[moving-section]
+    &::dragend::emit.global[moved-section]
+    &::delete::run[delete]
+    &::add-field::run[addField]
+    &::remove-field::run[removeField]
 >
     <container-highlight
-        $::pointerdown::delegate[active]
-        $::pointerdown.outside::delegate[not-active]
-        $::pointerover.stop::delegate[hovering]
-        $::pointerout.stop::delegate[hovering]
-        $::state-change[hidden]::delegate
-        $::state-change[name]::delegate
+        $::pointerdown.outside::emit[not-active]
+        $::pointerdown::emit[active]
+        $::pointerover.stop::emit[hovering]
+        $::pointerout.stop::emit[hovering]
+        $::state-change[hidden|name]::passthrough
         class="block absolute inset-0 cursor-pointer transition border border-sky-500"
     ></container-highlight>
     <div>
-        <h2 class="font-semibold text-2xl mb-1">[[ $::state-change[label]::set(#value) ]]</h2>
+        <h2 class="font-semibold text-2xl mb-1">[[ $::state-change[label]::#value ]]</h2>
         <div
-            $::state-change[description]::class[hidden].toggle(#value::empty)
-            $::state-change[description]::textContent.set(#value)
+            $::state-change[description]="&.classList.toggle('hidden', none(#value))"
+            $::state-change[description]::textContent="#value"
             class="col-span-full break-all"
         >
-            [[ $::state-change[description]::set(#value) ]]
+            [[ $::state-change[description]::#value ]]
         </div>
     </div>
     <div
@@ -87,7 +150,7 @@ function drop(e) {
         class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4"
     >
         <div
-            $::[add-field|remove-field]::class[hidden].toggle(&.children.length::greater(0))
+            $::[add-field|remove-field]::class.toggle(empty(&.children))="hidden"
             class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" 
             inert
         >
@@ -96,8 +159,7 @@ function drop(e) {
         </div>
     </div>
     <div
-        global::moving-section::class[hidden].remove(#target::not-equals($))
-        global::moved-section::class[hidden].add
+        global::[moving-section|moved-section](not(#target|$))::class.toggle="hidden"
         class="hidden absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white"
         insert-location="beforebegin"
     >
@@ -108,8 +170,7 @@ function drop(e) {
         </div>
     </div>
     <div
-        global::moving-section::class[hidden].remove(#target::not-equals($))
-        global::moved-section::class[hidden].add
+        global::[moving-section|moved-section]::not(#target|$)::class.toggle="hidden"
         class="hidden absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white"
         data-insert-location="afterend"
     >
@@ -126,21 +187,27 @@ function drop(e) {
 
 
 <container-highlight
-
+    &::[active|not-active]::class.toggle="bg-sky-500/20"
+    &::not-active::class.add="invisible"
 >
     <div class="absolute -left-px bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500">
-        <span class="font-bold italic cursor-default select-none">[[ $::state-change[name]::set(#value) ]]</span>
-        <span class="opacity-80"> [[ $::state-change[state]::set(#value) ]]</span>
+        <span class="font-bold italic cursor-default select-none">[[ $::state-change::set(#state.name) ]]</span>
+        <span
+            $::state-change::none(#state.state)::class.toggle="hidden"
+            class="opacity-80"
+        >
+            [[ $::state-change::set(#state.state) ]]
+        </span>
     </div>
     <div class="absolute -right-px bottom-full flex gap-1">
         <button
-            $::click::emit(copy-modal-open).internal
+            $::click::emit(copy-modal-open)
             class="p-1 transition bg-sky-500 text-white hover:bg-sky-600"
         >
             <svg class="w-3 h-3"><use href="#copy-icon" /></svg>
         </button>
         <button
-            $::click::emit(delete-modal-open).internal
+            $::click::emit(delete-modal-open)
             class="p-1 transition bg-sky-500 text-white hover:bg-sky-600"
         >
             <svg class="w-3 h-3"><use href="#delete-icon" /></svg>
@@ -175,13 +242,13 @@ function drop(e) {
         <h1>Are you sure you want to delete this field?</h1>
         <div class="flex gap-2 justify-self-end">
             <button
-                &::click::emit(delete)
+                &::click::emit[delete]
                 class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70"
             >
                 Delete
             </button>
             <button
-                $::click::emit(delete-modal-close).internal
+                $::click::emit.internal[delete-modal-close]
                 class="px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]"
             >
                 Cancel
