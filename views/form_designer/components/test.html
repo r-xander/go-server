@@ -1,60 +1,5 @@
 <script>
-    //@ts-check
-
-const formSection = {
-    data: {
-        id: nextSectionId(),
-        name: "section",
-        label: "Section",
-        description: "",
-        hidden: false,
-    },
-    fields: [],
-    initialized: false,
-    active: false,
-    hidden: false,
-}
-
-function init() {
-    
-}
-        
-/** @param {CustomEvent} e */
-function addField(el, e) {
-    el.fields.push(e.detail.field.id);
-    
-    if (this.fieldContainer.contains(this.emptySectionElement)) {
-        this.emptySectionElement.remove();
-    }
-}
- 
-/** @param {CustomEvent} e */
-function removeField(el, e) {
-    const id = e.detail.fieldId;
-    el.fields = el.fields.filter((field) => field !== id);
-
-    if (this.fields.length === 0) {
-        this.fieldContainer.append(this.emptySectionElement);
-    }
-}
-
-/** @param {DragEvent} e */
-function drop(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const target = /** @type {HTMLElement} */ (e.target);
-    const templateId = /** @type {string} */ (e.dataTransfer?.getData("text/plain"));
-    const elementClass = customElements.get(templateId) ?? HTMLUnknownElement
-    const newEl = new elementClass();
-
-    if (target === this.fieldContainer) {
-        this.fieldContainer.appendChild(newEl);
-    } else {
-        const insertLocation = /** @type {InsertPosition} */ (target.dataset.insertLocation);
-        target.parentElement?.insertAdjacentElement(insertLocation, newEl);
-    }
-}
+//@ts-check
 
 const configuredEvents = {}
 const eventMap = new WeakMap();
@@ -95,87 +40,155 @@ function runEvent(event, eventType) {
     }
 }
 
-function emit(el, eventType, data, modifiers) {
+function emit(el, eventType, data) {
+    data ??= {}
+    data.element = el;
+
     const event = new CustomEvent(eventType, { detail : data, bubbles: true, cancelable: true })
+    el.dispatchEvent(event)
+}
+
+const formSection = {
+    data: {
+        id: nextSectionId(),
+        name: "section",
+        label: "Section",
+        description: "",
+        hidden: false,
+    },
+    fields: [],
+}
+
+/** @param {CustomEvent} e */
+function addField(el, e) {
+    el.fields.push(e.detail.field.id);
     
-    if (modifiers.global) {
-        el = window
+    if (this.fieldContainer.contains(this.emptySectionElement)) {
+        this.emptySectionElement.remove();
+    }
+}
+ 
+/** @param {CustomEvent} e */
+function removeField(el, e) {
+    const id = e.detail.fieldId;
+    el.fields = el.fields.filter((field) => field !== id);
+
+    if (this.fields.length === 0) {
+        this.fieldContainer.append(this.emptySectionElement);
+    }
+}
+
+/** @param {DragEvent} e */
+function drop(el, e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const target = /** @type {HTMLElement} */ (e.target);
+    const templateId = /** @type {string} */ (e.dataTransfer?.getData("text/plain"));
+    const elementClass = customElements.get(templateId) ?? HTMLUnknownElement
+    const newEl = new elementClass();
+
+    if (target === this.fieldContainer) {
+        el.appendChild(newEl);
+    } else {
+        const insertLocation = /** @type {InsertPosition} */ (target.getAttribute("drop-insert-location"));
+        target.parentElement?.insertAdjacentElement(insertLocation, newEl);
     }
 
-    el.dispatchEvent(event)
+    if (el.childElementCount > 1) {
+        el.firstElementChild.style.display = "none"
+    } else {
+        el.firstElementChild.style.display = ""
+    }
 }
 
 const events = {
     component: {
-        pointerdown: (el, e) => emit(el, "edit-field", null, true),
-        dragstart: (el, e) => emit(el, "moving-section", null, true),
-        dragend: (el, e) => emit(el, "moved-section", null, true),
-        delete: () => deleteSection(this),
+        pointerdown: (el, e) => emit(window, "edit-section"),
+        dragstart: (el, e) => emit(window, "moving-section"),
+        dragend: (el, e) => emit(window, "moved-section"),
+        delete: (el, e) => deleteSection(el, e),
         "add-field": (el, e) => addField(el, e),
         "remove-field": (el, e) => removeField(el, e)
     },
     highlight: {
-        pointerdown: () => {
+        pointerdown: (el) => emit(el, "active"),
+        pointerover: (el) => emit(el, "hoverover"),
+        pointerout: (el) => emit(el, "hoverout"),
+        "state-change": (el, e) => e.detail.hidden || e.detail.name && emit(el, "state-change", e.detail),
+    },
+    label: {
+        "state-change": (el, e) => e.detail.label && (el.textContent = e.detail.label),
+    },
+    description: {
+        "state-change": (el, e) => {
+            if (!e.detail.description) return
 
-        }
-    }
+            if (e.detail.description === "") {
+                el.style.display = "none"
+            } else {
+                el.style.display = "none"
+                el.textContent = e.detail.description
+            }
+        },
+    },
+    "field-containter": {
+        pointerdown: (el, e) => e.stopPropagation(),
+        pointerover: (el, e) => e.stopPropagation(),
+        pointerout: (el, e) => e.stopPropagation(),
+        dragover: (el, e) => {
+            const effect = e.getData("effect") 
+            effect === "add-field" || effect === "move-field" && e.preventDefault()
+        },
+        drop: (el, e) => drop(el, e)
+    },
+    "top-drop-zone": {
+        drop: (el, e) => drop(el, e)
+    },
+    "bottom-drop-zone": {
+        drop: (el, e) => drop(el, e)
+    },
 }
 
-registerEvent("pointerdown", window, "highlight", (el, e) => emit(el, "not-active"), { outside: true })
+registerOutsideEvent("pointerdown", "form-section", "highlight", (el, e) => emit(el, "not-active"))
+registerEvent("moving-section", window, "top-drop-zone", (el, e) => emit(el, "not-active"))
 </script>
 
 
 
-<form-section
-    &::pointerdown::emit.global[edit-field]
-    &::dragstart::emit.global[moving-section]
-    &::dragend::emit.global[moved-section]
-    &::delete::run[delete]
-    &::add-field::run[addField]
-    &::remove-field::run[removeField]
->
-    <container-highlight 
-        $::pointerdown.outside::emit[not-active]
-        $::pointerdown::emit[active]
-        $::pointerover.stop::emit[hovering]
-        $::pointerout.stop::emit[hovering]
-        $::state-change[hidden|name]::passthrough
-        class="block absolute inset-0 cursor-pointer transition border border-sky-500"
+<form-section drag-event="move-section">
+    <container-highlight
         event-target="hightlight"
+        class="block absolute inset-0 cursor-pointer transition border border-sky-500"
     ></container-highlight>
     <div>
         <h2
-            class="font-semibold text-2xl mb-1"
             event-target="label"
-        >
-            [[ $::state-change[label]::#value ]]
-        </h2>
+            state-label="text"
+            class="font-semibold text-2xl mb-1"
+        ></h2>
         <div
-            $::state-change[description]="&.classList.toggle('hidden', none(#value))"
+            event-target="description"
+            state-description="text"
             class="col-span-full break-all"
-        >
-            [[ $::state-change[description]::#value ]]
-        </div>
+        ></div>
     </div>
     <div
-        &::[pointerdown|pointerover|pointerout].stop
-        &::dragover.prevent
-        &::drop::run[drop]
+        event-target="field-container"
+        dropzone-event="add-field|move-field"
         class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4"
     >
-        <div
-            $::[add-field|remove-field]::class.toggle(empty(&.children))="hidden"
-            class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" 
-            inert
-        >
+        <div class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" inert>
             <svg class="h-8 w-8" viewBox="0 0 494 492"><use href="#section-drag-icon" /></svg>
             <div>Drag an element here</div>
         </div>
     </div>
     <div
+        event-target="top-drop-zone"
+        dropzone-event="move-section"
+        drop-insert-position="beforebegin"
         global::[moving-section|moved-section](not(#target|$))::class.toggle="hidden"
         class="hidden absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white"
-        insert-location="beforebegin"
     >
         <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
             <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">
@@ -184,20 +197,19 @@ registerEvent("pointerdown", window, "highlight", (el, e) => emit(el, "not-activ
         </div>
     </div>
     <div
+        event-target="bottom-drop-zone"
+        dropzone="move-section"
+        drop-insert-position="afterend"
         global::[moving-section|moved-section]::not(#target|$)::class.toggle="hidden"
         class="hidden absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white"
-        data-insert-location="afterend"
     >
-        <div 
-            class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500"
-            inert
-        >
+        <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
             <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">
                 Drop Item Here
             </div>
         </div>
     </div>
-</form-section>
+</template>
 
 
 <container-highlight
