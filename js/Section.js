@@ -59,7 +59,7 @@ class FormSection extends HTMLElement {
         // this events
         addEvents(this, "pointerdown", () => this.sendEditEvent());
         addEvents(this, "pointerover", (e) => {
-            e.stopPropagation();
+            // e.stopPropagation();
             if (!this.isActive) this.highlight.classList.remove("invisible");
         });
         addEvents(this, "pointerout", (e) => {
@@ -74,7 +74,10 @@ class FormSection extends HTMLElement {
             removeElement(this);
         });
 
-        addEvents(this.fieldContainer, ["pointerover", "pointerout", "pointerdown"], (e) => e.stopPropagation());
+        addEvents(this.fieldContainer, ["pointerover", "pointerout", "pointerdown"], (e) => {
+            e.stopPropagation();
+            console.log(e);
+        });
         addEvents(this.fieldContainer, "dragover", (e) => e.preventDefault());
         addEvents(this.fieldContainer, "drop", (e) => this.drop(e));
 

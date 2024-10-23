@@ -56,15 +56,6 @@ function drop(e) {
     }
 }
 
-const events = {
-    "pointerdown": () => emit("edit-field", true),
-    "dragstart": () => emit("moving-section", true),
-    "dragend": () => emit("moved-section", true),
-    "delete": (el, e) => deleteSection(el, e),
-    "add-field": (el, e) => addField(el, e),
-    "remove-field": (el, e) => removeField(el, e)
-}
-
 const configuredEvents = {}
 const eventMap = new WeakMap();
 const eventBoundries = new WeakSet();
@@ -88,22 +79,20 @@ function registerEvent(eventType, listenerEl, handlerEl, callback, modifiers) {
 function runEvent(event, eventType) {
     let target = event.target;
 
-    while(!eventBoundries.has(Object.getPrototypeOf(target)))
+    while (!eventBoundries.has(target) && target !== document.body) {
+        const targetData = eventMap.get(target);
+        const handlerData = targetData?.get(eventType);
 
-    // while (!eventBoundries.has(target) && target !== document.body) {
-    //     const targetData = eventMap.get(target);
-    //     const handlerData = targetData?.get(eventType)
+        if (handlerData !== undefined) {
+            handlerData.execute(target, event);
+            if (handlerData.modifiers.stop) {
+                event.stopPropagation();
+                break;
+            }
+        }
 
-    //     if (handlerData !== undefined) {
-    //         handlerData.execute(target, event)
-    //         if (handlerData.modifiers.stop) {
-    //             event.stopPropagation();
-    //             break;
-    //         }
-    //     }
-
-    //     target = target.parentElement;
-    // }
+        target = target.parentElement;
+    }
 }
 
 function emit(el, eventType, data, modifiers) {
@@ -115,29 +104,54 @@ function emit(el, eventType, data, modifiers) {
 
     el.dispatchEvent(event)
 }
+
+const events = {
+    component: {
+        pointerdown: (el, e) => emit(el, "edit-field", null, true),
+        dragstart: (el, e) => emit(el, "moving-section", null, true),
+        dragend: (el, e) => emit(el, "moved-section", null, true),
+        delete: () => deleteSection(this),
+        "add-field": (el, e) => addField(el, e),
+        "remove-field": (el, e) => removeField(el, e)
+    },
+    highlight: {
+        pointerdown: () => {
+
+        }
+    }
+}
+
+registerEvent("pointerdown", window, "highlight", (el, e) => emit(el, "not-active"), { outside: true })
 </script>
 
+
+
 <form-section
-    &::pointerdown::emit.global[edit-field($)]
+    &::pointerdown::emit.global[edit-field]
     &::dragstart::emit.global[moving-section]
     &::dragend::emit.global[moved-section]
     &::delete::run[delete]
     &::add-field::run[addField]
     &::remove-field::run[removeField]
 >
-    <container-highlight
+    <container-highlight 
         $::pointerdown.outside::emit[not-active]
         $::pointerdown::emit[active]
         $::pointerover.stop::emit[hovering]
         $::pointerout.stop::emit[hovering]
         $::state-change[hidden|name]::passthrough
         class="block absolute inset-0 cursor-pointer transition border border-sky-500"
+        event-target="hightlight"
     ></container-highlight>
     <div>
-        <h2 class="font-semibold text-2xl mb-1">[[ $::state-change[label]::#value ]]</h2>
+        <h2
+            class="font-semibold text-2xl mb-1"
+            event-target="label"
+        >
+            [[ $::state-change[label]::#value ]]
+        </h2>
         <div
             $::state-change[description]="&.classList.toggle('hidden', none(#value))"
-            $::state-change[description]::textContent="#value"
             class="col-span-full break-all"
         >
             [[ $::state-change[description]::#value ]]
