@@ -98,52 +98,101 @@ function insertNewField(el, e) {
 }
 </script>
 
-
-
 <form-section
-    drag-event="move-section"
     $::pointerdown="emit::edit-section"
     $::delete="deleteSection"
     $::add-field="addField"
     $::remove-field="removedField"
+    drag-event="move-section"
+    class="group/section relative grid gap-3 p-6 mb-8 rounded-md shadow-md bg-white dark:bg-card-dark"
 >
-    <container-highlight
-        $::pointerdown="emit::active"
-        $::pointerdown.outside="emit::not-active"
-        $::pointerover="emit::hoverover"
-        $::pointerout="emit::hoverout"
-        state-name::text="section"
-        state-hidden::bool="false"
-        class="block absolute inset-0 cursor-pointer transition border border-sky-500"
-    ></container-highlight>
+    <div class="hidden absolute inset-0 cursor-pointer transition border border-sky-500 group-[:hover:not(:has([data-section]:hover))]:block group-[[active]]:block group-[[active]]:bg-sky-500/20">
+        <div class="absolute -left-px bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500">
+            <span
+                state-name::text="section"
+                class="font-bold italic cursor-default select-none"
+            ></span>
+            <span
+                state-state::text
+                class="opacity-80 empty:hidden"
+            ></span>
+        </div>
+        <div class="absolute -right-px bottom-full flex gap-1">
+            <button
+                element-ref="copy-button"
+                $::click::add-attribute[show-copy-modal]
+                class="p-1 transition bg-sky-500 text-white hover:bg-sky-600"
+            >
+                <svg class="w-3 h-3"><use href="#copy-icon" /></svg>
+            </button>
+            <button
+                element-ref="delete-button"
+                $::click::add-attribute[show-delete-modal]
+                class="p-1 transition bg-sky-500 text-white hover:bg-sky-600"
+            >
+                <svg class="w-3 h-3"><use href="#delete-icon" /></svg>
+            </button>
+        </div>
+        <div class="hidden gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark group-[[show-copy-modal]]/highlight:grid">
+            <h1>Are you sure you want to copy this section?</h1>
+            <div class="flex gap-2 justify-self-end">
+                <button
+                    &::click::emit[copy]
+                    class="px-3 py-1.5 rounded transition-all text-white bg-sky-500 hover:bg-sky-600 outline-sky-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70"
+                >
+                    Copy
+                </button>
+                <button
+                    $::click::remove-attribute[show-copy-modal]
+                    class="px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]"
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
+        <div class="hidden gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark group-[[show-delete-modal]]/highlight:grid">
+            <h1>Are you sure you want to delete this section?</h1>
+            <div class="flex gap-2 justify-self-end">
+                <button
+                    &::click::emit[delete]
+                    class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70"
+                >
+                    Delete
+                </button>
+                <button
+                    $::click::remove-attribute[show-delete-modal]
+                    class="px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]"
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
     <div>
         <h2
-            event-target="label"
             state-label::text="Section"
             class="font-semibold text-2xl mb-1"
         ></h2>
         <div
-            event-target="description"
             state-description::text
             class="col-span-full break-all empty:hidden"
         ></div>
     </div>
     <div
-        self::[pointerdown|pointerover|pointerout].stop
-        self::drop="insertOrMoveField"
+        self::pointerdown.stop
         drop-event="add-field|move-field"
+        drop-effect="insertField"
         class="grid grid-cols-1 @[35rem]/form:grid-cols-1 gap-4"
     >
-        <div class="grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" inert>
+        <div class="hidden only:grid justify-items-center gap-3 p-6 text-base rounded bg-slate-400/10 dark:bg-white/10" inert>
             <svg class="h-8 w-8" viewBox="0 0 494 492"><use href="#section-drag-icon" /></svg>
             <div>Drag an element here</div>
         </div>
     </div>
     <div
-        self::drop="insertOrMoveField"
-        drop-event[hide-on-drop]="move-section"
-        drop-insert[afterend]="component"
-        class="hidden absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white"
+        drop-event="move-section"
+        drop-effect::move-beforebegin[component]="moveSection"
+        class="hidden group-[[moving]]/section:block absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white"
     >
         <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
             <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">
@@ -152,10 +201,9 @@ function insertNewField(el, e) {
         </div>
     </div>
     <div
-        self::drop="insertOrMoveField"
-        drop-event[hide-on-drop]="move-section"
-        drop-insert[afterend]="component"
-        class="hidden absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white"
+        drop-event="move-section"
+        drop-effect::move-afterend[component]="moveSection"
+        class="hidden group-[[moving]]/section:block absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white"
     >
         <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
             <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">
@@ -164,75 +212,3 @@ function insertNewField(el, e) {
         </div>
     </div>
 </form-section>
-
-
-<container-highlight
-    &::[active|not-active]::class.toggle="bg-sky-500/20"
-    &::not-active::class.add="invisible"
->
-    <div class="absolute -left-px bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500">
-        <span class="font-bold italic cursor-default select-none">[[ $::state-change::set(#state.name) ]]</span>
-        <span
-            $::state-change::none(#state.state)::class.toggle="hidden"
-            class="opacity-80"
-        >
-            [[ $::state-change::set(#state.state) ]]
-        </span>
-    </div>
-    <div class="absolute -right-px bottom-full flex gap-1">
-        <button
-            $::click::emit(copy-modal-open)
-            class="p-1 transition bg-sky-500 text-white hover:bg-sky-600"
-        >
-            <svg class="w-3 h-3"><use href="#copy-icon" /></svg>
-        </button>
-        <button
-            $::click::emit(delete-modal-open)
-            class="p-1 transition bg-sky-500 text-white hover:bg-sky-600"
-        >
-            <svg class="w-3 h-3"><use href="#delete-icon" /></svg>
-        </button>
-    </div>
-    <div 
-        $::delete::style.display[none]::set
-        &::pointerdown.outside::style.display[none]::remove
-        class="grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark"
-    >
-        <h1>Are you sure you want to copy this field?</h1>
-        <div class="flex gap-2 justify-self-end">
-            <button
-                &::click::emit(delete)
-                class="px-3 py-1.5 rounded transition-all text-white bg-sky-500 hover:bg-sky-600 outline-sky-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70"
-            >
-                Copy
-            </button>
-            <button
-                $::click::emit(delete-modal-close).internal
-                class="px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]"
-            >
-                Cancel
-            </button>
-        </div>
-    </div>
-    <div 
-        $::delete::style.display[none]::set
-        &::pointerdown.outside::style.display[none]::remove
-        class="grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark"
-    >
-        <h1>Are you sure you want to delete this field?</h1>
-        <div class="flex gap-2 justify-self-end">
-            <button
-                &::click::emit[delete]
-                class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70"
-            >
-                Delete
-            </button>
-            <button
-                $::click::emit.internal[delete-modal-close]
-                class="px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]"
-            >
-                Cancel
-            </button>
-        </div>
-    </div>
-</container-highlight>
