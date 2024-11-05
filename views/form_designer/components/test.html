@@ -96,13 +96,30 @@ function insertNewField(el, e) {
         target.parentElement?.insertAdjacentElement(insertLocation, newEl);
     }
 }
+
+register('form-section', {
+    events: {
+        pointerdown: () => emit("edit-section"),
+        delete: () => deleteSection(),
+        "add-field": () => addField(),
+        "remove-field": () => removeField(),
+        click: (e) => {
+            const target = e.target.getAttribute("element-ref")
+            if (target === "copy")
+                this.setAttribute("show-delete-modal")
+        }
+    }
+    mount: (component) => {
+        addEvent(component, "pointerdown", () => emit("edit-section", true));
+        addEvent(component, "delete", this.deleteSection);
+    },
+    unmount: () => {
+
+    }
+})
 </script>
 
 <form-section
-    $::pointerdown="emit::edit-section"
-    $::delete="deleteSection"
-    $::add-field="addField"
-    $::remove-field="removedField"
     drag-event="move-section"
     class="group/section relative grid gap-3 p-6 mb-8 rounded-md shadow-md bg-white dark:bg-card-dark"
 >
