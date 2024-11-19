@@ -1,5 +1,56 @@
 // @ts-check
 
+let dragElement = null;
+
+document.addEventListener("dragstart", (e) => {
+    const target = /** @type {HTMLElement} */ (e.target);
+    const event = target.getAttribute("drag-event");
+    const action = target.getAttribute("drag-action");
+
+    if (!event || !action) {
+        console.warn("drag-event & drag-action are required for drag operations");
+        return false;
+    }
+
+    e.dataTransfer.setData("drag-event", event);
+
+    if (action === "move") {
+        dragElement = target;
+    } else if (action === "copy") {
+        dragElement = target.cloneNode(true);
+    } else if (action === "insert") {
+        const templateId = target.getAttribute("drag-template");
+
+        if (!templateId) {
+            console.warn("drag-template is required for insert drag operations");
+            return false;
+        }
+
+        const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
+        dragElement = template.content.cloneNode(true);
+    }
+});
+
+document.addEventListener("dragover", (e) => {
+    const target = /** @type {HTMLElement} */ (e.target);
+    const dropEvent = target.getAttribute("drop-event");
+    const dragEvent = e.dataTransfer.getData("drag-event");
+
+    if (!dropEvent) {
+        console.warn("drop-event is required for drag operations and must match dataTranfer 'drag-event' to function properly");
+        return;
+    } else if (dropEvent !== dragEvent) {
+        return;
+    }
+
+    e.preventDefault();
+});
+
+document.addEventListener("drop", (e) => {
+    const target = /** @type {HTMLElement} */ (e.target);
+    const action = e.dataTransfer.getData("drag-action");
+});
+
 const fieldContSortables = [];
 const sectionSortables = [];
 /** @type { Element[] } */
