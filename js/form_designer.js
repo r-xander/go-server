@@ -36,19 +36,19 @@ document.addEventListener("dragover", (e) => {
     const dropEvent = target.getAttribute("drop-event");
     const dragEvent = e.dataTransfer.getData("drag-event");
 
-    if (!dropEvent) {
-        console.warn("drop-event is required for drag operations and must match dataTranfer 'drag-event' to function properly");
-        return;
-    } else if (dropEvent !== dragEvent) {
-        return;
+    if (dropEvent && dropEvent === dragEvent) {
+        e.preventDefault();
     }
-
-    e.preventDefault();
 });
 
 document.addEventListener("drop", (e) => {
     const target = /** @type {HTMLElement} */ (e.target);
-    const action = e.dataTransfer.getData("drag-action");
+    const action = /** @type {InsertPosition} */ (e.dataTransfer.getData("drag-action"));
+
+    if (!target.hasAttribute("drop-event") || !action) return;
+
+    e.preventDefault();
+    target.insertAdjacentElement(action, dragElement);
 });
 
 const fieldContSortables = [];
