@@ -5,27 +5,18 @@ let dragElement = null;
 document.addEventListener("dragstart", (e) => {
     const target = /** @type {HTMLElement} */ (e.target);
     const event = target.getAttribute("drag-event");
-    const action = target.getAttribute("drag-action");
 
-    if (!event || !action) {
-        console.warn("drag-event & drag-action are required for drag operations");
-        return false;
-    }
+    if (!event) return false;
 
     e.dataTransfer.setData("drag-event", event);
+    const [action] = event.split("-", 1);
+    const templateId = event.substring(action.length + 1);
 
     if (action === "move") {
         dragElement = target;
     } else if (action === "copy") {
         dragElement = target.cloneNode(true);
-    } else if (action === "insert") {
-        const templateId = target.getAttribute("drag-template");
-
-        if (!templateId) {
-            console.warn("drag-template is required for insert drag operations");
-            return false;
-        }
-
+    } else if (action === "insert" && templateId) {
         const template = /** @type {HTMLTemplateElement} */ (document.getElementById(templateId));
         dragElement = template.content.cloneNode(true);
     }

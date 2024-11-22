@@ -111,44 +111,8 @@ register("form-section", {
             const target = e.target.getAttribute("element-ref")
             if (target === "copy")
                 this.setAttribute("show-delete-modal")
-        },
-        /** @param {DragEvent} e */
-        dragstart: (e) => {
-            const dragEvent = e.target?.getAttribute("drag-event")
-
-            if (dragEvent == undefined) return
-
-            e.dataTransfer?.setData("drag-event", dragEvent)
-            e.dataTransfer?.setData("action", "move")
-        },
-        dragover: (e) => {
-            const dragEvent = e.dataTransfer?.getData("drag-event");
-            const dropEvent = e.target.getAttribute("drop-event");
-            
-            if (dragEvent == undefined || dropEvent == undefined || dragEvent !== dropEvent) return;
-
-            e.preventDefault();
-        },
-        drop: (e) => {
-            const dropLocation = e.target.getAttribute("drop-location");
-            const dropTargetSelector = e.target.getAttribute("drop-target");
-
-            if (dropLocation == undefined) return;
-
-            const target = this
-            if (dropTargetSelector) {
-                const parts = dropTargetSelector.split(" ");
-
-                if (parts > 1) {
-                    const target = e.target.closest(dropTargetSelector);
-                } else {
-                    const target = this.querySelector(dropTargetSelector);
-                }
-            }
-
-            target.insertAdjacentElement(dropLocation, dragElement)
         }
-    }
+    },
     mount: (component) => {
         addEvent(component, "pointerdown", () => emit("edit-section", true));
         addEvent(component, "delete", this.deleteSection);
@@ -161,9 +125,8 @@ register("form-section", {
 
 <form-section
     draggable="true"
-    drag-action="move"
     drag-event="move-section"
-    class="group/section relative grid gap-3 p-6 mb-8 rounded-md shadow-md bg-white dark:bg-card-dark"
+    class="group relative grid gap-3 p-6 mb-8 rounded-md shadow-md bg-white dark:bg-card-dark"
 >
     <div class="hidden absolute inset-0 cursor-pointer transition border border-sky-500 group-[:hover:not(:has([data-section]:hover))]:block group-[[active]]:block group-[[active]]:bg-sky-500/20">
         <div class="absolute -left-px bottom-full font-mono flex py-0.5 px-3 gap-3 text-xs text-white bg-sky-500">
@@ -249,8 +212,8 @@ register("form-section", {
     <div
         drop-event="move-element"
         drop-location="beforebegin"
-        drop-target="closest form-section"
-        class="hidden group-[[moving]]/section:block absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white"
+        drop-target="[component=form-section]"
+        class="hidden group-[[moving]]:block absolute -top-4 left-0 right-0 bottom-1/2 text-xs text-white"
     >
         <div class="absolute -top-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
             <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">
@@ -261,8 +224,8 @@ register("form-section", {
     <div
         drop-event="move-section"
         drop-location="afterend"
-        drop-target="closest form-section"
-        class="hidden group-[[moving]]/section:block absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white"
+        drop-target="form-section"
+        class="hidden group-[[moving]]:block absolute top-1/2 left-0 right-0 -bottom-4 text-xs text-white"
     >
         <div class="absolute -bottom-0.5 -right-1 -left-1 flex justify-center h-1 rounded-full bg-sky-500" inert>
             <div class="absolute top-1/2 -translate-y-1/2 px-2 pb-0.5 rounded-full bg-sky-500">
