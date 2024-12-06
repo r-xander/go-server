@@ -290,11 +290,11 @@ class ContainerHighlight extends HTMLElement {
     buttonBlock = parseHtml(
         `<div class="absolute -right-px bottom-full flex gap-1 font-mono text-sm">
             <button class="group/copy relative transition bg-sky-500 text-white hover:bg-sky-600" tabindex="-1">
-                <span class="hidden group-focus/copy:block px-2 bg-green-500">Confirm</span>
+                <!-- <span class="hidden group-focus/copy:block px-2 bg-green-500">Confirm</span> -->
                 <svg class="p-1 w-5 h-5 group-focus/copy:hidden"><use href="#copy-icon" /></svg>
             </button>
             <button class="group/delete relative transition bg-sky-500 text-white hover:bg-sky-600" tabindex="-1">
-                <span class="hidden group-focus/delete:block px-2 bg-rose-500">Confirm</span>
+                <!-- <span class="hidden group-focus/delete:block px-2 bg-rose-500">Confirm</span> -->
                 <svg class="p-1 w-5 h-5 group-focus/delete:hidden"><use href="#delete-icon" /></svg>
             </button>
         </div>`
@@ -302,22 +302,20 @@ class ContainerHighlight extends HTMLElement {
 
     /** @type {HTMLElement} */
     copyModal = parseHtml(
-        `<div style="display: none;" class="grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
+        `<div style="display: none;" class="flex justify-end absolute inset-0 text-sm bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
             <h1>Are you sure you want to copy this field?</h1>
-            <div class="flex gap-2 justify-self-end">
-                <button class="px-3 py-1.5 rounded transition-all text-white bg-sky-500 hover:bg-sky-600 outline-sky-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70">Copy</button>
-                <button class="px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]">Cancel</button>
-            </div>
+                <button class="outline-none transition-all text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]">Cancel</button>
+                <button class="outline-none transition-all text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70">Copy</button>
         </div>`
     );
 
     /** @type {HTMLElement} */
     deleteModal = parseHtml(
-        `<div style="display: none;" class="grid gap-4 items-center w-max p-4 absolute top-0 -right-0.5 z-50 text-sm shadow-md rounded-md bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
+        `<div style="display: none;" class="flex justify-end absolute inset-0 text-sm bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
             <h1>Are you sure you want to delete this field?</h1>
             <div class="flex gap-2 justify-self-end">
-                <button class="px-3 py-1.5 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 outline-rose-300/60 dark:bg-opacity-80 dark:hover:bg-opacity-70">Delete</button>
-                <button class="px-3 py-1.5 rounded border transition-all border-neutral-200 text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:border-[#555] dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]">Cancel</button>
+                <button class="outline-none transition-all text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]">Cancel</button>
+                <button class="outline-none transition-all text-white bg-rose-500 hover:bg-rose-600 dark:bg-opacity-80 dark:hover:bg-opacity-70">Delete</button>
             </div>
         </div>`
     );
