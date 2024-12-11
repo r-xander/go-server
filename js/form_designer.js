@@ -23,13 +23,17 @@ document.addEventListener("dragstart", (e) => {
 });
 
 document.addEventListener("dragover", (e) => {
-    const target = /** @type {HTMLElement} */ (e.target);
-    const dropEvent = target.getAttribute("drop-event");
-    const dragEvent = e.dataTransfer.getData("drag-event");
+    const target = /** @type {HTMLElement} */ (e.target).closest("[drop-event]");
 
-    if (dropEvent && dropEvent === dragEvent) {
-        e.preventDefault();
-    }
+    if (!target) return;
+
+    const dropEventAttr = target.getAttribute("drop-event");
+    const dropEvents = dropEventAttr.split("|");
+
+    if (!dropEvents.some((evt) => e.dataTransfer.types.includes(evt))) return;
+
+    console.log("can drop here");
+    e.preventDefault();
 });
 
 document.addEventListener("drop", (e) => {
