@@ -32,7 +32,6 @@ document.addEventListener("dragover", (e) => {
 
     if (!dropEvents.some((evt) => e.dataTransfer.types.includes(evt))) return;
 
-    console.log("can drop here");
     e.preventDefault();
 });
 

@@ -302,10 +302,12 @@ class ContainerHighlight extends HTMLElement {
 
     /** @type {HTMLElement} */
     copyModal = parseHtml(
-        `<div style="display: none;" class="flex justify-end absolute inset-0 text-sm bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
+        `<div style="/* display: none; */" class="flex justify-end absolute inset-0 text-sm bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
             <h1>Are you sure you want to copy this field?</h1>
+            <div>
                 <button class="outline-none transition-all text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]">Cancel</button>
                 <button class="outline-none transition-all text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70">Copy</button>
+            <div>
         </div>`
     );
 
