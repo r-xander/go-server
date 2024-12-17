@@ -302,23 +302,19 @@ class ContainerHighlight extends HTMLElement {
 
     /** @type {HTMLElement} */
     copyModal = parseHtml(
-        `<div style="/* display: none; */" class="flex justify-end absolute inset-0 text-sm bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
-            <h1>Are you sure you want to copy this field?</h1>
-            <div>
-                <button class="outline-none transition-all text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]">Cancel</button>
-                <button class="outline-none transition-all text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70">Copy</button>
-            <div>
+        `<div style="/* display: none; */" class="flex items-center gap-2 absolute inset-0 py-1 pr-1 pl-4 font-mono bg-[#cfedfb] dark:bg-[#284654]">
+            <h1>Are you sure you want to copy this element?</h1>
+            <button class="outline-none h-full max-h-8 px-2 rounded transition-all text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:hover:text-white/90 dark:hover:bg-[#113547]">Cancel</button>
+            <button class="outline-none h-full max-h-8 px-2 rounded transition-all text-white bg-sky-500 hover:bg-sky-600 dark:bg-opacity-80 dark:hover:bg-opacity-70">Copy</button>
         </div>`
     );
 
     /** @type {HTMLElement} */
     deleteModal = parseHtml(
         `<div style="display: none;" class="flex justify-end absolute inset-0 text-sm bg-white border border-neutral-200 dark:bg-aux-dark dark:border-aux-dark">
-            <h1>Are you sure you want to delete this field?</h1>
-            <div class="flex gap-2 justify-self-end">
-                <button class="outline-none transition-all text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:hover:text-white/90 dark:hover:bg-[#3e3e3e]">Cancel</button>
-                <button class="outline-none transition-all text-white bg-rose-500 hover:bg-rose-600 dark:bg-opacity-80 dark:hover:bg-opacity-70">Delete</button>
-            </div>
+            <h1>Are you sure you want to delete this element?</h1>
+            <button class="outline-none h-full max-h-8 px-2 rounded transition-all text-neutral-600 hover:bg-neutral-100 dark:text-white/80 dark:hover:text-white/90 dark:hover:bg-[#113547]">Cancel</button>
+            <button class="outline-none h-full max-h-8 px-2 rounded transition-all text-white bg-rose-500 hover:bg-rose-600 dark:bg-opacity-80 dark:hover:bg-opacity-70">Delete</button>
         </div>`
     );
 
