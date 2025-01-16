@@ -41,17 +41,40 @@
         }
     </style>
 
-    <text-field></text-field>
-    <number-field></number-field>
-    <select-field></select-field>
-    <location-field></location-field>
-    <calculation-field></calculation-field>
-    <datetime-field></datetime-field>
-    <heading-field></heading-field>
-    <paragraph-field></paragraph-field>
-    <html-field></html-field>
-    <slider-field></slider-field>
-    <list-component></list-component>
+    <div style="display: grid; margin-block: 0.5rem;">
+        <text-field></text-field>
+        <div></div>
+        <number-field></number-field>
+        <select-field></select-field>
+        <location-field></location-field>
+        <calculation-field></calculation-field>
+        <datetime-field></datetime-field>
+        <heading-field></heading-field>
+        <paragraph-field></paragraph-field>
+        <html-field></html-field>
+        <slider-field></slider-field>
+        <list-component></list-component>
+        <div class="grid grid-cols-2">
+            <div>
+                <text-element>
+                    <label layout-inline class="grid grid-cols-2 font-medium select-none break-all">
+                        <span class="p-1.5">Text Input</span>
+                        <input type="text" id="" name="" placeholder="" min="0" max="2000" value="" />
+                        <span></span>
+                    </label>
+                </text-element>
+            </div>
+            <div>
+                <text-element>
+                    <label layout-inline class="grid grid-cols-2 font-medium select-none break-all">
+                        <span class="p-1.5">Text Input</span>
+                        <input type="text" id="" name="" placeholder="" min="0" max="2000" value="" />
+                        <span></span>
+                    </label>
+                </text-element>
+            </div>
+        </div>
+    </div>
 
     <form-section></form-section>
     <form-section></form-section>

@@ -289,32 +289,30 @@ class ContainerHighlight extends HTMLElement {
     /** @type {HTMLElement} */
     buttonBlock = parseHtml(
         `<div class="absolute -right-px bottom-full flex gap-1 font-mono text-sm">
-            <button class="group/copy relative transition bg-sky-500 text-white hover:bg-sky-600" tabindex="-1">
-                <!-- <span class="hidden group-focus/copy:block px-2 bg-green-500">Confirm</span> -->
-                <svg class="p-1 w-5 h-5 group-focus/copy:hidden"><use href="#copy-icon" /></svg>
+            <button class="relative transition bg-sky-500 text-white hover:bg-sky-600" tabindex="-1">
+                <svg class="p-1 w-5 h-5"><use href="#copy-icon" /></svg>
             </button>
-            <button class="group/delete relative transition bg-sky-500 text-white hover:bg-sky-600" tabindex="-1">
-                <!-- <span class="hidden group-focus/delete:block px-2 bg-rose-500">Confirm</span> -->
-                <svg class="p-1 w-5 h-5 group-focus/delete:hidden"><use href="#delete-icon" /></svg>
+            <button class="relative transition bg-sky-500 text-white hover:bg-sky-600" tabindex="-1">
+                <svg class="p-1 w-5 h-5"><use href="#delete-icon" /></svg>
             </button>
         </div>`
     );
 
     /** @type {HTMLElement} */
     copyModal = parseHtml(
-        `<div style="/* display: none; */" class="flex gap-2 absolute inset-0 py-1 pr-1 pl-4 font-bold font-mono bg-[#cfedfb] dark:bg-[#284654]">
+        `<div style="/* display: none; */" class="flex gap-1 absolute inset-0 py-1 pr-1 pl-4 font-bold font-mono bg-[#cfedfb] dark:bg-[#284654]">
             <h1 class="mr-auto leading-7">Are you sure you want to copy this element?</h1>
-            <button class="h-7 w-20 px-2 font-medium rounded transition-colors hover:bg-[#b6d8e7] dark:hover:text-white dark:hover:bg-[#113547]">Cancel</button>
-            <button class="h-7 w-20 px-2 rounded transition-colors text-white bg-sky-500 hover:bg-sky-600/90 dark:bg-opacity-80 dark:hover:bg-opacity-70">Copy</button>
+            <button class="h-7 w-20 px-2 font-medium rounded-sm transition-colors hover:bg-[#b6d8e7] dark:hover:text-white dark:hover:bg-[#1e3541]">Cancel</button>
+            <button class="h-7 w-20 px-2 rounded-sm transition-colors text-white bg-sky-500 hover:bg-sky-600/90 dark:bg-opacity-80 dark:hover:bg-opacity-70">Copy</button>
         </div>`
     );
 
     /** @type {HTMLElement} */
     deleteModal = parseHtml(
-        `<div style="display: none;" class="flex gap-2 absolute inset-0 py-1 pr-1 pl-4 font-bold font-mono bg-[#cfedfb] dark:bg-[#284654]">
+        `<div style="display: none;" class="flex gap-1 absolute inset-0 py-1 pr-1 pl-4 font-bold font-mono bg-[#cfedfb] dark:bg-[#284654]">
             <h1 class="mr-auto leading-7">Are you sure you want to delete this element?</h1>
-            <button class="h-7 w-20 px-2 font-medium rounded transition-colors hover:bg-[#b6d8e7] dark:hover:text-white dark:hover:bg-[#113547]">Cancel</button>
-            <button class="h-7 w-20 px-2 rounded transition-colors text-white bg-rose-500 hover:bg-rose-600/90 dark:bg-opacity-80 dark:hover:bg-opacity-70">Delete</button>
+            <button class="h-7 w-20 px-2 font-medium rounded-sm transition-colors hover:bg-[#b6d8e7] dark:hover:text-white dark:hover:bg-[#1e3541]">Cancel</button>
+            <button class="h-7 w-20 px-2 rounded-sm transition-colors text-white bg-rose-500 hover:bg-rose-600/90 dark:bg-opacity-80 dark:hover:bg-opacity-70">Delete</button>
         </div>`
     );
 
@@ -464,7 +462,7 @@ class FormFieldBase extends HTMLElement {
         this.initialize();
 
         this.id = this.data.id;
-        this.className = "m-4 block relative rounded";
+        this.className = "my-2 block relative rounded";
         this.draggable = true;
         this.label.htmlFor = this.data.id;
 
