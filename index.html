@@ -41,6 +41,27 @@
         }
     </style>
 
+    <div id="context-menu" style="display: none;" class="absolute z-50">
+        <span id="context-menu-title"></span>
+        <ul>
+            <li><button>Edit</button></li>
+            <li><button>Copy</button></li>
+            <li><button>Delete</button></li>
+        </ul>
+    </div>
+
+    <script>
+        const contextMenu = document.getElementById("context-menu");
+
+        document.addEventListener("contextmenu", (e) => {
+            if (!customElements.get(e.target.localName)) return
+            e.preventDefault();
+            contextMenu.style.display = "block"
+            contextMenu.style.top = e.clientY
+            contextMenu.style.left = e.clientX
+        })
+    </script>
+
     <div style="display: grid; margin-block: 0.5rem;">
         <text-field></text-field>
         <div></div>
