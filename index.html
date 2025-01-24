@@ -54,6 +54,10 @@
         const contextMenu = document.getElementById("context-menu");
 
         document.addEventListener("contextmenu", (e) => {
+            let el = e.target
+            while(el.parentElement != undefined)
+                console.log(el = el.parentElement)
+
             if (!customElements.get(e.target.localName)) return
             e.preventDefault();
             contextMenu.style.display = "block"

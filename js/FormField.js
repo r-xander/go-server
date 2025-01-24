@@ -437,7 +437,7 @@ class FormFieldBase extends HTMLElement {
 
     /** @type {ContainerHighlight} */
     highlight = parseHtml(
-        `<container-highlight class="invisible block absolute inset-0 cursor-pointer transition border border-sky-500"></container-highlight>`
+        `<container-highlight class="invisible block absolute inset-0 cursor-pointer transition ring ring-sky-500"></container-highlight>`
     );
 
     /** @type {ContainerDropZone} */
