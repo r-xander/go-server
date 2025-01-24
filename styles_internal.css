@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@theme {
+    --color-primary: #0ea5e9;
+    --color-base-dark: #0e0e0e;
+    --color-card-dark: #202020;
+    --color-aux-dark: #2e2e2e;
+    --color-accent-dark: #3e3e3e;
+}
+
 :root {
     --border-color: #555651;
     --font-color: rgb(255 255 255 / 0.87);
