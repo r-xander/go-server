@@ -53,7 +53,8 @@ class FormSection extends HTMLElement {
         }
 
         this.id = this.data.id;
-        this.className = "relative grid gap-3 p-6 mb-8 rounded-md shadow-md bg-white dark:bg-card-dark";
+        this.className =
+            "relative grid gap-3 p-6 mb-8 rounded-md shadow-md border border-gray-200/50 bg-white dark:border-card-dark dark:bg-card-dark";
         this.draggable = true;
 
         // this events
