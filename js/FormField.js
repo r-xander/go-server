@@ -896,7 +896,7 @@ class SliderField extends FormFieldBase {
             <span>Read Only</span>
             <div class="relative">
                 <input type="checkbox" id="${this.data.id}" name="${this.data.name}" class="peer sr-only" />
-                <div class="block w-16 h-7 m-1 rounded-full transition-colors bg-gray-200 dark:bg-aux-dark ring-offset-2 peer-checked:bg-sky-500 peer-focus:ring-1 peer-focus:ring-sky-500 [--tw-shadow:0_0_2px_4px_color-mix(in_oklab,var(--color-sky-500)70%,transparent)] ring-offset-white dark:ring-offset-card-dark"></div>
+                <div class="block w-16 h-7 m-1 rounded-full transition-colors bg-gray-200 dark:bg-aux-dark ring-offset-2 ring-offset-white dark:ring-offset-card-dark peer-focus:ring-1 peer-checked:bg-sky-500 peer-focus:ring-sky-500 [--tw-shadow:0_0_2px_4px_color-mix(in_oklab,var(--color-sky-500)70%,transparent)]"></div>
                 <div class="absolute w-6 h-6 transition bg-white rounded-full left-1.5 top-1.5 peer-checked:translate-x-[150%]"></div>
             </div>
         </label>`
