@@ -1,0 +1,1 @@
+select * from r5wolaborschedparams where WLS_SESSIONID is not null

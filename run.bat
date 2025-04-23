@@ -1,0 +1,1 @@
+tailwindcss -i ./styles_internal.css -o ./css/styles.css --minify && go run . 

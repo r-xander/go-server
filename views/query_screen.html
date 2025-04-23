@@ -1,40 +1,42 @@
 {{ define "title" }}Query{{ end }} {{ define "body" }}
-<div class="grid grid-cols-[1fr_100ch] bg-[rgb(39,40,34)] h-[100dvh] p-0 m-0 text-xs">
-    <div class="flex flex-col text-[rgb(255_255_255_/_0.87)] overflow-hidden border-r border-r-[var(--border-color)]">
+<div class="flex bg-[rgb(39,40,34)] h-[100dvh] p-0 m-0 text-sm">
+    <div class="flex flex-col basis-1/4 min-w-2xl border-r border-r-[var(--border-color)]">
+        <div class="flex h-12 border-b border-[var(--border-color)]">
+            <button
+                class="py-2 px-3 font-bold text-sm bg-[va(--accent-color)]"
+                hx-get="/query/save"
+                hx-target="body"
+                hx-swap="beforeend"
+                data-save-query-btn
+            >
+                SAVE
+            </button>
+            <span id="query-display-name" class="flex-1 py-2 px-3 text-center text-sm tracking-wide">New</span>
+            <button class="py-2 px-3 font-bold text-sm bg-[va(--accent-color)]">NEW</button>
+            <button
+                class="py-2 px-3 font-bold text-sm bg-[va(--accent-color)]"
+                hx-get="/query/open"
+                hx-target="body"
+                hx-swap="beforeend"
+                data-open-query-btn
+            >
+                OPEN
+            </button>
+        </div>
+        <div class="flex-grow relative">
+            <div id="editor" class="h-full"></div>
+            <textarea id="queryTA" form="query-form" name="query" hidden></textarea>
+            <div class="hidden absolute inset-0 bg-[var(--bg-color)] z-[100]" data-open-query-panel></div>
+        </div>
+    </div>
+    <div class="flex flex-col grow text-[rgb(255_255_255_/_0.87)] overflow-hidden">
         <div class="grid grid-cols-3 min-h-12 px-5 py-0 items-center border-b border-b-[var(--border-color)]">
-            <div class="flex gap-4 items-center">
-                <div
-                    id="response-status"
-                    class="px-3 py-1 h-max font-medium text-white select-none data-[status='OK']:bg-[rgb(0_139_49)] data-[status='RE']:bg-[rgb(181_129_11)] data-[status='SE']:bg-[rgb(211_88_85)]"
-                ></div>
-                <div
-                    id="response-time"
-                    class="px-3 py-1 h-max select-none data-[has-response='true']:bg-[var(--accent-color)]"
-                ></div>
-            </div>
-            <div class="h-full min-w-40 max-w-52 justify-self-center">
-                <select
-                    form="query-form"
-                    name="tenant"
-                    class="h-full w-full px-[8%] border-0 rounded-none dark:bg-neutral-600"
-                >
-                    <option class="bg-neutral-700 py-4">WASHGAS_TRN</option>
-                    <option class="bg-neutral-700 py-4">WASHGAS_PRD</option>
-                </select>
-            </div>
-            <div class="flex gap-3 justify-self-end">
-                <button class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold">
-                    Get Total
-                </button>
-                <button
-                    id="csv-download"
-                    class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold"
-                >
+            <div class="flex gap-3">
+                <button class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold">Get Total</button>
+                <button id="csv-download" class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold">
                     CSV
                 </button>
-                <button class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold">
-                    XLSX
-                </button>
+                <button class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold">XLSX</button>
                 <button
                     class="py-1.5 px-3 bg-[var(--accent-color)] text-[var(--font-color)] text-xs font-bold"
                     hx-get="/settings"
@@ -44,20 +46,26 @@
                     Settings
                 </button>
             </div>
+            <div class="h-full min-w-40 max-w-52 justify-self-center">
+                <select form="query-form" name="tenant" class="h-full w-full px-[8%] border-0 rounded-none dark:bg-neutral-600">
+                    <option class="bg-neutral-700 py-4">WASHGAS_TRN</option>
+                    <option class="bg-neutral-700 py-4">WASHGAS_PRD</option>
+                </select>
+            </div>
+            <div class="flex gap-4 items-center justify-self-end">
+                <div
+                    id="response-status"
+                    class="px-3 py-1 h-max font-medium text-white select-none data-[status='OK']:bg-[rgb(0_139_49)] data-[status='RE']:bg-[rgb(181_129_11)] data-[status='SE']:bg-[rgb(211_88_85)]"
+                ></div>
+                <div
+                    id="response-time"
+                    class="px-3 py-1 h-max select-none data-[has-response='true']:bg-[var(--accent-color)]"
+                ></div>
+            </div>
         </div>
         <form id="query-form">
-            <div class="grid grid-cols-[1fr_auto] justify-between border-b border-b-[var(--border-color)]">
-                <div class="grid grid-cols-[auto_1fr] px-6 py-4">
-                    <h3>Options</h3>
-                    <div class="grid grid-cols-4 auto-rows-max px-4 py-3">
-                        <label class="flex gap-3 items-center mb-2" for="sample">
-                            <input type="checkbox" name="sample" id="sample" value="true" checked />
-                            <input type="checkbox" name="sample" id="sample_hidden" value="false" class="!hidden" />
-                            Sample
-                        </label>
-                    </div>
-                </div>
-                <div class="grid gap-4 justify-start px-6 py-4 border-l border-l-[var(--border-color)]">
+            <div class="grid grid-cols-[auto_1fr] justify-between border-b border-b-[var(--border-color)]">
+                <div class="grid gap-4 justify-start px-6 py-4 border-r border-r-[var(--border-color)]">
                     <div class="grid gap-1">
                         <label for="username">Username</label>
                         <input
@@ -89,38 +97,19 @@
                         Run
                     </button>
                 </div>
+                <div class="grid grid-cols-[auto_1fr] px-6 py-4">
+                    <h3>Options</h3>
+                    <div class="grid grid-cols-4 auto-rows-max px-4 py-3">
+                        <label class="flex gap-3 items-center mb-2" for="sample">
+                            <input type="checkbox" name="sample" id="sample" value="true" checked />
+                            <input type="checkbox" name="sample" id="sample_hidden" value="false" class="!hidden" />
+                            Sample
+                        </label>
+                    </div>
+                </div>
             </div>
         </form>
         <div id="data" class="h-full overflow-auto"></div>
-    </div>
-    <div class="flex flex-col">
-        <div class="flex h-12 border-b border-[var(--border-color)]">
-            <button
-                class="py-2 px-3 font-bold text-sm bg-[va(--accent-color)]"
-                hx-get="/query/save"
-                hx-target="body"
-                hx-swap="beforeend"
-                data-save-query-btn
-            >
-                SAVE
-            </button>
-            <span id="query-display-name" class="flex-1 py-2 px-3 text-center text-sm tracking-wide">New</span>
-            <button class="py-2 px-3 font-bold text-sm bg-[va(--accent-color)]">NEW</button>
-            <button
-                class="py-2 px-3 font-bold text-sm bg-[va(--accent-color)]"
-                hx-get="/query/open"
-                hx-target="body"
-                hx-swap="beforeend"
-                data-open-query-btn
-            >
-                OPEN
-            </button>
-        </div>
-        <div class="flex-grow relative">
-            <div id="editor" class="h-full"></div>
-            <textarea id="queryTA" form="query-form" name="query" hidden></textarea>
-            <div class="hidden absolute inset-0 bg-[var(--bg-color)] z-[100]" data-open-query-panel></div>
-        </div>
     </div>
 </div>
 <div id="indicator" class="htmx-indicator">

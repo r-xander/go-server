@@ -1,8 +1,6 @@
 // @ts-check
 
-const nodeList = /** @type {NodeListOf<HTMLInputElement>} */ (
-    document.querySelectorAll("[type=checkbox][name=sample]")
-);
+const nodeList = /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll("[type=checkbox][name=sample]"));
 const listLen = nodeList.length;
 
 for (let i = 0; i < listLen; i += 2) {
@@ -51,8 +49,7 @@ async function downloadCsv() {
     }
 
     const disposition = response.headers.get("Content-Disposition");
-    const filename =
-        disposition !== undefined ? /** @type {string} */ (disposition).split(";")[1].split("=")[1] : "download";
+    const filename = disposition !== undefined ? /** @type {string} */ (disposition).split(";")[1].split("=")[1] : "download";
 
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
@@ -113,12 +110,23 @@ try {
     editor.setTheme("ace/theme/monokai");
     editor.setShowPrintMargin(false);
     editor.setHighlightIndentGuides(true);
-    editor.setFontSize(10);
+    editor.setFontSize(12);
     editor.setKeyboardHandler("ace/keyboard/vim");
     editor.setBehavioursEnabled(false);
+    editor.renderer.setScrollMargin(5, 0);
     editor.session.setMode("ace/mode/sql");
     editor.session.setUseWrapMode(true);
-    editor.renderer.setScrollMargin(5, 0);
+
+    let timer;
+    editor.session.on("change", function () {
+        clearTimeout(timer);
+        timer = setTimeout(() => localStorage.setItem("query", editor.session.getValue()), 300);
+    });
+
+    const currentQuery = localStorage.getItem("query");
+    if (currentQuery !== null) {
+        editor.session.setValue(currentQuery);
+    }
 } catch {}
 
 /**
